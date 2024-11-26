@@ -3,38 +3,43 @@ package services
 import (
 	"log"
 
-	"github.com/vfa-khuongdv/golang-cms/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
+	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
-func GetUser(id uint) *models.User {
-	var user models.User
-
-	if err := configs.DB.First(&user, id).Error; err != nil {
-		log.Printf("Query user error %s\n", err.Error())
-	}
-
-	return &user
+type UserService struct {
+	repo *repositories.UserRepository
 }
 
-func PaginationUser(page int, limit int) (*[]models.User, int64) {
-	var users []models.User
-	var total int64
-
-	// Count total number of records
-	if err := configs.DB.Model(&models.User{}).Count(&total).Error; err != nil {
-		log.Printf("Failed to count users: %s\n", err.Error())
-		return &[]models.User{}, 0
+// NewUserService creates a new instance of UserService with the provided UserRepository.
+// Example: repo := &repositories.UserRepository{}; service := NewUserService(repo).
+func NewUserService(repo *repositories.UserRepository) *UserService {
+	return &UserService{
+		repo: repo,
 	}
+}
 
-	// Calculate offset
-	offset := (page - 1) * limit
+// GetUser retrieves a user by their ID.
+// Example: GetUser(1) retrieves the user with ID 1.
+func (service *UserService) GetUser(id uint) (*models.User, error) {
+	return service.repo.GetUser(id)
+}
 
-	// Query with limit and offset
-	if err := configs.DB.Limit(limit).Offset(offset).Find(&users).Error; err != nil {
-		log.Printf("Query paginated list user error: %s\n", err.Error())
-		return &[]models.User{}, total
+// CreateUser registers a new user in the system.
+// Example: CreateUser(&models.User{Name: "John Doe", Email: "john@example.com"}).
+func (service *UserService) CreateUser(user *models.User) error {
+	if err := service.repo.Register(user); err != nil {
+		log.Printf("Query user error %s\n", err)
+		return err
 	}
+	return nil
+}
 
-	return &users, total
+// PaginationUser fetches a paginated list of users and the total count.
+// Returns a slice of users and the total record count.
+// Example: PaginationUser(2, 10) retrieves page 2 with 10 users per page.
+func (service *UserService) PaginationUser(page int, limit int) (*[]models.User, int64) {
+	offset, limit := utils.CalculatePagination(page, limit)
+	return service.repo.PaginationUser(offset, limit)
 }

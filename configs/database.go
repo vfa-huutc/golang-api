@@ -19,8 +19,8 @@ type DatabaseConfig struct {
 
 var DB *gorm.DB
 
-// ConnectDB initializes and returns a MySQL database connection using GORM
-func ConnectDB(config DatabaseConfig) *gorm.DB {
+// InitDB initializes and returns a MySQL database connection using GORM
+func InitDB(config DatabaseConfig) *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
 		config.User,
 		config.Password,

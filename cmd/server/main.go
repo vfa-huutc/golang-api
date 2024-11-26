@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// Initialize database connection
-	db := configs.ConnectDB(config)
+	db := configs.InitDB(config)
 
 	// Run migrations (for GORM)
 	err := db.AutoMigrate(&models.User{})
@@ -35,7 +35,7 @@ func main() {
 	log.Println("Migrations completed")
 
 	// Routes
-	routes := routes.SetupRouter()
+	routes := routes.SetupRouter(db)
 	// Port run server
 	port := fmt.Sprintf(":%s", utils.GetEnv("PORT", "3000"))
 	routes.Run(port)
