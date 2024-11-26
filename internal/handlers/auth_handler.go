@@ -29,12 +29,13 @@ func (handler *AuthHandler) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	token, err := handler.authService.Login(credentials.Username, credentials.Password)
+	// login handler
+	res, err := handler.authService.Login(credentials.Username, credentials.Password, c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, res)
 
 }

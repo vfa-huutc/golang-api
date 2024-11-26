@@ -28,7 +28,7 @@ func main() {
 	db := configs.InitDB(config)
 
 	// Run migrations (for GORM)
-	err := db.AutoMigrate(&models.User{})
+	err := db.AutoMigrate(&models.User{}, &models.RefreshToken{})
 	if err != nil {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}

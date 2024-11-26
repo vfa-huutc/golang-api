@@ -14,17 +14,32 @@ type CustomClaims struct {
 
 var jwtKey = []byte(utils.GetEnv("JWT_KEY", "replace_your_key"))
 
-func GenerateToken(username string) (string, error) {
+type JwtResult struct {
+	Token     string
+	ExpiresAt int64
+}
+
+func GenerateToken(username string) (*JwtResult, error) {
+	expiresAt := jwt.NewNumericDate(time.Now().Add(time.Hour))
 	claims := CustomClaims{
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			ExpiresAt: expiresAt,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtKey)
+	jwtToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := jwtToken.SignedString(jwtKey)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &JwtResult{
+		Token:     token,
+		ExpiresAt: expiresAt.Unix(),
+	}, nil
 }
 
 func ValidateToken(tokenString string) (*CustomClaims, error) {

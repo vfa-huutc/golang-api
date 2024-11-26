@@ -12,8 +12,11 @@ import (
 func SetupRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 	userRepo := repositories.NewUserRepsitory(db)
-	authService := services.NewAuthService(userRepo)
+	refreshRepo := repositories.NewRefreshTokenRepository(db)
+
+	tokenService := services.NewRefreshTokenService(refreshRepo)
 	userService := services.NewUserService(userRepo)
+	authService := services.NewAuthService(userRepo, tokenService)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	userHandler := handlers.NewUserHandler(userService)
