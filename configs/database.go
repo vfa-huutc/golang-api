@@ -22,7 +22,13 @@ var DB *gorm.DB
 // ConnectDB initializes and returns a MySQL database connection using GORM
 func ConnectDB(config DatabaseConfig) *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
-		config.User, config.Password, config.Host, config.Port, config.DBName, config.Charset)
+		config.User,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.DBName,
+		config.Charset,
+	)
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

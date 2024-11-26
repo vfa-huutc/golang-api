@@ -12,7 +12,7 @@ func SetupRouter() *gin.Engine {
 	router.Use(gin.Logger(), gin.Recovery())
 
 	// Routes
-	api := router.Group("/api")
+	api := router.Group("/v1/api")
 	{
 		api.GET("/healthz", handlers.HealthCheck)
 	}
