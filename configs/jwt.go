@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
 type CustomClaims struct {
@@ -11,7 +12,7 @@ type CustomClaims struct {
 	jwt.RegisteredClaims        // // Embed standard claims
 }
 
-var jwtKey = []byte("you_jwt_secret_key")
+var jwtKey = []byte(utils.GetEnv("JWT_KEY", "replace_your_key"))
 
 func GenerateToken(username string) (string, error) {
 	claims := CustomClaims{

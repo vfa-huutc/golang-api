@@ -5,6 +5,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -17,10 +18,14 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	authHandler := handlers.NewAuthHandler(authService)
 	userHandler := handlers.NewUserHandler(userService)
 
+	// Mode
+	ginMode := utils.GetEnv("GIN_MODE", "debug")
+	gin.SetMode(ginMode)
+
 	// Middleware
 	router.Use(gin.Recovery())
 
-	// Routes
+	// Router
 	api := router.Group("/api/v1")
 	{
 		api.GET("/healthz", handlers.HealthCheck)
