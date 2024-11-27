@@ -19,6 +19,13 @@ type JwtResult struct {
 	ExpiresAt int64
 }
 
+// GenerateToken creates a new JWT token for the given username
+// Parameters:
+//   - username: the username to be included in the token claims
+//
+// Returns:
+//   - *JwtResult: contains the signed token string and expiration timestamp
+//   - error: any error that occurred during token generation
 func GenerateToken(username string) (*JwtResult, error) {
 	expiresAt := jwt.NewNumericDate(time.Now().Add(time.Hour))
 	claims := CustomClaims{
@@ -42,6 +49,13 @@ func GenerateToken(username string) (*JwtResult, error) {
 	}, nil
 }
 
+// ValidateToken validates a JWT token string and extracts the claims
+// Parameters:
+//   - tokenString: the JWT token string to validate
+//
+// Returns:
+//   - *CustomClaims: the extracted claims if token is valid
+//   - error: any error that occurred during validation
 func ValidateToken(tokenString string) (*CustomClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &CustomClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return jwtKey, nil

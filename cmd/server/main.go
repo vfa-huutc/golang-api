@@ -2,17 +2,22 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/vfa-khuongdv/golang-cms/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/routes"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
 	// Load env package
 	configs.LoadEnv()
+
+	// Init logger
+	logger.Init()
 
 	// MySQL database configuration
 	config := configs.DatabaseConfig{

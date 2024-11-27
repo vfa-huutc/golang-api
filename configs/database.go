@@ -2,8 +2,8 @@ package configs
 
 import (
 	"fmt"
-	"log"
 
+	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -19,7 +19,14 @@ type DatabaseConfig struct {
 
 var DB *gorm.DB
 
-// InitDB initializes and returns a MySQL database connection using GORM
+// InitDB initializes a MySQL database connection using GORM
+// Parameters:
+//   - config: DatabaseConfig struct containing database connection parameters
+//
+// Returns:
+//   - *gorm.DB: Database connection instance
+//
+// Note: Also sets the global DB variable with the connection instance
 func InitDB(config DatabaseConfig) *gorm.DB {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&parseTime=True&loc=Local",
 		config.User,
