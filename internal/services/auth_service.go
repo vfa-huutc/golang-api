@@ -10,9 +10,8 @@ import (
 )
 
 type AuthService struct {
-	repo             *repositories.UserRepository
-	refreshTokenRepo *repositories.RefreshTokenRepository
-	tokenService     *RefreshTokenService
+	repo         *repositories.UserRepository
+	tokenService *RefreshTokenService
 }
 
 type LoginResponse struct {

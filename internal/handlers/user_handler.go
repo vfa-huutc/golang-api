@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
@@ -23,8 +25,20 @@ func (handler *UserHandler) RegisterHandler(c *gin.Context) {
 	var user models.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	validate.RegisterValidation("valid_birthday", utils.ValidateBirthday)
+
+	// Validate input
+	if err := validate.Struct(user); err != nil {
+		for _, err := range err.(validator.ValidationErrors) {
+			errString := fmt.Sprintf("Validation error: Field '%s', Condition '%s'\n", err.Field(), err.Tag())
+			c.JSON(http.StatusBadRequest, gin.H{"error": errString})
+			return
+		}
 	}
 
 	hashedPassword, err := utils.HashPassword(user.Password)
@@ -36,7 +50,7 @@ func (handler *UserHandler) RegisterHandler(c *gin.Context) {
 	user.Password = hashedPassword
 
 	if err := handler.userService.CreateUser(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Could not to save user"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
