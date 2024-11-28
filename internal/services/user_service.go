@@ -41,7 +41,22 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 //
 //	user, err := service.GetUser(1) // Gets user with ID 1
 func (service *UserService) GetUser(id uint) (*models.User, error) {
-	return service.repo.GetUser(id)
+	return service.repo.Get(id)
+}
+
+// GetUserByEmail retrieves a user by their email address from the database.
+// Parameters:
+//   - email: The email address of the user to retrieve
+//
+// Returns:
+//   - *models.User: A pointer to the user record if found
+//   - error: nil if successful, otherwise returns the error that occurred
+//
+// Example:
+//
+//	user, err := service.GetUserByEmail("john@example.com")
+func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
+	return service.repo.FindByEmail(email)
 }
 
 // CreateUser creates a new user in the database using the provided user data
@@ -59,8 +74,31 @@ func (service *UserService) GetUser(id uint) (*models.User, error) {
 //	}
 //	err := service.CreateUser(user)
 func (service *UserService) CreateUser(user *models.User) error {
-	if err := service.repo.Register(user); err != nil {
+	if err := service.repo.Create(user); err != nil {
 		log.Errorf("Query user error %s\n", err)
+		return err
+	}
+	return nil
+}
+
+// UpdateUser updates an existing user's information in the database.
+// Parameters:
+//   - user: Pointer to models.User containing the updated user information
+//
+// Returns:
+//   - error: nil if successful, otherwise returns the error that occurred
+//
+// Example:
+//
+//	user := &models.User{
+//	    ID: 1,
+//	    Name: "Updated Name",
+//	    Email: "updated@example.com",
+//	}
+//	err := service.UpdateUser(user)
+func (service *UserService) UpdateUser(user *models.User) error {
+	if err := service.repo.Update(user); err != nil {
+		log.Errorf("Update user error %s\n", err)
 		return err
 	}
 	return nil

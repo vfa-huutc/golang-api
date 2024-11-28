@@ -21,16 +21,16 @@ func NewUserRepsitory(db *gorm.DB) *UserRepository {
 	}
 }
 
-// FindByUsername fetches a user by their username from the database
+// FindByEmail fetches a user by their email from the database
 // Parameters:
-//   - username: The username to search for
+//   - email: The email to search for
 //
 // Returns:
 //   - *models.User: Pointer to the retrieved User model if found
 //   - error: Error if user not found or if there was a database error
-func (repo *UserRepository) FindByUsername(username string) (*models.User, error) {
+func (repo *UserRepository) FindByEmail(username string) (*models.User, error) {
 	var user models.User
-	if err := repo.db.Where("username = ?", username).First(&user).Error; err != nil {
+	if err := repo.db.Where("email = ?", username).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -42,8 +42,15 @@ func (repo *UserRepository) FindByUsername(username string) (*models.User, error
 //
 // Returns:
 //   - error: Error if there was a problem creating the user, nil on success
-func (repo *UserRepository) Register(user *models.User) error {
+func (repo *UserRepository) Create(user *models.User) error {
 	if err := repo.db.Create(&user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (repo *UserRepository) Update(user *models.User) error {
+	if err := repo.db.Save(&user).Error; err != nil {
 		return err
 	}
 	return nil
@@ -56,7 +63,7 @@ func (repo *UserRepository) Register(user *models.User) error {
 // Returns:
 //   - *models.User: Pointer to the retrieved User model
 //   - error: Error if the user is not found or if there was a database error
-func (repo *UserRepository) GetUser(id uint) (*models.User, error) {
+func (repo *UserRepository) Get(id uint) (*models.User, error) {
 	var user models.User
 	if err := repo.db.First(&user, id).Error; err != nil {
 		return nil, err

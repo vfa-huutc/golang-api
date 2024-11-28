@@ -42,8 +42,8 @@ func NewAuthService(repo *repositories.UserRepository, tokenService *RefreshToke
 // Returns:
 //   - *LoginResponse: Contains access token and refresh token if login successful
 //   - error: Returns error if login fails (user not found, invalid password, token generation fails)
-func (service *AuthService) Login(username, password string, ctx *gin.Context) (*LoginResponse, error) {
-	user, err := service.repo.FindByUsername(username)
+func (service *AuthService) Login(email, password string, ctx *gin.Context) (*LoginResponse, error) {
+	user, err := service.repo.FindByEmail(email)
 	if err != nil {
 		return nil, errors.New("not found user")
 	}
@@ -54,7 +54,7 @@ func (service *AuthService) Login(username, password string, ctx *gin.Context) (
 	}
 
 	// Generate refresh token
-	token, err := configs.GenerateToken(user.Username)
+	token, err := configs.GenerateToken(user.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -98,12 +98,12 @@ func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*Login
 	}
 
 	// Get user details from the database using the user ID from refresh token
-	user, err := service.repo.GetUser(res.UserId)
+	user, err := service.repo.Get(res.UserId)
 	if err != nil {
 		return nil, err
 	}
 	// Generate new access token for the user
-	resultToken, err := configs.GenerateToken(user.Username)
+	resultToken, err := configs.GenerateToken(user.Email)
 
 	if err != nil {
 		return nil, err

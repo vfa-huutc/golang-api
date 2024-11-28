@@ -86,6 +86,7 @@ func (service *RefreshTokenService) CreateRefreshToken(tokenString string, ipAdd
 	result.RefreshToken = newToken
 	result.ExpiredAt = expiredAt
 	result.IpAddress = ipAddress
+	result.UsedCount += 1
 
 	if err := service.repo.UpdateToken(result); err != nil {
 		return nil, err

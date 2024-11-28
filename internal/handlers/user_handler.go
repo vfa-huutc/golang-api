@@ -21,7 +21,7 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 	}
 }
 
-func (handler *UserHandler) RegisterHandler(c *gin.Context) {
+func (handler *UserHandler) CreateUser(c *gin.Context) {
 	var user models.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -56,4 +56,42 @@ func (handler *UserHandler) RegisterHandler(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, gin.H{"message": "Create user successfully"})
 
+}
+
+func (handle *UserHandler) ForgotPassword(c *gin.Context) {
+	var input struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+	// Bind and validate JSON request body
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user by email from database
+	user, err := handle.userService.GetUserByEmail(input.Email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Generate random token string for password reset
+	newToken := utils.GenerateRandomString(60)
+
+	// Set new token on user
+	*user.Token = newToken
+
+	// Update user in database with new token
+	if err := handle.userService.UpdateUser(user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Send password reset email to user
+	if err := services.SendMailForgotPassword(user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Forgot password successfully"})
 }

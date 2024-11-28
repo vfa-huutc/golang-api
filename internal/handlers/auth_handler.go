@@ -18,7 +18,7 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 }
 
 // LoginHandler process login request
-func (handler *AuthHandler) LoginHandler(c *gin.Context) {
+func (handler *AuthHandler) Login(c *gin.Context) {
 	var credentials struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -40,15 +40,6 @@ func (handler *AuthHandler) LoginHandler(c *gin.Context) {
 
 }
 
-// RefreshToken handles the token refresh request
-// It validates the refresh token and returns a new access token
-// Parameters:
-//   - c: Gin context containing the HTTP request/response
-//
-// Returns:
-//   - 200 OK with new tokens on success
-//   - 400 Bad Request if invalid JSON
-//   - 401 Unauthorized if refresh token is invalid
 func (handler *AuthHandler) RefreshToken(c *gin.Context) {
 	var token struct {
 		RefreshToken string `json:"refresh_token"`
