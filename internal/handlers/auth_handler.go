@@ -20,7 +20,7 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 // LoginHandler process login request
 func (handler *AuthHandler) Login(c *gin.Context) {
 	var credentials struct {
-		Username string `json:"username"`
+		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
 
@@ -30,7 +30,7 @@ func (handler *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// login handler
-	res, err := handler.authService.Login(credentials.Username, credentials.Password, c)
+	res, err := handler.authService.Login(credentials.Email, credentials.Password, c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return

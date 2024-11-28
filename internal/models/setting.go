@@ -6,6 +6,6 @@ import (
 
 type Setting struct {
 	gorm.Model
-	Key   string `gorm:"type:varchar(25); not null" json:"key"`
-	Value string `gorm:"type:varchar(255); not null" json:"value"`
+	SettingKey string `gorm:"type:varchar(25);not null;column:setting_key"`
+	Value      string `gorm:"type:varchar(255);not null"`
 }

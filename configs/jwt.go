@@ -8,7 +8,7 @@ import (
 )
 
 type CustomClaims struct {
-	Username             string `json:"username"` // Custom field
+	Email                string `json:"email"` // Custom field
 	jwt.RegisteredClaims        // // Embed standard claims
 }
 
@@ -19,17 +19,17 @@ type JwtResult struct {
 	ExpiresAt int64
 }
 
-// GenerateToken creates a new JWT token for the given username
+// GenerateToken creates a new JWT token for the given email
 // Parameters:
-//   - username: the username to be included in the token claims
+//   - email: the email to be included in the token claims
 //
 // Returns:
 //   - *JwtResult: contains the signed token string and expiration timestamp
 //   - error: any error that occurred during token generation
-func GenerateToken(username string) (*JwtResult, error) {
+func GenerateToken(email string) (*JwtResult, error) {
 	expiresAt := jwt.NewNumericDate(time.Now().Add(time.Hour))
 	claims := CustomClaims{
-		Username: username,
+		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expiresAt,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

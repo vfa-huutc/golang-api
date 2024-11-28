@@ -36,13 +36,57 @@ func (repo *SettingRepostitory) GetAll() (*[]models.Setting, error) {
 //
 // Returns:
 //   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) UpdateMany(settings []models.Setting) error {
+func (repo *SettingRepostitory) UpdateMany(settings *[]models.Setting) error {
 	return repo.db.Transaction(func(tx *gorm.DB) error {
-		for _, setting := range settings {
+		for _, setting := range *settings {
 			if err := tx.Model(&models.Setting{}).Where("id = ?", setting.ID).Updates(setting).Error; err != nil {
 				return err
 			}
 		}
 		return nil
 	})
+}
+
+// GetByKey retrieves a setting by its key from the database
+// Parameters:
+//   - key: string - The key to search for
+//
+// Returns:
+//   - *models.Setting: Pointer to Setting model if found, nil if not found
+//   - error: Error if database operation fails, nil otherwise
+func (repo *SettingRepostitory) GetByKey(key string) (*models.Setting, error) {
+	var setting models.Setting
+
+	if err := repo.db.Model(&models.Setting{}).Where("setting_key = ?", key).First(&setting).Error; err != nil {
+		return nil, err
+	}
+	return &setting, nil
+}
+
+// Update saves a setting to the database
+// Parameters:
+//   - setting: *models.Setting - Pointer to Setting model to be updated
+//
+// Returns:
+//   - *models.Setting: Pointer to updated Setting model
+//   - error: Error if database operation fails, nil otherwise
+func (repo *SettingRepostitory) Update(setting *models.Setting) (*models.Setting, error) {
+	if err := repo.db.Save(setting).Error; err != nil {
+		return nil, err
+	}
+	return setting, nil
+}
+
+// Create saves a new setting to the database
+// Parameters:
+//   - setting: *models.Setting - Pointer to Setting model to be created
+//
+// Returns:
+//   - *models.Setting: Pointer to created Setting model
+//   - error: Error if database operation fails, nil otherwise
+func (repo *SettingRepostitory) Create(setting *models.Setting) (*models.Setting, error) {
+	if err := repo.db.Create(setting).Error; err != nil {
+		return nil, err
+	}
+	return setting, nil
 }

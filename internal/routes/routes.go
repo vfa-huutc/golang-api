@@ -54,6 +54,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		api.DELETE("/roles/:id", roleHandler.DeleteRole)
 
 		api.GET("/settings", settingHandler.GetSettings)
+		api.PUT("/settings", settingHandler.UpdateSettings)
 	}
 
 	return router
