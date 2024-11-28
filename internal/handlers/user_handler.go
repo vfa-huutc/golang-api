@@ -153,3 +153,67 @@ func (handler *UserHandler) ResetPassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Reset password successfully"})
 }
+
+func (handler *UserHandler) ChangePassword(c *gin.Context) {
+	// Get user ID from the context
+	// If user ID is 0 or not found, return bad request error
+	userId := c.GetUint("Sub")
+	if userId == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var input struct {
+		OldPassword     string `json:"old_password" binding:"required"`
+		NewPassword     string `json:"new_password" binding:"required"`
+		ConfirmPassword string `json:"confirm_password" binding:"required"`
+	}
+	// Bind and validate JSON request body
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user by ID from database
+	user, err := handler.userService.GetUser(uint(userId))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if old password is correct
+	if isValid := utils.CheckPasswordHash(input.OldPassword, user.Password); !isValid {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Old password is incorrect"})
+		return
+	}
+
+	// Check if new password is the same as old password
+	if input.OldPassword == input.NewPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "New password must be different from old password"})
+		return
+	}
+
+	// Check if new password and confirm password match
+	if input.NewPassword != input.ConfirmPassword {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "New password and confirm password do not match"})
+		return
+	}
+
+	// Hash new password
+	hashedPassword, err := utils.HashPassword(input.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Update user password
+	user.Password = hashedPassword
+
+	// Update user in database
+	if err := handler.userService.UpdateUser(user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Change password successfully"})
+}

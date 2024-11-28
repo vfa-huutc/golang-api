@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
+	"github.com/vfa-khuongdv/golang-cms/internal/middlewares"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
@@ -49,6 +50,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		api.POST("/users", userHandler.CreateUser)
 		api.POST("/forgot-password", userHandler.ForgotPassword)
 		api.POST("/reset-password", userHandler.ResetPassword)
+		api.POST("/change-password", middlewares.AuthMiddleware(), userHandler.ChangePassword)
 
 		api.POST("/roles", roleHandler.CreateRole)
 		api.GET("/roles/:id", roleHandler.GetRole)

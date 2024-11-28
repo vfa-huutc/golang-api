@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -16,9 +17,11 @@ import (
 // If validation succeeds, it sets the user ID from token claims in context
 // If validation fails, it returns 401 Unauthorized
 func AuthMiddleware() gin.HandlerFunc {
+
 	return func(ctx *gin.Context) {
 
 		authHeader := ctx.GetHeader("Authorization")
+		fmt.Println("authHeader.ID", authHeader)
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
 			ctx.Abort()
@@ -33,6 +36,8 @@ func AuthMiddleware() gin.HandlerFunc {
 			ctx.Abort()
 			return
 		}
+
+		fmt.Println("claims.ID", claims.ID)
 
 		ctx.Set("Sub", claims.ID)
 		ctx.Next()
