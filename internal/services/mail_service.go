@@ -10,6 +10,10 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/pkg/mailer"
 )
 
+type IMailerService interface {
+	SendMailForgotPassword(user *models.User) error
+}
+
 var config = mailer.GomailSenderConfig{
 	Host:     utils.GetEnv("MAIL_HOST", "smtp.gmail.com"),
 	Port:     utils.GetEnvAsInt("MAIL_PORT", 587),

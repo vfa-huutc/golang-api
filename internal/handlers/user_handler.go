@@ -14,6 +14,17 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
+type IUserhandler interface {
+	CreateUser(c *gin.Context)
+	ForgotPassword(c *gin.Context)
+	ResetPassword(c *gin.Context)
+	Login(c *gin.Context)
+	GetUser(c *gin.Context)
+	GetUsers(c *gin.Context)
+	UpdateUser(c *gin.Context)
+	DeleteUser(c *gin.Context)
+}
+
 type UserHandler struct {
 	userService *services.UserService
 }
@@ -44,13 +55,7 @@ func (handler *UserHandler) CreateUser(c *gin.Context) {
 		}
 	}
 
-	hashedPassword, err := utils.HashPassword(user.Password)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	user.Password = hashedPassword
+	user.Password = utils.HashPassword(user.Password)
 
 	if err := handler.userService.CreateUser(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -134,15 +139,8 @@ func (handler *UserHandler) ResetPassword(c *gin.Context) {
 		return
 	}
 
-	// Hash new password
-	hashedPassword, err := utils.HashPassword(input.NewPassword)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
 	// Update user password
-	user.Password = hashedPassword
+	user.Password = utils.HashPassword(input.NewPassword)
 	user.Token = nil
 	user.ExpiredAt = nil
 
@@ -200,15 +198,8 @@ func (handler *UserHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
-	// Hash new password
-	hashedPassword, err := utils.HashPassword(input.NewPassword)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
 	// Update user password
-	user.Password = hashedPassword
+	user.Password = utils.HashPassword(input.NewPassword)
 
 	// Update user in database
 	if err := handler.userService.UpdateUser(user); err != nil {

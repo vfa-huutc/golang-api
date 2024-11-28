@@ -5,6 +5,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type ISettingRepository interface {
+	GetAll() (*[]models.Setting, error)
+	UpdateMany(settings *[]models.Setting) error
+	GetByKey(key string) (*models.Setting, error)
+	Update(setting *models.Setting) (*models.Setting, error)
+	Create(settings []models.Setting) (*models.Setting, error)
+}
+
 type SettingRepostitory struct {
 	db *gorm.DB
 }
@@ -70,11 +78,8 @@ func (repo *SettingRepostitory) GetByKey(key string) (*models.Setting, error) {
 // Returns:
 //   - *models.Setting: Pointer to updated Setting model
 //   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) Update(setting *models.Setting) (*models.Setting, error) {
-	if err := repo.db.Save(setting).Error; err != nil {
-		return nil, err
-	}
-	return setting, nil
+func (repo *SettingRepostitory) Update(setting *models.Setting) error {
+	return repo.db.Save(setting).Error
 }
 
 // Create saves a new setting to the database
@@ -84,9 +89,6 @@ func (repo *SettingRepostitory) Update(setting *models.Setting) (*models.Setting
 // Returns:
 //   - *models.Setting: Pointer to created Setting model
 //   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) Create(setting *models.Setting) (*models.Setting, error) {
-	if err := repo.db.Create(setting).Error; err != nil {
-		return nil, err
-	}
-	return setting, nil
+func (repo *SettingRepostitory) Create(setting *models.Setting) error {
+	return repo.db.Create(setting).Error
 }

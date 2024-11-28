@@ -5,6 +5,13 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 )
 
+type IRoleService interface {
+	GetByID(id int64) (*models.Role, error)
+	Create(role *models.Role) error
+	Update(role *models.Role) error
+	Delete(id int64) error
+}
+
 type RoleService struct {
 	repo *repositories.RoleRepository
 }
@@ -22,8 +29,8 @@ func NewRoleService(repo *repositories.RoleRepository) *RoleService {
 // Returns:
 //   - *models.Role: The role object if found
 //   - error: Any error that occurred during the operation
-func (service *RoleService) Get(id int64) (*models.Role, error) {
-	return service.repo.Get(id)
+func (service *RoleService) GetByID(id int64) (*models.Role, error) {
+	return service.repo.GetByID(id)
 }
 
 // Create adds a new role to the repository
@@ -53,7 +60,7 @@ func (service *RoleService) Update(role *models.Role) error {
 // Returns:
 //   - error: Any error that occurred during the operation, including if the role is not found
 func (service *RoleService) Delete(id int64) error {
-	role, err := service.repo.Get(id)
+	role, err := service.repo.GetByID(id)
 	if err != nil {
 		return err
 	}

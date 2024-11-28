@@ -9,6 +9,14 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 )
 
+type IRoleHandler interface {
+	CreateRole(c *gin.Context)
+	UpdateRole(c *gin.Context)
+	GetRole(c *gin.Context)
+	GetRoles(c *gin.Context)
+	DeleteRole(c *gin.Context)
+}
+
 type RoleHandler struct {
 	service *services.RoleService
 }
@@ -64,7 +72,7 @@ func (handler *RoleHandler) UpdateRole(c *gin.Context) {
 	}
 
 	// Get role from database by ID
-	role, err := handler.service.Get(int64(id))
+	role, err := handler.service.GetByID(int64(id))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -94,7 +102,7 @@ func (handler *RoleHandler) GetRole(c *gin.Context) {
 	}
 
 	// Get role from database by ID
-	role, err := handler.service.Get(int64(id))
+	role, err := handler.service.GetByID(int64(id))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

@@ -1,15 +1,10 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/vfa-khuongdv/golang-cms/configs"
-	"github.com/vfa-khuongdv/golang-cms/internal/models"
-	"github.com/vfa-khuongdv/golang-cms/internal/routes"
+	"github.com/vfa-khuongdv/golang-cms/internal/database/seeders"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -32,23 +27,6 @@ func main() {
 	// Initialize database connection
 	db := configs.InitDB(config)
 
-	// Run migrations (for GORM)
-	err := db.AutoMigrate(
-		&models.User{},
-		&models.RefreshToken{},
-		&models.Role{},
-		&models.Setting{},
-		&models.Permission{},
-	)
-	if err != nil {
-		log.Fatalf("Failed to run migrations: %v", err)
-	}
-	log.Println("Migrations completed")
-
-	// Routes
-	routes := routes.SetupRouter(db)
-	// Port run server
-	port := fmt.Sprintf(":%s", utils.GetEnv("PORT", "3000"))
-	routes.Run(port)
-
+	// Run seeder
+	seeders.Run(db)
 }

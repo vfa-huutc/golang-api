@@ -9,6 +9,11 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
+type IRefresTokenService interface {
+	Create(user models.User, ipAddress string) (*configs.JwtResult, error)
+	CreateRefreshToken(tokenString string, ipAddress string) (*RefreshTokenResult, error)
+}
+
 type RefreshTokenService struct {
 	repo *repositories.RefreshTokenRepository
 }
@@ -88,7 +93,7 @@ func (service *RefreshTokenService) CreateRefreshToken(tokenString string, ipAdd
 	result.IpAddress = ipAddress
 	result.UsedCount += 1
 
-	if err := service.repo.UpdateToken(result); err != nil {
+	if err := service.repo.Update(result); err != nil {
 		return nil, err
 	}
 

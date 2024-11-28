@@ -5,8 +5,18 @@ import (
 
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
-	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
+
+type IUserService interface {
+	GetUser(id uint) (*models.User, error)
+	GetUserByEmail(email string) (*models.User, error)
+	CreateUser(user *models.User) error
+	UpdateUser(user *models.User) error
+	DeleteUser(id uint) error
+	GetUserByToken(token string) (*models.User, error)
+	GetProfile(id uint) (*models.User, error)
+	UpdateProfile(user *models.User) error
+}
 
 type UserService struct {
 	repo *repositories.UserRepository
@@ -41,7 +51,7 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 //
 //	user, err := service.GetUser(1) // Gets user with ID 1
 func (service *UserService) GetUser(id uint) (*models.User, error) {
-	return service.repo.Get(id)
+	return service.repo.GetByID(id)
 }
 
 // GetUserByEmail retrieves a user by their email address from the database.
@@ -56,7 +66,7 @@ func (service *UserService) GetUser(id uint) (*models.User, error) {
 //
 //	user, err := service.GetUserByEmail("john@example.com")
 func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
-	return service.repo.FindByEmail(email)
+	return service.repo.FindByField("email", email)
 }
 
 // CreateUser creates a new user in the database using the provided user data
@@ -104,22 +114,18 @@ func (service *UserService) UpdateUser(user *models.User) error {
 	return nil
 }
 
-// PaginationUser fetches a paginated list of users and the total count.
+// DeleteUser removes a user from the database by their ID.
 // Parameters:
-//   - page: The page number to retrieve (1-based indexing)
-//   - limit: The number of users per page
+//   - id: The unique identifier of the user to delete
 //
 // Returns:
-//   - *[]models.User: A pointer to slice of user records for the requested page
-//   - int64: The total number of user records across all pages
+//   - error: nil if successful, otherwise returns the error that occurred
 //
 // Example:
 //
-//	users, total := service.PaginationUser(2, 10) // Gets page 2 with 10 users per page
-func (service *UserService) PaginationUser(page int, limit int) (*[]models.User, int64, error) {
-	offset, limit := utils.CalculatePagination(page, limit)
-	return service.repo.PaginationUser(offset, limit)
-
+//	err := service.DeleteUser(1) // Deletes user with ID 1
+func (service *UserService) DeleteUser(id uint) error {
+	return service.repo.Delete(id)
 }
 
 // GetUserByToken retrieves a user by their authentication token from the database.
@@ -134,19 +140,39 @@ func (service *UserService) PaginationUser(page int, limit int) (*[]models.User,
 //
 //	user, err := service.GetUserByToken("abc123token")
 func (service *UserService) GetUserByToken(token string) (*models.User, error) {
-	return service.repo.FindByToken(token)
+	return service.repo.FindByField("token", token)
 }
 
-// DeleteUser removes a user from the database by their ID.
+// GetProfile retrieves a user's profile information by their ID from the database.
 // Parameters:
-//   - id: The unique identifier of the user to delete
+//   - id: The unique identifier of the user whose profile to retrieve
+//
+// Returns:
+//   - *models.User: A pointer to the user profile record if found
+//   - error: nil if successful, otherwise returns the error that occurred
+//
+// Example:
+//
+//	profile, err := service.GetProfile(1) // Gets profile for user with ID 1
+func (service *UserService) GetProfile(id uint) (*models.User, error) {
+	return service.repo.GetProfile(id)
+}
+
+// UpdateProfile updates a user's profile information in the database.
+// Parameters:
+//   - user: Pointer to models.User containing the updated profile information
 //
 // Returns:
 //   - error: nil if successful, otherwise returns the error that occurred
 //
 // Example:
 //
-//	err := service.DeleteUser(1) // Deletes user with ID 1
-func (service *UserService) DeleteUser(id uint) error {
-	return service.repo.Delete(id)
+//	user := &models.User{
+//	    ID: 1,
+//	    Name: "Updated Name",
+//	    Bio: "Updated bio"
+//	}
+//	err := service.UpdateProfile(user)
+func (service *UserService) UpdateProfile(user *models.User) error {
+	return service.repo.UpdateProfile(user)
 }

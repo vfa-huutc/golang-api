@@ -9,6 +9,11 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 )
 
+type ISettingHandler interface {
+	GetSettings(c *gin.Context)
+	UpdateSettings(c *gin.Context)
+}
+
 type SettingHandler struct {
 	service *services.SettingService
 }
@@ -56,7 +61,7 @@ func (handler *SettingHandler) UpdateSettings(c *gin.Context) {
 				Value:      v.Value,
 			}
 
-			if _, err := handler.service.Create(&newSetting); err != nil {
+			if err := handler.service.Create(&newSetting); err != nil {
 				fmt.Printf("Create new setting error for key:%s value:%s\n", v.Key, v.Value)
 				continue
 			}
@@ -66,8 +71,7 @@ func (handler *SettingHandler) UpdateSettings(c *gin.Context) {
 		value.Value = v.Value
 
 		// Save updated setting
-		_, err = handler.service.Update(value)
-		if err != nil {
+		if err := handler.service.Update(value); err != nil {
 			fmt.Printf("Update setting error for key:%s value:%s\n", v.Key, v.Value)
 		}
 	}

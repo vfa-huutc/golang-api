@@ -9,6 +9,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type IAuthService interface {
+	Login(email, password string, ctx *gin.Context) (*LoginResponse, error)
+	RefreshToken(token string, ctx *gin.Context) (*LoginResponse, error)
+}
+
 type AuthService struct {
 	repo         *repositories.UserRepository
 	tokenService *RefreshTokenService
@@ -43,7 +48,7 @@ func NewAuthService(repo *repositories.UserRepository, tokenService *RefreshToke
 //   - *LoginResponse: Contains access token and refresh token if login successful
 //   - error: Returns error if login fails (user not found, invalid password, token generation fails)
 func (service *AuthService) Login(email, password string, ctx *gin.Context) (*LoginResponse, error) {
-	user, err := service.repo.FindByEmail(email)
+	user, err := service.repo.FindByField("email", email)
 	if err != nil {
 		return nil, errors.New("not found user")
 	}
@@ -98,7 +103,7 @@ func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*Login
 	}
 
 	// Get user details from the database using the user ID from refresh token
-	user, err := service.repo.Get(res.UserId)
+	user, err := service.repo.GetByID(res.UserId)
 	if err != nil {
 		return nil, err
 	}

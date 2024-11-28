@@ -7,6 +7,11 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 )
 
+type IAuthHandler interface {
+	Login(c *gin.Context)
+	RefreshToken(c *gin.Context)
+}
+
 type AuthHandler struct {
 	authService *services.AuthService
 }

@@ -5,6 +5,12 @@ import (
 	"gorm.io/gorm"
 )
 
+type IRefreshTokenRepository interface {
+	Create(token *models.RefreshToken) error
+	Update(token *models.RefreshToken) error
+	FindByToken(token string) (*models.RefreshToken, error)
+}
+
 type RefreshTokenRepository struct {
 	db *gorm.DB
 }
@@ -28,10 +34,7 @@ func NewRefreshTokenRepository(db *gorm.DB) *RefreshTokenRepository {
 // Returns:
 //   - error: nil if successful, error otherwise
 func (repo *RefreshTokenRepository) Create(token *models.RefreshToken) error {
-	if err := repo.db.Save(&token).Error; err != nil {
-		return err
-	}
-	return nil
+	return repo.db.Create(token).Error
 }
 
 // FindByToken retrieves a refresh token from the database by its token value
@@ -49,7 +52,7 @@ func (repo *RefreshTokenRepository) FindByToken(token string) (*models.RefreshTo
 	return &refreshToken, nil
 }
 
-func (repo *RefreshTokenRepository) UpdateToken(token *models.RefreshToken) error {
+func (repo *RefreshTokenRepository) Update(token *models.RefreshToken) error {
 	if err := repo.db.Save(token).Error; err != nil {
 		return err
 	}

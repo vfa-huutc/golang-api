@@ -19,6 +19,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	refreshRepo := repositories.NewRefreshTokenRepository(db)
 	roleRepo := repositories.NewRoleRepository(db)
 	settingRepo := repositories.NewSettingRepository(db)
+	permissionRepo := repositories.NewPermissionRepository(db)
 
 	// Initialize services
 	tokenService := services.NewRefreshTokenService(refreshRepo)
@@ -26,12 +27,14 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	authService := services.NewAuthService(userRepo, tokenService)
 	roleService := services.NewRoleService(roleRepo)
 	settingService := services.NewSettingService(settingRepo)
+	permissionService := services.NewPermissionService(permissionRepo)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authService)
 	userHandler := handlers.NewUserHandler(userService)
 	roleHandler := handlers.NewRoleHandler(roleService)
 	settingHandler := handlers.NewSettingHandler(settingService)
+	permissionHandler := handlers.NewPermissionHandler(permissionService)
 
 	// Set Gin mode from environment variable
 	ginMode := utils.GetEnv("GIN_MODE", "debug")
@@ -40,10 +43,11 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Add middleware
 	router.Use(gin.Recovery())
 
+	router.GET("/healthz", handlers.HealthCheck)
+
 	// Setup API routes
 	api := router.Group("/api/v1")
 	{
-		api.GET("/healthz", handlers.HealthCheck)
 		api.POST("/auth/login", authHandler.Login)
 		api.POST("/auth/refresh-token", authHandler.RefreshToken)
 
@@ -61,6 +65,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 		api.GET("/settings", settingHandler.GetSettings)
 		api.PUT("/settings", settingHandler.UpdateSettings)
+
+		api.GET("/permissions", permissionHandler.GetAll)
 	}
 
 	return router

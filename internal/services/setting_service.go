@@ -5,6 +5,14 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 )
 
+type ISettingService interface {
+	GetSetting() (*[]models.Setting, error)
+	UpdateMany(settings *[]models.Setting) error
+	GetSettingByKey(key string) (*models.Setting, error)
+	Update(setting *models.Setting) error
+	Create(setting *models.Setting) error
+}
+
 type SettingService struct {
 	repo *repositories.SettingRepostitory
 }
@@ -49,7 +57,7 @@ func (service *SettingService) GetSettingByKey(key string) (*models.Setting, err
 // Returns:
 //   - *models.Setting: pointer to the updated Setting model
 //   - error: any error encountered during the update operation
-func (service *SettingService) Update(setting *models.Setting) (*models.Setting, error) {
+func (service *SettingService) Update(setting *models.Setting) error {
 	return service.repo.Update(setting)
 }
 
@@ -60,6 +68,6 @@ func (service *SettingService) Update(setting *models.Setting) (*models.Setting,
 // Returns:
 //   - *models.Setting: pointer to the created Setting model
 //   - error: any error encountered during the creation operation
-func (service *SettingService) Create(setting *models.Setting) (*models.Setting, error) {
+func (service *SettingService) Create(setting *models.Setting) error {
 	return service.repo.Create(setting)
 }
