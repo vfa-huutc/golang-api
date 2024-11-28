@@ -237,3 +237,48 @@ func (handler *UserHandler) DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Delete user successfully"})
 }
+
+func (handler *UserHandler) UpdateUser(c *gin.Context) {
+	// Get user ID from the context
+	id := c.Param("id")
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Define input struct with validation tags
+	var input struct {
+		Name     string `json:"name" validate:"min=1,max=45"`           // Name must be between 1-45 chars
+		Birthday string `json:"birthday" validate:"valid_birthday"`     // Birthday must be valid date
+		Address  string `json:"address" validate:"min=1,max=255"`       // Address must be between 1-255 chars
+		Gender   int16  `json:"gender" validate:"required,oneof=0 1 2"` // Gender must be 0, 1 or 2
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get existing user from database
+	user, err := handler.userService.GetUser(uint(userId))
+
+	// Return error if user not found
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Update user fields with input values
+	user.Name = input.Name
+	user.Birthday = &input.Birthday
+	user.Address = &input.Address
+	user.Gender = input.Gender
+
+	// Save updated user to database
+	if err := handler.userService.UpdateUser(user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Update user successfully"})
+}
