@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
@@ -78,8 +80,11 @@ func (handle *UserHandler) ForgotPassword(c *gin.Context) {
 	// Generate random token string for password reset
 	newToken := utils.GenerateRandomString(60)
 
+	expiredAt := time.Now().Add(time.Hour).Unix()
+
 	// Set new token on user
-	*user.Token = newToken
+	user.Token = &newToken
+	user.ExpiredAt = &expiredAt
 
 	// Update user in database with new token
 	if err := handle.userService.UpdateUser(user); err != nil {
@@ -92,6 +97,7 @@ func (handle *UserHandler) ForgotPassword(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	log.Println("Email sent successfully!")
 
 	c.JSON(http.StatusOK, gin.H{"message": "Forgot password successfully"})
 }

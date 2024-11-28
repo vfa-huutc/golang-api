@@ -1,24 +1,28 @@
 package mailer
 
-import "gopkg.in/gomail.v2"
+import (
+	"errors"
+
+	"gopkg.in/gomail.v2"
+)
 
 type EmailSender interface {
 	Send(to []string, subject, body string) error
 }
 
-type SMTPConfig struct {
+type GomailSenderConfig struct {
+	From     string
 	Host     string
 	Port     int
 	Username string
 	Password string
-	From     string
 }
 
 type GomailSender struct {
-	config SMTPConfig
+	config GomailSenderConfig
 }
 
-func NewGomailSender(config SMTPConfig) *GomailSender {
+func NewGomailSender(config GomailSenderConfig) *GomailSender {
 	return &GomailSender{config: config}
 }
 
@@ -26,18 +30,40 @@ func NewGomailSender(config SMTPConfig) *GomailSender {
 // Parameters:
 //   - to: slice of recipient email addresses
 //   - subject: email subject line
-//   - body: plain text email body content
+//   - body: html email body content
 //
 // Returns:
 //   - error if sending fails, nil on success
-func (s *GomailSender) Send(to []string, subject, html string) error {
-	m := gomail.NewMessage()
+func (s *GomailSender) Send(to []string, subject, plainText, html string) error {
 
+	// Validate inputs
+	if len(to) == 0 {
+		return errors.New("recipient list cannot be empty")
+	}
+	if subject == "" {
+		return errors.New("email subject cannot be empty")
+	}
+	if plainText == "" && html == "" {
+		return errors.New("either plain text or HTML content must be provided")
+	}
+
+	m := gomail.NewMessage()
 	m.SetHeader("From", s.config.From)
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", subject)
-	m.SetBody("text/html", html)
+	// Add plain text and HTML alternatives
+	if plainText != "" {
+		m.SetBody("text/plain", plainText)
+	}
+	if html != "" {
+		m.AddAlternative("text/html", html)
+	}
 
+	// Create a new dialer and send the email
 	dialer := gomail.NewDialer(s.config.Host, s.config.Port, s.config.Username, s.config.Password)
-	return dialer.DialAndSend()
+	if err := dialer.DialAndSend(m); err != nil {
+		return err
+	}
+
+	return nil
 }

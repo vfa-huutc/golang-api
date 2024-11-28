@@ -10,12 +10,12 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/pkg/mailer"
 )
 
-var config = mailer.SMTPConfig{
-	Host:     utils.GetEnv("MAIL_HOST", "smtp"),
+var config = mailer.GomailSenderConfig{
+	Host:     utils.GetEnv("MAIL_HOST", "smtp.gmail.com"),
 	Port:     utils.GetEnvAsInt("MAIL_PORT", 587),
-	Username: utils.GetEnv("MAIL_USERNAME", ""),
-	Password: utils.GetEnv("MAIL_PASSWORD", ""),
-	From:     utils.GetEnv("MAIL_FORM", "noreply@vfa-spl.org"),
+	Username: utils.GetEnv("MAIL_USERNAME", "vfa.khuongdv@gmail.com"),
+	Password: utils.GetEnv("MAIL_PASSWORD", "hupr ojqr nwkq tuzo"),
+	From:     utils.GetEnv("MAIL_FORM", "vfa.khuongdv@gmail.com"),
 }
 
 // SendMailForgotPassword sends a password reset email to the user
@@ -32,32 +32,37 @@ var config = mailer.SMTPConfig{
 //  4. Executes template with user data
 //  5. Sends password reset email to user
 func SendMailForgotPassword(user *models.User) error {
-	mailer := mailer.NewGomailSender(mailer.SMTPConfig{
+	mailer := mailer.NewGomailSender(mailer.GomailSenderConfig{
+		From:     config.From,
 		Host:     config.Host,
 		Port:     config.Port,
 		Username: config.Username,
 		Password: config.Password,
-		From:     config.From,
 	})
 
-	tmpl, err := template.ParseFiles("forgot_template.html")
+	// Parse the email template file
+	tmpl, err := template.ParseFiles("pkg/mailer/templates/forgot_template.html")
 	if err != nil {
 		return fmt.Errorf("error parsing template: %w", err)
 	}
 
-	// Execute the template with the provided data
-	url := utils.GetEnv("FRONTEND_URL", "") + "/reset-password/" + *user.Token
+	// Construct reset password URL by combining frontend URL with user's reset token
+	url := utils.GetEnv("FRONTEND_URL", "") + "/reset-password?token=" + *user.Token
 
+	// Prepare template data with user's name and reset URL
 	data := map[string]interface{}{
 		"Name": user.Name,
 		"URL":  url,
 	}
+	// Create buffer to store rendered HTML
 	var htmlBody bytes.Buffer
+	// Execute template with data and write to buffer
 	if err := tmpl.Execute(&htmlBody, data); err != nil {
 		return fmt.Errorf("error executing template: %w", err)
 	}
 
-	if err := mailer.Send([]string{user.Email}, "Reset your password", htmlBody.String()); err != nil {
+	// Send password reset email to user
+	if err := mailer.Send([]string{user.Email}, "Reset your password", "", htmlBody.String()); err != nil {
 		return fmt.Errorf("error sending email: %w", err)
 	}
 	return nil

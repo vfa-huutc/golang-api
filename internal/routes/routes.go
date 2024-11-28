@@ -47,6 +47,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		api.POST("/auth/refresh-token", authHandler.RefreshToken)
 
 		api.POST("/users", userHandler.CreateUser)
+		api.POST("/forgot-password", userHandler.ForgotPassword)
 
 		api.POST("/roles", roleHandler.CreateRole)
 		api.GET("/roles/:id", roleHandler.GetRole)
