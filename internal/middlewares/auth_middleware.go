@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -21,7 +20,6 @@ func AuthMiddleware() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 
 		authHeader := ctx.GetHeader("Authorization")
-		fmt.Println("authHeader.ID", authHeader)
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
 			ctx.Abort()
@@ -37,9 +35,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		fmt.Println("claims.ID", claims.ID)
-
-		ctx.Set("Sub", claims.ID)
+		ctx.Set("UserID", claims.ID)
 		ctx.Next()
 	}
 }

@@ -22,15 +22,14 @@ func NewAuthHandler(authService *services.AuthService) *AuthHandler {
 	}
 }
 
-// LoginHandler process login request
 func (handler *AuthHandler) Login(c *gin.Context) {
 	var credentials struct {
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Email    string `json:"email" binding:"required,email"`
+		Password string `json:"password" binding:"required,min=6,max=255"`
 	}
 
 	if err := c.ShouldBindJSON(&credentials); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -52,7 +51,7 @@ func (handler *AuthHandler) RefreshToken(c *gin.Context) {
 
 	// Bind JSON request body to token struct
 	if err := c.ShouldBindJSON(&token); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

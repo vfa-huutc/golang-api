@@ -52,6 +52,12 @@ func (repo *RefreshTokenRepository) FindByToken(token string) (*models.RefreshTo
 	return &refreshToken, nil
 }
 
+// Update updates an existing refresh token in the database
+// Parameters:
+//   - token: pointer to the RefreshToken model to be updated
+//
+// Returns:
+//   - error: nil if successful, error otherwise
 func (repo *RefreshTokenRepository) Update(token *models.RefreshToken) error {
 	if err := repo.db.Save(token).Error; err != nil {
 		return err
