@@ -9,3 +9,10 @@ func HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(hashedPassword), err
 }
+
+// CheckPasswordHash compares a plain text password with a hashed password
+// Returns true if they match, false otherwise
+func CheckPasswordHash(password, hashPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
+	return err == nil
+}

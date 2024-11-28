@@ -97,3 +97,18 @@ func (repo *UserRepository) PaginationUser(offset, limit int) (*[]models.User, i
 	return &users, total, nil
 
 }
+
+// FindByToken retrieves a user from the database by their token
+// Parameters:
+//   - token: The token string to search for
+//
+// Returns:
+//   - *models.User: Pointer to the retrieved User model if found
+//   - error: Error if user not found or if there was a database error
+func (repo *UserRepository) FindByToken(token string) (*models.User, error) {
+	var user models.User
+	if err := repo.db.Where("token = ?", token).First(&user).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

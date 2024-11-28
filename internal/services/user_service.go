@@ -121,3 +121,18 @@ func (service *UserService) PaginationUser(page int, limit int) (*[]models.User,
 	return service.repo.PaginationUser(offset, limit)
 
 }
+
+// GetUserByToken retrieves a user by their authentication token from the database.
+// Parameters:
+//   - token: The authentication token string associated with the user
+//
+// Returns:
+//   - *models.User: A pointer to the user record if found
+//   - error: nil if successful, otherwise returns the error that occurred
+//
+// Example:
+//
+//	user, err := service.GetUserByToken("abc123token")
+func (service *UserService) GetUserByToken(token string) (*models.User, error) {
+	return service.repo.FindByToken(token)
+}

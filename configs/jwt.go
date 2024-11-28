@@ -8,8 +8,8 @@ import (
 )
 
 type CustomClaims struct {
-	Email                string `json:"email"` // Custom field
-	jwt.RegisteredClaims        // // Embed standard claims
+	ID                   uint `json:"id"` // Custom field
+	jwt.RegisteredClaims      // // Embed standard claims
 }
 
 var jwtKey = []byte(utils.GetEnv("JWT_KEY", "replace_your_key"))
@@ -26,10 +26,10 @@ type JwtResult struct {
 // Returns:
 //   - *JwtResult: contains the signed token string and expiration timestamp
 //   - error: any error that occurred during token generation
-func GenerateToken(email string) (*JwtResult, error) {
+func GenerateToken(id uint) (*JwtResult, error) {
 	expiresAt := jwt.NewNumericDate(time.Now().Add(time.Hour))
 	claims := CustomClaims{
-		Email: email,
+		ID: id,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: expiresAt,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

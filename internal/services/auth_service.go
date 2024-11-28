@@ -54,7 +54,7 @@ func (service *AuthService) Login(email, password string, ctx *gin.Context) (*Lo
 	}
 
 	// Generate refresh token
-	token, err := configs.GenerateToken(user.Email)
+	token, err := configs.GenerateToken(user.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*Login
 		return nil, err
 	}
 	// Generate new access token for the user
-	resultToken, err := configs.GenerateToken(user.Email)
+	resultToken, err := configs.GenerateToken(user.ID)
 
 	if err != nil {
 		return nil, err

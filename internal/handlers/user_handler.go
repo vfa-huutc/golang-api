@@ -101,3 +101,55 @@ func (handle *UserHandler) ForgotPassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Forgot password successfully"})
 }
+
+func (handler *UserHandler) ResetPassword(c *gin.Context) {
+	var input struct {
+		Token       string `json:"token" binding:"required"`
+		Password    string `json:"password" binding:"required"`
+		NewPassword string `json:"new_password" binding:"required"`
+	}
+	// Bind and validate JSON request body
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user by token from database
+	user, err := handler.userService.GetUserByToken(input.Token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Check if token is expired
+	if time.Now().Unix() > *user.ExpiredAt {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Token expired"})
+		return
+	}
+
+	// Check if new password is the same as old password
+	if isValid := utils.CheckPasswordHash(input.Password, user.Password); !isValid {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "New password must be different from old password"})
+		return
+	}
+
+	// Hash new password
+	hashedPassword, err := utils.HashPassword(input.NewPassword)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Update user password
+	user.Password = hashedPassword
+	user.Token = nil
+	user.ExpiredAt = nil
+
+	// Update user in database
+	if err := handler.userService.UpdateUser(user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Reset password successfully"})
+}
