@@ -136,3 +136,17 @@ func (service *UserService) PaginationUser(page int, limit int) (*[]models.User,
 func (service *UserService) GetUserByToken(token string) (*models.User, error) {
 	return service.repo.FindByToken(token)
 }
+
+// DeleteUser removes a user from the database by their ID.
+// Parameters:
+//   - id: The unique identifier of the user to delete
+//
+// Returns:
+//   - error: nil if successful, otherwise returns the error that occurred
+//
+// Example:
+//
+//	err := service.DeleteUser(1) // Deletes user with ID 1
+func (service *UserService) DeleteUser(id uint) error {
+	return service.repo.Delete(id)
+}
