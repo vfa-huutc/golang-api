@@ -41,7 +41,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	gin.SetMode(ginMode)
 
 	// Add middleware
-	router.Use(gin.Recovery())
+	router.Use(gin.Recovery(), middlewares.LogMiddleware())
 
 	router.GET("/healthz", handlers.HealthCheck)
 

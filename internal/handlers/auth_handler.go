@@ -46,7 +46,7 @@ func (handler *AuthHandler) Login(c *gin.Context) {
 
 func (handler *AuthHandler) RefreshToken(c *gin.Context) {
 	var token struct {
-		RefreshToken string `json:"refresh_token"`
+		RefreshToken string `json:"refresh_token" binding:"required"`
 	}
 
 	// Bind JSON request body to token struct
