@@ -46,22 +46,34 @@ func (handler *UserHandler) CreateUser(c *gin.Context) {
 		Gender   int16   `json:"gender" binding:"required,oneof=0 1 2"`
 	}
 
+	// Bind and validate the JSON request body to the input struct
+	// Return 400 Bad Request if validation fails
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Hash the password using the utils.HashPassword function
+	// If hashing fails (returns empty string), return a 400 error
+	hashpassword := utils.HashPassword(input.Password)
+	if hashpassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Hash password failed"})
+		return
+	}
+
+	// Create a new User model instance with the validated input data
+	// Password is stored as the hashed value
 	user := models.User{
 		Name:     input.Name,
 		Email:    input.Email,
-		Password: input.Password,
+		Password: hashpassword,
 		Birthday: input.Birthday,
 		Address:  input.Address,
 		Gender:   input.Gender,
 	}
 
-	user.Password = utils.HashPassword(user.Password)
-
+	// Attempt to create the user in the database
+	// Return 400 Bad Request if creation fails
 	if err := handler.userService.CreateUser(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -144,8 +156,16 @@ func (handler *UserHandler) ResetPassword(c *gin.Context) {
 		return
 	}
 
+	// Hash the password using the utils.HashPassword function
+	// If hashing fails (returns empty string), return a 400 error
+	hashpassword := utils.HashPassword(input.Password)
+	if hashpassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Hash password failed"})
+		return
+	}
+
 	// Update user password
-	user.Password = utils.HashPassword(input.NewPassword)
+	user.Password = hashpassword
 	user.Token = nil
 	user.ExpiredAt = nil
 
@@ -203,8 +223,16 @@ func (handler *UserHandler) ChangePassword(c *gin.Context) {
 		return
 	}
 
+	// Hash the password using the utils.HashPassword function
+	// If hashing fails (returns empty string), return a 400 error
+	hashpassword := utils.HashPassword(input.NewPassword)
+	if hashpassword == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Hash password failed"})
+		return
+	}
+
 	// Update user password
-	user.Password = utils.HashPassword(input.NewPassword)
+	user.Password = hashpassword
 
 	// Update user in database
 	if err := handler.userService.UpdateUser(user); err != nil {

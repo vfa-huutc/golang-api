@@ -48,27 +48,38 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Setup API routes
 	api := router.Group("/api/v1")
 	{
-		api.POST("/auth/login", authHandler.Login)
-		api.POST("/auth/refresh-token", authHandler.RefreshToken)
-
-		api.POST("/users", userHandler.CreateUser)
-		api.PATCH("/users/:id", userHandler.UpdateUser)
-		api.DELETE("/users/:id", userHandler.DeleteUser)
+		// Public routes
+		api.POST("/login", authHandler.Login)
+		api.POST("/refresh-token", authHandler.RefreshToken)
 		api.POST("/forgot-password", userHandler.ForgotPassword)
 		api.POST("/reset-password", userHandler.ResetPassword)
-		api.POST("/change-password", middlewares.AuthMiddleware(), userHandler.ChangePassword)
-		api.GET("/profile", middlewares.AuthMiddleware(), userHandler.GetProfile)
-		api.PATCH("/profile", middlewares.AuthMiddleware(), userHandler.UpdateProfile)
 
-		api.POST("/roles", roleHandler.CreateRole)
-		api.GET("/roles/:id", roleHandler.GetRole)
-		api.PATCH("/roles/:id", roleHandler.UpdateRole)
-		api.DELETE("/roles/:id", roleHandler.DeleteRole)
+		// Protected routes (require authentication)
+		api.Use(middlewares.AuthMiddleware())
+		{
+			// Profile management
+			api.POST("/change-password", userHandler.ChangePassword)
+			api.GET("/profile", userHandler.GetProfile)
+			api.PATCH("/profile", userHandler.UpdateProfile)
 
-		api.GET("/settings", settingHandler.GetSettings)
-		api.PUT("/settings", settingHandler.UpdateSettings)
+			// User management
+			api.POST("/users", userHandler.CreateUser)
+			api.PATCH("/users/:id", userHandler.UpdateUser)
+			api.DELETE("/users/:id", userHandler.DeleteUser)
 
-		api.GET("/permissions", permissionHandler.GetAll)
+			// Role management
+			api.POST("/roles", roleHandler.CreateRole)
+			api.GET("/roles/:id", roleHandler.GetRole)
+			api.PATCH("/roles/:id", roleHandler.UpdateRole)
+			api.DELETE("/roles/:id", roleHandler.DeleteRole)
+
+			// Settings
+			api.GET("/settings", settingHandler.GetSettings)
+			api.PUT("/settings", settingHandler.UpdateSettings)
+
+			// Permissions
+			api.GET("/permissions", permissionHandler.GetAll)
+		}
 	}
 
 	return router

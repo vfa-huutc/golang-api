@@ -14,14 +14,6 @@ type IMailerService interface {
 	SendMailForgotPassword(user *models.User) error
 }
 
-var config = mailer.GomailSenderConfig{
-	Host:     utils.GetEnv("MAIL_HOST", "smtp.gmail.com"),
-	Port:     utils.GetEnvAsInt("MAIL_PORT", 587),
-	Username: utils.GetEnv("MAIL_USERNAME", "vfa.khuongdv@gmail.com"),
-	Password: utils.GetEnv("MAIL_PASSWORD", "hupr ojqr nwkq tuzo"),
-	From:     utils.GetEnv("MAIL_FORM", "vfa.khuongdv@gmail.com"),
-}
-
 // SendMailForgotPassword sends a password reset email to the user
 // Parameters:
 //   - user: Pointer to models.User containing user information including email and reset token
@@ -36,6 +28,15 @@ var config = mailer.GomailSenderConfig{
 //  4. Executes template with user data
 //  5. Sends password reset email to user
 func SendMailForgotPassword(user *models.User) error {
+
+	var config = mailer.GomailSenderConfig{
+		Host:     utils.GetEnv("MAIL_HOST", "smtp.gmail.com"),
+		Port:     utils.GetEnvAsInt("MAIL_PORT", 587),
+		Username: utils.GetEnv("MAIL_USERNAME", ""),
+		Password: utils.GetEnv("MAIL_PASSWORD", ""),
+		From:     utils.GetEnv("MAIL_FROM", ""),
+	}
+
 	mailer := mailer.NewGomailSender(mailer.GomailSenderConfig{
 		From:     config.From,
 		Host:     config.Host,
