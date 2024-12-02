@@ -6,7 +6,7 @@ import (
 )
 
 type IUserRepository interface {
-	GetAll() ([]models.User, error)
+	GetAll() (*[]models.User, error)
 	GetByID(id uint) (*models.User, error)
 	Create(user *models.User) error
 	Update(user *models.User) error
@@ -39,12 +39,12 @@ func NewUserRepsitory(db *gorm.DB) *UserRepository {
 // Returns:
 //   - []models.User: Slice containing all User models in the database
 //   - error: Error if there was a database error, nil on success
-func (repo *UserRepository) GetAll() ([]models.User, error) {
+func (repo *UserRepository) GetAll() (*[]models.User, error) {
 	var users []models.User
 	if err := repo.db.Find(&users).Error; err != nil {
 		return nil, err
 	}
-	return users, nil
+	return &users, nil
 }
 
 // GetByID retrieves a user from the database by their ID

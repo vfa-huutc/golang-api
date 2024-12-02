@@ -10,7 +10,7 @@ type ISettingRepository interface {
 	UpdateMany(settings *[]models.Setting) error
 	GetByKey(key string) (*models.Setting, error)
 	Update(setting *models.Setting) (*models.Setting, error)
-	Create(settings []models.Setting) (*models.Setting, error)
+	Create(settings *models.Setting) (*models.Setting, error)
 }
 
 type SettingRepostitory struct {
