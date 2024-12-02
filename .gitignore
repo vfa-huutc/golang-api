@@ -1,2 +1,38 @@
+# Ignore the Go binary
+main
+
+# Ignore vendor directory (if using Go modules)
+vendor/
+
+# Ignore Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Ignore the .git directory and git-related files
+.git
+.gitignore
+
+# Ignore IDE/editor-related files
+.vscode/
+.idea/
+*.swp
+
+# Ignore OS-related files
+.DS_Store
+Thumbs.db
+
+# Ignore any local configuration files
 .env
-mysql/
+
+# Ignore test or coverage files
+coverage/
+testdata/
+
+# Others
+mysql
+docs
