@@ -96,10 +96,7 @@ func (repo *UserRepository) Update(user *models.User) error {
 //   - error: Error if there was a problem deleting the user, nil on success
 func (repo *UserRepository) Delete(userId uint) error {
 	var user models.User
-	if err := repo.db.Delete(&user, userId).Error; err != nil {
-		return err
-	}
-	return nil
+	return repo.db.Delete(&user, userId).Error
 }
 
 // FindByField retrieves a user from the database by a specified field and value

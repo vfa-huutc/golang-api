@@ -52,10 +52,7 @@ func (repo *RoleRepository) Create(role *models.Role) error {
 // Returns:
 //   - error: nil if successful, error message if failed
 func (repo *RoleRepository) Update(role *models.Role) error {
-	if err := repo.db.Save(role).Error; err != nil {
-		return err
-	}
-	return nil
+	return repo.db.Save(role).Error
 }
 
 // Delete removes a role record from the database
@@ -65,8 +62,5 @@ func (repo *RoleRepository) Update(role *models.Role) error {
 // Returns:
 //   - error: nil if successful, error message if failed
 func (repo *RoleRepository) Delete(role *models.Role) error {
-	if err := repo.db.Delete(role).Error; err != nil {
-		return err
-	}
-	return nil
+	return repo.db.Delete(role).Error
 }

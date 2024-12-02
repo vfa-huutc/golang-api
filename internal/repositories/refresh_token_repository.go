@@ -59,8 +59,5 @@ func (repo *RefreshTokenRepository) FindByToken(token string) (*models.RefreshTo
 // Returns:
 //   - error: nil if successful, error otherwise
 func (repo *RefreshTokenRepository) Update(token *models.RefreshToken) error {
-	if err := repo.db.Save(token).Error; err != nil {
-		return err
-	}
-	return nil
+	return repo.db.Save(token).Error
 }

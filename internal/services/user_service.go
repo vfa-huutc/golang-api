@@ -1,8 +1,6 @@
 package services
 
 import (
-	log "github.com/sirupsen/logrus"
-
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 )
@@ -84,11 +82,7 @@ func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 //	}
 //	err := service.CreateUser(user)
 func (service *UserService) CreateUser(user *models.User) error {
-	if err := service.repo.Create(user); err != nil {
-		log.Errorf("Query user error %s\n", err)
-		return err
-	}
-	return nil
+	return service.repo.Create(user)
 }
 
 // UpdateUser updates an existing user's information in the database.
@@ -107,11 +101,7 @@ func (service *UserService) CreateUser(user *models.User) error {
 //	}
 //	err := service.UpdateUser(user)
 func (service *UserService) UpdateUser(user *models.User) error {
-	if err := service.repo.Update(user); err != nil {
-		log.Errorf("Update user error %s\n", err)
-		return err
-	}
-	return nil
+	return service.repo.Update(user)
 }
 
 // DeleteUser removes a user from the database by their ID.

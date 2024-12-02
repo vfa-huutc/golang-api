@@ -17,6 +17,10 @@ func NewPermissionService(repo *repositories.PermissionRepository) *PermissionSe
 	return &PermissionService{repo: repo}
 }
 
+// GetAll retrieves all permissions from the repository
+// Returns:
+//   - *[]models.Permission: Pointer to slice of Permission models containing all permissions
+//   - error: Error if any occurred during the operation
 func (repo *PermissionService) GetAll() (*[]models.Permission, error) {
 	return repo.repo.GetAll()
 }
