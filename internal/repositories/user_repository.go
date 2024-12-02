@@ -69,10 +69,7 @@ func (repo *UserRepository) GetByID(id uint) (*models.User, error) {
 // Returns:
 //   - error: Error if there was a problem creating the user, nil on success
 func (repo *UserRepository) Create(user *models.User) error {
-	if err := repo.db.Create(&user).Error; err != nil {
-		return err
-	}
-	return nil
+	return repo.db.Create(&user).Error
 }
 
 // Update updates an existing user in the database
@@ -82,10 +79,7 @@ func (repo *UserRepository) Create(user *models.User) error {
 // Returns:
 //   - error: Error if there was a problem updating the user, nil on success
 func (repo *UserRepository) Update(user *models.User) error {
-	if err := repo.db.Save(&user).Error; err != nil {
-		return err
-	}
-	return nil
+	return repo.db.Save(&user).Error
 }
 
 // Delete removes a user from the database
