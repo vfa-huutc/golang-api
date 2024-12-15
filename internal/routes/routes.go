@@ -22,6 +22,12 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	permissionRepo := repositories.NewPermissionRepository(db)
 
 	// Initialize services
+
+	REDIS_HOST := utils.GetEnv("REDIS_HOST", "localhost:6379")
+	REDIS_PASS := utils.GetEnv("REDIS_PASS", "")
+	REDIS_DB := utils.GetEnvAsInt("REDIS_DB", 0)
+
+	redisService := services.NewRedisService(REDIS_HOST, REDIS_PASS, REDIS_DB)
 	tokenService := services.NewRefreshTokenService(refreshRepo)
 	userService := services.NewUserService(userRepo)
 	authService := services.NewAuthService(userRepo, tokenService)
@@ -31,7 +37,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authService)
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(userService, redisService)
 	roleHandler := handlers.NewRoleHandler(roleService)
 	settingHandler := handlers.NewSettingHandler(settingService)
 	permissionHandler := handlers.NewPermissionHandler(permissionService)
