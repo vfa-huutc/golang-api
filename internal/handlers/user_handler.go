@@ -444,6 +444,12 @@ func (handler *UserHandler) UpdateProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	// Clear cache
+	profileKey := constants.PROFILE + string(user.ID)
+	if err := handler.redisService.Delete(profileKey); err != nil {
+		logrus.Errorf("Failed to clear cache: %v", err)
+	}
+
 	c.JSON(http.StatusOK, gin.H{"message": "Update profile successfully"})
 
 }
