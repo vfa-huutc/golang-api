@@ -346,15 +346,14 @@ func (handler *UserHandler) GetProfile(c *gin.Context) {
 	if err != nil {
 		logrus.Printf("Failed to get user from Redis: %v", err)
 	}
-
 	// If not in cache, get from DB
 	if userString == "" {
-		logrus.Printf("User retrieved from DB")
 		dbUser, err := handler.userService.GetUser(userId)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		logrus.Printf("User retrieved from DB")
 		user = *dbUser
 
 		// Cache the user data
@@ -366,6 +365,7 @@ func (handler *UserHandler) GetProfile(c *gin.Context) {
 		if err := json.Unmarshal([]byte(userString), &user); err != nil {
 			logrus.Errorf("Failed to unmarshal user from Redis: %v", err)
 		}
+
 	}
 
 	c.JSON(http.StatusOK, user)
