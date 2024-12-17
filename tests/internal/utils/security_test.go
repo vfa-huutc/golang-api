@@ -3,6 +3,8 @@ package utils
 import (
 	"reflect"
 	"testing"
+
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
 func TestCensorSensitiveData(t *testing.T) {
@@ -10,7 +12,7 @@ func TestCensorSensitiveData(t *testing.T) {
 
 	t.Run("Nil input", func(t *testing.T) {
 		var input interface{}
-		result := CensorSensitiveData(input, maskFields)
+		result := utils.CensorSensitiveData(input, maskFields)
 		if result != nil {
 			t.Errorf("Expected nil, got %v", result)
 		}
@@ -19,7 +21,7 @@ func TestCensorSensitiveData(t *testing.T) {
 	t.Run("Map with sensitive keys", func(t *testing.T) {
 		input := map[string]string{"password": "secret", "username": "user"}
 		expected := map[string]string{"password": "s****t", "username": "user"}
-		result := CensorSensitiveData(input, maskFields)
+		result := utils.CensorSensitiveData(input, maskFields)
 		if !reflect.DeepEqual(result, expected) {
 			t.Errorf("Expected %v, got %v", expected, result)
 		}
@@ -32,7 +34,7 @@ func TestCensorSensitiveData(t *testing.T) {
 		}
 		input := User{Password: "secret", Username: "user"}
 		expected := User{Password: "s****t", Username: "user"}
-		result := CensorSensitiveData(input, maskFields).(User)
+		result := utils.CensorSensitiveData(input, maskFields).(User)
 		if result != expected {
 			t.Errorf("Expected %v, got %v", expected, result)
 		}
@@ -45,7 +47,7 @@ func TestCensorSensitiveData(t *testing.T) {
 		}
 		input := &User{Password: "secret", Username: "user"}
 		expected := User{Password: "s****t", Username: "user"}
-		result := CensorSensitiveData(input, maskFields)
+		result := utils.CensorSensitiveData(input, maskFields)
 		if !reflect.DeepEqual(result, expected) {
 			t.Errorf("Expected %v, got %v", expected, result)
 		}
@@ -80,7 +82,7 @@ func TestCensorSensitiveData(t *testing.T) {
 				},
 			},
 		}
-		result := CensorSensitiveData(input, maskFields).(User)
+		result := utils.CensorSensitiveData(input, maskFields).(User)
 		if !reflect.DeepEqual(result, expected) {
 			t.Errorf("Expected %v, got %v", expected, result)
 		}
