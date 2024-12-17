@@ -385,7 +385,7 @@ func (handler *UserHandler) cacheUserProfile(user *models.User) error {
 	}
 
 	// Create Redis key by concatenating profile prefix with user ID
-	profileKey := constants.PROFILE + string(user.ID)
+	profileKey := constants.PROFILE + string(rune(user.ID))
 
 	// Store serialized user data in Redis
 	if err := handler.redisService.Set(profileKey, userJSON); err != nil {
@@ -445,7 +445,7 @@ func (handler *UserHandler) UpdateProfile(c *gin.Context) {
 		return
 	}
 	// Clear cache
-	profileKey := constants.PROFILE + string(user.ID)
+	profileKey := constants.PROFILE + string(rune(user.ID))
 	if err := handler.redisService.Delete(profileKey); err != nil {
 		logrus.Errorf("Failed to clear cache: %v", err)
 	}
