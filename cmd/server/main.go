@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/vfa-khuongdv/golang-cms/configs"
+	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/routes"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"

@@ -37,3 +37,4 @@ testdata/
 mysql
 docs
 tmp/*
+bin/*

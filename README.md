@@ -14,19 +14,14 @@ The project follows a clean architecture and is organized into the following dir
 │   │   └── seeder.go
 │   └── server                        # Main entry point for the web server
 │       └── main.go
-├── configs                           # Configuration files for database, environment variables, JWT, etc.
-│   ├── database.go
-│   ├── env.go
-│   └── jwt.go
-├── constants                         # Constants and error handling
-│   ├── errors.go
-│   └── keys.go
 ├── docker-compose.yml                # Docker Compose configuration for the app and MySQL
 ├── docs                              # API documentation
 │   └── api_spec.md
 ├── go.mod                            # Go module dependencies
 ├── go.sum                            # Go module checksums
 ├── internal                          # Core application logic
+│   ├── configs                       # Configuration files for database, environment variables, JWT, etc.
+│   ├── constants                     # Constants and error handling
 │   ├── database                      # Database migrations and seeding
 │   ├── handlers                      # HTTP request handlers
 │   ├── middlewares                   # Middlewares for authentication and logging

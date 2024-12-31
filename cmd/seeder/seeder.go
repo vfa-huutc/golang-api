@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/vfa-khuongdv/golang-cms/configs"
+	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/database/seeders"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"

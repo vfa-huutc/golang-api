@@ -2,7 +2,7 @@ package services
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/vfa-khuongdv/golang-cms/configs"
+	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
