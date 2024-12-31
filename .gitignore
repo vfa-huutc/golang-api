@@ -36,3 +36,4 @@ testdata/
 # Others
 mysql
 docs
+tmp/
