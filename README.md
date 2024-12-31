@@ -101,7 +101,7 @@ docker-compose exec app go run cmd/seeder/seeder.go
 To run the application server:
 
 ```bash
-go run cmd/server/main.go
+air
 ```
 
 The server will start and be available at `http://localhost:8080`.
