@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type IUserhandler interface {
@@ -40,7 +42,7 @@ func NewUserHandler(userService *services.UserService, redisService *services.Re
 	}
 }
 
-func (handler *UserHandler) CreateUser(c *gin.Context) {
+func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 
 	var input struct {
 		Email    string  `json:"email" binding:"required,email"`
@@ -53,8 +55,12 @@ func (handler *UserHandler) CreateUser(c *gin.Context) {
 
 	// Bind and validate the JSON request body to the input struct
 	// Return 400 Bad Request if validation fails
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
@@ -62,7 +68,11 @@ func (handler *UserHandler) CreateUser(c *gin.Context) {
 	// If hashing fails (returns empty string), return a 400 error
 	hashpassword := utils.HashPassword(input.Password)
 	if hashpassword == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Hash password failed"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeInternal, "Hash password failed"),
+		)
 		return
 	}
 
@@ -80,28 +90,35 @@ func (handler *UserHandler) CreateUser(c *gin.Context) {
 	// Attempt to create the user in the database
 	// Return 400 Bad Request if creation fails
 	if err := handler.userService.CreateUser(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Create user successfully"})
-
+	utils.RespondWithOK(ctx, http.StatusCreated, gin.H{"message": "Create user successfully"})
 }
 
-func (handle *UserHandler) ForgotPassword(c *gin.Context) {
+func (handle *UserHandler) ForgotPassword(ctx *gin.Context) {
 	var input struct {
 		Email string `json:"email" binding:"required,email"`
 	}
 	// Bind and validate JSON request body
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
 	// Get user by email from database
 	user, err := handle.userService.GetUserByEmail(input.Email)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
@@ -116,48 +133,72 @@ func (handle *UserHandler) ForgotPassword(c *gin.Context) {
 
 	// Update user in database with new token
 	if err := handle.userService.UpdateUser(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
 	// Send password reset email to user
 	if err := services.SendMailForgotPassword(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
-	logrus.Println("Email sent successfully!")
+	log.Println("Email sent successfully!")
 
-	c.JSON(http.StatusOK, gin.H{"message": "Forgot password successfully"})
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Forgot password successfully"})
 }
 
-func (handler *UserHandler) ResetPassword(c *gin.Context) {
+func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 	var input struct {
 		Token       string `json:"token" binding:"required"`
 		Password    string `json:"password" binding:"required,min=6,max=255"`
 		NewPassword string `json:"new_password" binding:"required,min=6,max=255"`
 	}
 	// Bind and validate JSON request body
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
 	// Get user by token from database
 	user, err := handler.userService.GetUserByToken(input.Token)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
 	// Check if token is expired
 	if time.Now().Unix() > *user.ExpiredAt {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token expired"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeTokenExpired, "Token expired"),
+		)
 		return
 	}
 
 	// Check if new password is the same as old password
 	if isValid := utils.CheckPasswordHash(input.Password, user.Password); !isValid {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "New password must be different from old password"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeInvalidPassword, "Token expired"),
+		)
 		return
 	}
 
@@ -165,7 +206,11 @@ func (handler *UserHandler) ResetPassword(c *gin.Context) {
 	// If hashing fails (returns empty string), return a 400 error
 	hashpassword := utils.HashPassword(input.Password)
 	if hashpassword == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Hash password failed"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusInternalServerError,
+			errors.New(errors.ErrCodeFailedToHashed, "Hash password failed"),
+		)
 		return
 	}
 
@@ -176,19 +221,27 @@ func (handler *UserHandler) ResetPassword(c *gin.Context) {
 
 	// Update user in database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Reset password successfully"})
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Reset password successfully"})
 }
 
-func (handler *UserHandler) ChangePassword(c *gin.Context) {
+func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	// Get user ID from the context
 	// If user ID is 0 or not found, return bad request error
-	userId := c.GetUint("UserID")
+	userId := ctx.GetUint("UserID")
 	if userId == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, "Invalid UserID"),
+		)
 		return
 	}
 
@@ -198,33 +251,53 @@ func (handler *UserHandler) ChangePassword(c *gin.Context) {
 		ConfirmPassword string `json:"confirm_password" binding:"required,min=6,max=255"`
 	}
 	// Bind and validate JSON request body
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
 	// Get user by ID from database
 	user, err := handler.userService.GetUser(uint(userId))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
 	// Check if old password is correct
 	if isValid := utils.CheckPasswordHash(input.OldPassword, user.Password); !isValid {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Old password is incorrect"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeNotMatchedPassword, "Old password is incorrect"),
+		)
 		return
 	}
 
 	// Check if new password is the same as old password
 	if input.OldPassword == input.NewPassword {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "New password must be different from old password"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeOldAndNewShouldDiff, "New password must be different from old password"),
+		)
 		return
 	}
 
 	// Check if new password and confirm password match
 	if input.NewPassword != input.ConfirmPassword {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "New password and confirm password do not match"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeNotMatchedPassword, "New password and confirm password do not match"),
+		)
 		return
 	}
 
@@ -232,7 +305,11 @@ func (handler *UserHandler) ChangePassword(c *gin.Context) {
 	// If hashing fails (returns empty string), return a 400 error
 	hashpassword := utils.HashPassword(input.NewPassword)
 	if hashpassword == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Hash password failed"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusInternalServerError,
+			errors.New(errors.ErrCodeFailedToHashed, "Hash password failed"),
+		)
 		return
 	}
 
@@ -241,38 +318,66 @@ func (handler *UserHandler) ChangePassword(c *gin.Context) {
 
 	// Update user in database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusInternalServerError,
+			err,
+		)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Change password successfully"})
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Change password successfully"})
 }
 
-func (handler *UserHandler) DeleteUser(c *gin.Context) {
+func (handler *UserHandler) DeleteUser(ctx *gin.Context) {
 	// Get user ID from the context
-	id := c.Param("id")
+	id := ctx.Param("id")
 	userId, err := strconv.Atoi(id)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, err.Error()),
+		)
+		return
+	}
+
+	// Get user from database
+	item, err := handler.userService.GetUser(uint(userId))
+	if item == nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusNotFound,
+			err,
+		)
 		return
 	}
 
 	// Delete user from database
 	if err := handler.userService.DeleteUser(uint(userId)); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusInternalServerError,
+			err,
+		)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Delete user successfully"})
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Delete user successfully"})
 }
 
-func (handler *UserHandler) UpdateUser(c *gin.Context) {
+func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 	// Get user ID from the context
-	id := c.Param("id")
+	id := ctx.Param("id")
 	userId, err := strconv.Atoi(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, err.Error()),
+		)
+
 		return
 	}
 
@@ -284,17 +389,24 @@ func (handler *UserHandler) UpdateUser(c *gin.Context) {
 		Gender   int16  `json:"gender" validate:"required,oneof=0 1 2"` // Gender must be 0, 1 or 2
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
 	// Get existing user from database
 	user, err := handler.userService.GetUser(uint(userId))
-
 	// Return error if user not found
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
@@ -306,36 +418,53 @@ func (handler *UserHandler) UpdateUser(c *gin.Context) {
 
 	// Save updated user to database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Update user successfully"})
+
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Update user successfully"})
 }
 
-func (handler *UserHandler) GetUser(c *gin.Context) {
+func (handler *UserHandler) GetUser(ctx *gin.Context) {
 	// Get user ID from the context
-	id := c.Param("id")
+	id := ctx.Param("id")
 	userId, err := strconv.Atoi(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, err.Error()),
+		)
 		return
 	}
 
 	// Get user from database
 	user, err := handler.userService.GetUser(uint(userId))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
-	c.JSON(http.StatusOK, user)
+	utils.RespondWithOK(ctx, http.StatusOK, user)
 }
 
-func (handler *UserHandler) GetProfile(c *gin.Context) {
+func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 	// Get user ID from the context
-	userId := c.GetUint("UserID")
+	userId := ctx.GetUint("UserID")
 	if userId == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, "Invalid UserID"),
+		)
 		return
 	}
 
@@ -344,31 +473,34 @@ func (handler *UserHandler) GetProfile(c *gin.Context) {
 	// Try to get user from Redis cache
 	userString, err := handler.redisService.Get(constants.PROFILE)
 	if err != nil {
-		logrus.Printf("Failed to get user from Redis: %v", err)
+		log.Printf("Failed to get user from Redis: %v", err)
 	}
 	// If not in cache, get from DB
 	if userString == "" {
 		dbUser, err := handler.userService.GetUser(userId)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			utils.RespondWithError(
+				ctx,
+				http.StatusBadRequest,
+				err,
+			)
 			return
 		}
-		logrus.Printf("User retrieved from DB")
 		user = *dbUser
 
 		// Cache the user data
 		if err := handler.cacheUserProfile(&user); err != nil {
-			logrus.Errorf("Failed to cache user profile: %v", err)
+			log.Printf("Failed to cache user profile: %v", err)
 		}
 	} else {
 		logrus.Printf("User retrieved from Redis")
 		if err := json.Unmarshal([]byte(userString), &user); err != nil {
-			logrus.Errorf("Failed to unmarshal user from Redis: %v", err)
+			log.Printf("Failed to unmarshal user from Redis: %v", err)
 		}
 
 	}
 
-	c.JSON(http.StatusOK, user)
+	utils.RespondWithOK(ctx, http.StatusOK, user)
 }
 
 // cacheUserProfile serializes a user object to JSON and stores it in Redis cache
@@ -394,11 +526,15 @@ func (handler *UserHandler) cacheUserProfile(user *models.User) error {
 	return nil
 }
 
-func (handler *UserHandler) UpdateProfile(c *gin.Context) {
+func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 	// Get user ID from context and validate
-	userId := c.GetUint("UserID")
+	userId := ctx.GetUint("UserID")
 	if userId == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UserID"})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, "Invalid UserID"),
+		)
 		return
 	}
 
@@ -411,8 +547,12 @@ func (handler *UserHandler) UpdateProfile(c *gin.Context) {
 	}
 
 	// Bind and validate JSON request body
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, "Invalid UserID"),
+		)
 		return
 	}
 
@@ -421,7 +561,11 @@ func (handler *UserHandler) UpdateProfile(c *gin.Context) {
 
 	// Return error if user not found
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 
@@ -441,7 +585,11 @@ func (handler *UserHandler) UpdateProfile(c *gin.Context) {
 
 	// Save updated user to database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			err,
+		)
 		return
 	}
 	// Clear cache
@@ -450,6 +598,5 @@ func (handler *UserHandler) UpdateProfile(c *gin.Context) {
 		logrus.Errorf("Failed to clear cache: %v", err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Update profile successfully"})
-
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Update profile successfully"})
 }

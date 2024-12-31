@@ -4,8 +4,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
-func HealthCheck(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "healthy"})
+func HealthCheck(ctx *gin.Context) {
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"status": "healthy"})
 }

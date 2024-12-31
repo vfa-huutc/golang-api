@@ -1,9 +1,10 @@
 package services
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 	"golang.org/x/net/context"
 )
 
@@ -36,7 +37,7 @@ func NewRedisService(address, password string, db int) *RedisService {
 		panic("Failed to connect to Redis: " + err.Error())
 	}
 
-	fmt.Printf("Redis run at %s\n", address)
+	log.Printf("Redis run at %s\n", address)
 
 	return &RedisService{
 		client: client,
@@ -53,7 +54,11 @@ func NewRedisService(address, password string, db int) *RedisService {
 // Returns:
 //   - error: nil if successful, otherwise contains the error message
 func (r *RedisService) Set(key string, value interface{}) error {
-	return r.client.Set(r.ctx, key, value, 0).Err()
+	err := r.client.Set(r.ctx, key, value, 0).Err()
+	if err != nil {
+		return errors.New(errors.ErrCodeSetCache, err.Error())
+	}
+	return nil
 }
 
 // Get retrieves a value from Redis by its key
@@ -69,7 +74,7 @@ func (r *RedisService) Get(key string) (string, error) {
 	if err == redis.Nil {
 		return "", nil
 	} else if err != nil {
-		return "", err
+		return "", errors.New(errors.ErrorGetCache, err.Error())
 	}
 	return val, err
 }
@@ -81,7 +86,11 @@ func (r *RedisService) Get(key string) (string, error) {
 // Returns:
 //   - error: nil if successful, otherwise contains the error message
 func (r *RedisService) Delete(key string) error {
-	return r.client.Del(r.ctx, key).Err()
+	err := r.client.Del(r.ctx, key).Err()
+	if err != nil {
+		return errors.New(errors.ErrorDeleteCache, err.Error())
+	}
+	return nil
 }
 
 // Exists checks if a key exists in Redis
@@ -94,7 +103,7 @@ func (r *RedisService) Delete(key string) error {
 func (r *RedisService) Exists(key string) (bool, error) {
 	count, err := r.client.Exists(r.ctx, key).Result()
 	if err != nil {
-		return false, err
+		return false, errors.New(errors.ErrorExistsCache, err.Error())
 	}
 	return count > 0, nil
 }
@@ -107,7 +116,11 @@ func (r *RedisService) Exists(key string) (bool, error) {
 //   - []string: slice containing all elements in the list
 //   - error: nil if successful, otherwise contains the error message
 func (e *RedisService) GetList(listName string) ([]string, error) {
-	return e.client.LRange(e.ctx, listName, 0, -1).Result()
+	data, err := e.client.LRange(e.ctx, listName, 0, -1).Result()
+	if err != nil {
+		return nil, errors.New(errors.ErrorListCache, err.Error())
+	}
+	return data, nil
 }
 
 // Close closes the Redis client connection

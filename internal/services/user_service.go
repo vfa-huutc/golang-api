@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type IUserService interface {
@@ -49,7 +50,11 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 //
 //	user, err := service.GetUser(1) // Gets user with ID 1
 func (service *UserService) GetUser(id uint) (*models.User, error) {
-	return service.repo.GetByID(id)
+	data, err := service.repo.GetByID(id)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+	}
+	return data, nil
 }
 
 // GetUserByEmail retrieves a user by their email address from the database.
@@ -64,7 +69,11 @@ func (service *UserService) GetUser(id uint) (*models.User, error) {
 //
 //	user, err := service.GetUserByEmail("john@example.com")
 func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
-	return service.repo.FindByField("email", email)
+	data, err := service.repo.FindByField("email", email)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+	}
+	return data, nil
 }
 
 // CreateUser creates a new user in the database using the provided user data
@@ -82,7 +91,11 @@ func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 //	}
 //	err := service.CreateUser(user)
 func (service *UserService) CreateUser(user *models.User) error {
-	return service.repo.Create(user)
+	err := service.repo.Create(user)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBInsert, err.Error())
+	}
+	return nil
 }
 
 // UpdateUser updates an existing user's information in the database.
@@ -101,7 +114,11 @@ func (service *UserService) CreateUser(user *models.User) error {
 //	}
 //	err := service.UpdateUser(user)
 func (service *UserService) UpdateUser(user *models.User) error {
-	return service.repo.Update(user)
+	err := service.repo.Update(user)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+	}
+	return nil
 }
 
 // DeleteUser removes a user from the database by their ID.
@@ -115,7 +132,11 @@ func (service *UserService) UpdateUser(user *models.User) error {
 //
 //	err := service.DeleteUser(1) // Deletes user with ID 1
 func (service *UserService) DeleteUser(id uint) error {
-	return service.repo.Delete(id)
+	err := service.repo.Delete(id)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBDelete, err.Error())
+	}
+	return nil
 }
 
 // GetUserByToken retrieves a user by their authentication token from the database.
@@ -130,7 +151,11 @@ func (service *UserService) DeleteUser(id uint) error {
 //
 //	user, err := service.GetUserByToken("abc123token")
 func (service *UserService) GetUserByToken(token string) (*models.User, error) {
-	return service.repo.FindByField("token", token)
+	data, err := service.repo.FindByField("token", token)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+	}
+	return data, nil
 }
 
 // GetProfile retrieves a user's profile information by their ID from the database.
@@ -145,7 +170,11 @@ func (service *UserService) GetUserByToken(token string) (*models.User, error) {
 //
 //	profile, err := service.GetProfile(1) // Gets profile for user with ID 1
 func (service *UserService) GetProfile(id uint) (*models.User, error) {
-	return service.repo.GetProfile(id)
+	data, err := service.repo.GetProfile(id)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+	}
+	return data, nil
 }
 
 // UpdateProfile updates a user's profile information in the database.
@@ -164,5 +193,9 @@ func (service *UserService) GetProfile(id uint) (*models.User, error) {
 //	}
 //	err := service.UpdateProfile(user)
 func (service *UserService) UpdateProfile(user *models.User) error {
-	return service.repo.UpdateProfile(user)
+	err := service.repo.UpdateProfile(user)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+	}
+	return nil
 }

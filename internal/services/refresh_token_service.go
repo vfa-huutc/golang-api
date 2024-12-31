@@ -7,6 +7,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type IRefresTokenService interface {
@@ -82,7 +83,7 @@ type RefreshTokenResult struct {
 func (service *RefreshTokenService) CreateRefreshToken(tokenString string, ipAddress string) (*RefreshTokenResult, error) {
 	result, err := service.repo.FindByToken(tokenString)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
 	}
 	// Update new token
 	newToken := utils.GenerateRandomString(60)
@@ -94,7 +95,7 @@ func (service *RefreshTokenService) CreateRefreshToken(tokenString string, ipAdd
 	result.UsedCount += 1
 
 	if err := service.repo.Update(result); err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeDBUpdate, err.Error())
 	}
 
 	return &RefreshTokenResult{

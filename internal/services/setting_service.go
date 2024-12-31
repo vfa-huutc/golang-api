@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type ISettingService interface {
@@ -26,7 +27,11 @@ func NewSettingService(repo *repositories.SettingRepostitory) *SettingService {
 //   - *[]models.Setting: pointer to a slice of Setting models containing all settings
 //   - error: any error encountered during the retrieval operation
 func (service *SettingService) GetSetting() (*[]models.Setting, error) {
-	return service.repo.GetAll()
+	data, err := service.repo.GetAll()
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+	}
+	return data, nil
 }
 
 // UpdateSetting updates multiple settings in the repository
@@ -36,7 +41,11 @@ func (service *SettingService) GetSetting() (*[]models.Setting, error) {
 // Returns:
 //   - error: any error encountered during the update operation
 func (service *SettingService) UpdateMany(settings *[]models.Setting) error {
-	return service.repo.UpdateMany(settings)
+	err := service.repo.UpdateMany(settings)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+	}
+	return nil
 }
 
 // GetSettingByKey retrieves a specific setting from the repository by its key
@@ -47,7 +56,11 @@ func (service *SettingService) UpdateMany(settings *[]models.Setting) error {
 //   - *models.Setting: pointer to the Setting model if found
 //   - error: any error encountered during the retrieval operation
 func (service *SettingService) GetSettingByKey(key string) (*models.Setting, error) {
-	return service.repo.GetByKey(key)
+	data, err := service.repo.GetByKey(key)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+	}
+	return data, nil
 }
 
 // Update updates a single setting in the repository
@@ -58,7 +71,11 @@ func (service *SettingService) GetSettingByKey(key string) (*models.Setting, err
 //   - *models.Setting: pointer to the updated Setting model
 //   - error: any error encountered during the update operation
 func (service *SettingService) Update(setting *models.Setting) error {
-	return service.repo.Update(setting)
+	err := service.repo.Update(setting)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+	}
+	return nil
 }
 
 // Create creates a new setting in the repository
@@ -69,5 +86,9 @@ func (service *SettingService) Update(setting *models.Setting) error {
 //   - *models.Setting: pointer to the created Setting model
 //   - error: any error encountered during the creation operation
 func (service *SettingService) Create(setting *models.Setting) error {
-	return service.repo.Create(setting)
+	err := service.repo.Create(setting)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBInsert, err.Error())
+	}
+	return nil
 }

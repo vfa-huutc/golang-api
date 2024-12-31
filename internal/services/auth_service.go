@@ -1,11 +1,10 @@
 package services
 
 import (
-	"errors"
-
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -50,25 +49,25 @@ func NewAuthService(repo *repositories.UserRepository, tokenService *RefreshToke
 func (service *AuthService) Login(email, password string, ctx *gin.Context) (*LoginResponse, error) {
 	user, err := service.repo.FindByField("email", email)
 	if err != nil {
-		return nil, errors.New("not found user")
+		return nil, errors.New(errors.ErrCodeNotFound, err.Error())
 	}
 
 	// Validate password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, errors.New("invalid password")
+		return nil, errors.New(errors.ErrCodeInvalidPassword, err.Error())
 	}
 
 	// Generate refresh token
 	token, err := configs.GenerateToken(user.ID)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeInternal, err.Error())
 	}
 
 	// Create new refresh token
 	ipAddress := ctx.ClientIP()
 	tokenResult, err := service.tokenService.Create(*user, ipAddress)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeDBInsert, err.Error())
 	}
 
 	res := &LoginResponse{
@@ -99,19 +98,18 @@ func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*Login
 	// Create new refresh token using the token service
 	res, err := service.tokenService.CreateRefreshToken(token, ipAddress)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeDBInsert, err.Error())
 	}
 
 	// Get user details from the database using the user ID from refresh token
 	user, err := service.repo.GetByID(res.UserId)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
 	}
 	// Generate new access token for the user
 	resultToken, err := configs.GenerateToken(user.ID)
-
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeBadRequest, err.Error())
 	}
 
 	// Return new access and refresh tokens

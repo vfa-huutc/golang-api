@@ -1,12 +1,14 @@
 package handlers
 
 import (
-	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type ISettingHandler interface {
@@ -26,19 +28,19 @@ func (handler *SettingHandler) GetSettings(c *gin.Context) {
 	// Get settings from service
 	settings, err := handler.service.GetSetting()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(c, http.StatusBadRequest, err)
 		return
 	}
-	c.JSON(http.StatusOK, settings)
+
+	utils.RespondWithOK(c, http.StatusOK, settings)
 }
 
-func (handler *SettingHandler) UpdateSettings(c *gin.Context) {
+func (handler *SettingHandler) UpdateSettings(ctx *gin.Context) {
 
 	type KeyValue struct {
 		Key   string `json:"key" binding:"required"`
 		Value string `json:"value" binding:"required"`
 	}
-
 	type Settings struct {
 		Settings []KeyValue `json:"settings" binding:"required,dive"`
 	}
@@ -46,8 +48,12 @@ func (handler *SettingHandler) UpdateSettings(c *gin.Context) {
 	var input Settings
 
 	// Bind JSON request body to input struct
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
@@ -62,7 +68,7 @@ func (handler *SettingHandler) UpdateSettings(c *gin.Context) {
 			}
 
 			if err := handler.service.Create(&newSetting); err != nil {
-				fmt.Printf("Create new setting error for key:%s value:%s\n", v.Key, v.Value)
+				log.Printf("Create new setting error for key:%s value:%s\n", v.Key, v.Value)
 				continue
 			}
 
@@ -72,9 +78,9 @@ func (handler *SettingHandler) UpdateSettings(c *gin.Context) {
 
 		// Save updated setting
 		if err := handler.service.Update(value); err != nil {
-			fmt.Printf("Update setting error for key:%s value:%s\n", v.Key, v.Value)
+			log.Printf("Update setting error for key:%s value:%s\n", v.Key, v.Value)
 		}
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Update setting successfully"})
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Update setting successfully"})
 }

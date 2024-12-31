@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type IRoleHandler interface {
@@ -27,14 +29,18 @@ func NewRoleHandler(service *services.RoleService) *RoleHandler {
 	}
 }
 
-func (handler *RoleHandler) CreateRole(c *gin.Context) {
+func (handler *RoleHandler) CreateRole(ctx *gin.Context) {
 	var input struct {
 		Name        string `json:"name" binding:"required,min=3,max=255"`
 		DisplayName string `json:"display_name" binding:"required,min=3,max=255"`
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
@@ -44,37 +50,45 @@ func (handler *RoleHandler) CreateRole(c *gin.Context) {
 	}
 
 	if err := handler.service.Create(&role); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Create new role successfully"})
+	utils.RespondWithOK(ctx, http.StatusCreated, gin.H{"message": "Create new role successfully"})
 }
 
-func (handler *RoleHandler) UpdateRole(c *gin.Context) {
+func (handler *RoleHandler) UpdateRole(ctx *gin.Context) {
 	var input struct {
 		DisplayName string `json:"display_name" binding:"required,min=3,max=255"`
 	}
 
 	// Bind JSON request body to input struct
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeValidation, err.Error()),
+		)
 		return
 	}
 
 	// Get role ID from URL parameter
-	roleId := c.Param("id")
+	roleId := ctx.Param("id")
 	// Convert role ID string to integer
 	id, err := strconv.Atoi(roleId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, err.Error()),
+		)
 		return
 	}
 
 	// Get role from database by ID
 	role, err := handler.service.GetByID(int64(id))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -83,48 +97,54 @@ func (handler *RoleHandler) UpdateRole(c *gin.Context) {
 
 	// Save updated role to database
 	if err := handler.service.Update(role); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Update role successfully"})
-
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Update role successfully"})
 }
 
-func (handler *RoleHandler) GetRole(c *gin.Context) {
+func (handler *RoleHandler) GetRole(ctx *gin.Context) {
 	// Get role ID from URL parameter
-	roleId := c.Param("id")
+	roleId := ctx.Param("id")
 	// Convert role ID string to integer
 	id, err := strconv.Atoi(roleId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, err.Error()),
+		)
 		return
 	}
 
 	// Get role from database by ID
 	role, err := handler.service.GetByID(int64(id))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, role)
+	utils.RespondWithOK(ctx, http.StatusOK, role)
 }
 
-func (handler *RoleHandler) DeleteRole(c *gin.Context) {
+func (handler *RoleHandler) DeleteRole(ctx *gin.Context) {
 	// Get role ID from URL parameter
-	roleId := c.Param("id")
+	roleId := ctx.Param("id")
 	// Convert role ID string to integer
 	id, err := strconv.Atoi(roleId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrCodeParseError, err.Error()),
+		)
 		return
 	}
 	// Delete role from database
 	if err := handler.service.Delete(int64(id)); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Delete role successfully"})
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Delete role successfully"})
 }

@@ -2,18 +2,25 @@ package utils
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/vfa-khuongdv/golang-cms/constants"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
-// RespondWithError sends a standardized error response to the client
-// Parameters:
-//   - ctx: Gin context for handling the HTTP response
-//   - err: ErrorResponse struct containing status code, error code and message
-//
-// Returns: None
-func RespondWithError(ctx *gin.Context, err constants.ErrorResponse) {
-	ctx.JSON(err.StatusCode, gin.H{
-		"code":    err.Code,
-		"message": err.Message,
-	})
+func RespondWithError(ctx *gin.Context, statusCode int, err error) {
+	if appErr, ok := err.(*errors.AppError); ok {
+		ctx.JSON(
+			statusCode,
+			gin.H{"code": appErr.Code, "message": appErr.Message},
+		)
+		return
+	} else {
+		ctx.JSON(
+			statusCode,
+			gin.H{"code": errors.ErrCodeInternal, "message": err.Error()},
+		)
+		return
+	}
+}
+
+func RespondWithOK(ctx *gin.Context, statusCode int, body interface{}) {
+	ctx.JSON(statusCode, body)
 }

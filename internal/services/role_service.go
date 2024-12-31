@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type IRoleService interface {
@@ -30,7 +31,11 @@ func NewRoleService(repo *repositories.RoleRepository) *RoleService {
 //   - *models.Role: The role object if found
 //   - error: Any error that occurred during the operation
 func (service *RoleService) GetByID(id int64) (*models.Role, error) {
-	return service.repo.GetByID(id)
+	data, err := service.repo.GetByID(id)
+	if err != nil {
+		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+	}
+	return data, nil
 }
 
 // Create adds a new role to the repository
@@ -40,7 +45,11 @@ func (service *RoleService) GetByID(id int64) (*models.Role, error) {
 // Returns:
 //   - error: Any error that occurred during the operation
 func (service *RoleService) Create(role *models.Role) error {
-	return service.repo.Create(role)
+	err := service.repo.Create(role)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBInsert, err.Error())
+	}
+	return nil
 }
 
 // Update modifies an existing role in the repository
@@ -50,7 +59,11 @@ func (service *RoleService) Create(role *models.Role) error {
 // Returns:
 //   - error: Any error that occurred during the operation
 func (service *RoleService) Update(role *models.Role) error {
-	return service.repo.Update(role)
+	err := service.repo.Update(role)
+	if err != nil {
+		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+	}
+	return nil
 }
 
 // Delete removes a role from the repository by its ID
@@ -62,7 +75,7 @@ func (service *RoleService) Update(role *models.Role) error {
 func (service *RoleService) Delete(id int64) error {
 	role, err := service.repo.GetByID(id)
 	if err != nil {
-		return err
+		return errors.New(errors.ErrCodeDBDelete, err.Error())
 	}
 	return service.repo.Delete(role)
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
 type IPermissionHandler interface {
@@ -19,14 +20,13 @@ func NewPermissionHandler(service *services.PermissionService) *PermissionHandle
 	return &PermissionHandler{service: service}
 }
 
-func (handlder *PermissionHandler) GetAll(c *gin.Context) {
+func (handlder *PermissionHandler) GetAll(ctx *gin.Context) {
 	permissions, err := handlder.service.GetAll()
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, permissions)
-
+	utils.RespondWithOK(ctx, http.StatusOK, permissions)
 }
