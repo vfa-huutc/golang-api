@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -9,6 +8,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 )
 
 type ISettingHandler interface {
@@ -68,7 +68,7 @@ func (handler *SettingHandler) UpdateSettings(ctx *gin.Context) {
 			}
 
 			if err := handler.service.Create(&newSetting); err != nil {
-				log.Printf("Create new setting error for key:%s value:%s\n", v.Key, v.Value)
+				logger.Errorf("Create new setting error for key:%s value:%s\n", v.Key, v.Value)
 				continue
 			}
 
@@ -78,7 +78,7 @@ func (handler *SettingHandler) UpdateSettings(ctx *gin.Context) {
 
 		// Save updated setting
 		if err := handler.service.Update(value); err != nil {
-			log.Printf("Update setting error for key:%s value:%s\n", v.Key, v.Value)
+			logger.Errorf("Update setting error for key:%s value:%s\n", v.Key, v.Value)
 		}
 	}
 

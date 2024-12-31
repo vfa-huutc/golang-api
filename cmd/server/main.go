@@ -8,8 +8,6 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/routes"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
-
-	log "github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -41,9 +39,9 @@ func main() {
 		&models.Permission{},
 	)
 	if err != nil {
-		log.Fatalf("Failed to run migrations: %v", err)
+		logger.Fatal(fmt.Sprintf("Failed to run migrations: %+v", err))
 	}
-	log.Println("Migrations completed")
+	logger.Info("Migrations completed")
 
 	// Routes
 	routes := routes.SetupRouter(db)

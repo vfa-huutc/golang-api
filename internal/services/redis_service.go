@@ -1,10 +1,9 @@
 package services
 
 import (
-	"log"
-
 	"github.com/redis/go-redis/v9"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 	"golang.org/x/net/context"
 )
 
@@ -37,7 +36,7 @@ func NewRedisService(address, password string, db int) *RedisService {
 		panic("Failed to connect to Redis: " + err.Error())
 	}
 
-	log.Printf("Redis run at %s\n", address)
+	logger.Infof("Redis run at %s\n", address)
 
 	return &RedisService{
 		client: client,

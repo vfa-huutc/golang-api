@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -15,6 +14,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 )
 
 type IUserhandler interface {
@@ -150,7 +150,7 @@ func (handle *UserHandler) ForgotPassword(ctx *gin.Context) {
 		)
 		return
 	}
-	log.Println("Email sent successfully!")
+	logger.Info("Email sent successfully!")
 
 	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Forgot password successfully"})
 }
@@ -473,7 +473,7 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 	// Try to get user from Redis cache
 	userString, err := handler.redisService.Get(constants.PROFILE)
 	if err != nil {
-		log.Printf("Failed to get user from Redis: %v", err)
+		logger.Warnf("Failed to get user from Redis: %+v", err)
 	}
 	// If not in cache, get from DB
 	if userString == "" {
@@ -490,12 +490,12 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 
 		// Cache the user data
 		if err := handler.cacheUserProfile(&user); err != nil {
-			log.Printf("Failed to cache user profile: %v", err)
+			logger.Warnf("Failed to cache user profile: %v", err)
 		}
 	} else {
-		logrus.Printf("User retrieved from Redis")
+		logger.Info("User retrieved from Redis")
 		if err := json.Unmarshal([]byte(userString), &user); err != nil {
-			log.Printf("Failed to unmarshal user from Redis: %v", err)
+			logger.Warnf("Failed to unmarshal user from Redis: %v", err)
 		}
 
 	}

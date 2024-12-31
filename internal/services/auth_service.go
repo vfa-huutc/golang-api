@@ -67,7 +67,7 @@ func (service *AuthService) Login(email, password string, ctx *gin.Context) (*Lo
 	ipAddress := ctx.ClientIP()
 	tokenResult, err := service.tokenService.Create(*user, ipAddress)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBInsert, err.Error())
+		return nil, err // error is already wrapped by the service, so we can return it directly
 	}
 
 	res := &LoginResponse{

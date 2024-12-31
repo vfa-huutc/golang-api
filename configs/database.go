@@ -3,7 +3,7 @@ package configs
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -39,10 +39,9 @@ func InitDB(config DatabaseConfig) *gorm.DB {
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Failed to connect to the MySQL database: %v", err)
+		logger.Fatalf("Failed to connect to the MySQL database: %+v", err)
 	}
-
-	log.Println("MySQL database connection established successfully")
+	logger.Info("MySQL database connection established successfully")
 	DB = db
 	return db
 }

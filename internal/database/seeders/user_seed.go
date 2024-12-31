@@ -1,10 +1,9 @@
 package seeders
 
 import (
-	"fmt"
-
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +28,7 @@ func SeedUsers(db *gorm.DB) error {
 
 	for _, user := range users {
 		if err := db.Create(&user).Error; err != nil {
-			fmt.Printf("The user %v was run before\n", user.Name)
+			logger.Infof("The user %v was run before\n", user.Name)
 		}
 	}
 

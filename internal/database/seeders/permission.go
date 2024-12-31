@@ -1,9 +1,8 @@
 package seeders
 
 import (
-	"fmt"
-
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 	"gorm.io/gorm"
 )
 
@@ -64,7 +63,7 @@ func SeedPermissions(db *gorm.DB) error {
 
 	for _, permission := range permissions {
 		if err := db.Create(&permission).Error; err != nil {
-			fmt.Printf("The permission %v, action %v was run before\n", permission.Resource, permission.Action)
+			logger.Infof("The permission %v, action %v was run before\n", permission.Resource, permission.Action)
 		}
 	}
 

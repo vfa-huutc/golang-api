@@ -52,7 +52,7 @@ func (service *RefreshTokenService) Create(user models.User, ipAddress string) (
 
 	err := service.repo.Create(&token)
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.ErrCodeDBInsert, err.Error())
 	}
 
 	return &configs.JwtResult{
