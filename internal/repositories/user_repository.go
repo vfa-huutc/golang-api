@@ -11,7 +11,7 @@ type IUserRepository interface {
 	Create(user *models.User) error
 	Update(user *models.User) error
 	Delete(user *models.User) error
-	FindByField(field string, value interface{}) (*models.User, error)
+	FindByField(field string, value string) (*models.User, error)
 	GetProfile(id uint) (*models.User, error)
 	UpdateProfile(user *models.User) error
 }
@@ -101,7 +101,7 @@ func (repo *UserRepository) Delete(userId uint) error {
 // Returns:
 //   - *models.User: Pointer to the retrieved User model if found
 //   - error: Error if user not found or if there was a database error
-func (repo *UserRepository) FindByField(field string, value interface{}) (*models.User, error) {
+func (repo *UserRepository) FindByField(field string, value string) (*models.User, error) {
 	var user models.User
 	if err := repo.db.Where(field+" = ?", value).First(&user).Error; err != nil {
 		return nil, err

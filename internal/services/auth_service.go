@@ -98,7 +98,7 @@ func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*Login
 	// Create new refresh token using the token service
 	res, err := service.tokenService.CreateRefreshToken(token, ipAddress)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBInsert, err.Error())
+		return nil, err // error is already wrapped by the service, so we can return it directly
 	}
 
 	// Get user details from the database using the user ID from refresh token
