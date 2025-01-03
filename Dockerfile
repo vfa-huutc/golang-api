@@ -1,5 +1,5 @@
 # Build stage: Use an official Go runtime as a parent image
-FROM golang:1.23-alpine as builder
+FROM golang:1.23-alpine AS builder
 
 # Set environment variables for Go build
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
@@ -41,7 +41,7 @@ RUN chown -R appuser:appuser /home/appuser
 USER appuser
 
 # Expose the port the app runs on
-EXPOSE 80
+EXPOSE 3000
 
 # Run the Go binary
 CMD ["./main"]

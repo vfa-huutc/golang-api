@@ -23,7 +23,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	// Initialize services
 
-	REDIS_HOST := utils.GetEnv("REDIS_HOST", "localhost:6379")
+	REDIS_HOST := utils.GetEnv("REDIS_HOST", "192.168.48.235:6379")
 	REDIS_PASS := utils.GetEnv("REDIS_PASS", "")
 	REDIS_DB := utils.GetEnvAsInt("REDIS_DB", 0)
 
