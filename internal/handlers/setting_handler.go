@@ -52,7 +52,7 @@ func (handler *SettingHandler) UpdateSettings(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}

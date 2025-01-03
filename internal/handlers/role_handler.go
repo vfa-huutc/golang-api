@@ -39,7 +39,7 @@ func (handler *RoleHandler) CreateRole(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -67,7 +67,7 @@ func (handler *RoleHandler) UpdateRole(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -80,7 +80,7 @@ func (handler *RoleHandler) UpdateRole(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, err.Error()),
+			errors.New(errors.ErrInvalidParse, err.Error()),
 		)
 		return
 	}
@@ -113,7 +113,7 @@ func (handler *RoleHandler) GetRole(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, err.Error()),
+			errors.New(errors.ErrInvalidParse, err.Error()),
 		)
 		return
 	}
@@ -137,7 +137,7 @@ func (handler *RoleHandler) DeleteRole(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, err.Error()),
+			errors.New(errors.ErrInvalidParse, err.Error()),
 		)
 		return
 	}

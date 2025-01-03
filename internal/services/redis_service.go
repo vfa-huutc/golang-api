@@ -55,7 +55,7 @@ func NewRedisService(address, password string, db int) *RedisService {
 func (r *RedisService) Set(key string, value interface{}) error {
 	err := r.client.Set(r.ctx, key, value, 0).Err()
 	if err != nil {
-		return errors.New(errors.ErrCodeSetCache, err.Error())
+		return errors.New(errors.ErrCacheSet, err.Error())
 	}
 	return nil
 }
@@ -73,7 +73,7 @@ func (r *RedisService) Get(key string) (string, error) {
 	if err == redis.Nil {
 		return "", nil
 	} else if err != nil {
-		return "", errors.New(errors.ErrorGetCache, err.Error())
+		return "", errors.New(errors.ErrCacheGet, err.Error())
 	}
 	return val, err
 }
@@ -87,7 +87,7 @@ func (r *RedisService) Get(key string) (string, error) {
 func (r *RedisService) Delete(key string) error {
 	err := r.client.Del(r.ctx, key).Err()
 	if err != nil {
-		return errors.New(errors.ErrorDeleteCache, err.Error())
+		return errors.New(errors.ErrCacheDelete, err.Error())
 	}
 	return nil
 }
@@ -102,7 +102,7 @@ func (r *RedisService) Delete(key string) error {
 func (r *RedisService) Exists(key string) (bool, error) {
 	count, err := r.client.Exists(r.ctx, key).Result()
 	if err != nil {
-		return false, errors.New(errors.ErrorExistsCache, err.Error())
+		return false, errors.New(errors.ErrCacheKeyExists, err.Error())
 	}
 	return count > 0, nil
 }
@@ -117,7 +117,7 @@ func (r *RedisService) Exists(key string) (bool, error) {
 func (e *RedisService) GetList(listName string) ([]string, error) {
 	data, err := e.client.LRange(e.ctx, listName, 0, -1).Result()
 	if err != nil {
-		return nil, errors.New(errors.ErrorListCache, err.Error())
+		return nil, errors.New(errors.ErrCacheList, err.Error())
 	}
 	return data, nil
 }

@@ -34,7 +34,7 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -59,7 +59,7 @@ func (handler *AuthHandler) RefreshToken(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}

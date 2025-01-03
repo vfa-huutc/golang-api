@@ -23,7 +23,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrCodeUnauthorized, "Authorization header required"))
+			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, "Authorization header required"))
 			ctx.Abort()
 			return
 		}
@@ -32,7 +32,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		claims, err := configs.ValidateToken(tokenString)
 		if err != nil {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrCodeUnauthorized, "Unauthorized"))
+			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, "Unauthorized"))
 			ctx.Abort()
 			return
 		}

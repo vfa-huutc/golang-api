@@ -59,7 +59,7 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -71,7 +71,7 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeInternal, "Hash password failed"),
+			errors.New(errors.ErrAuthPasswordHashFailed, "Hash password failed"),
 		)
 		return
 	}
@@ -106,7 +106,7 @@ func (handle *UserHandler) ForgotPassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -166,7 +166,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -187,7 +187,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeTokenExpired, "Token expired"),
+			errors.New(errors.ErrAuthTokenExpired, "Token expired"),
 		)
 		return
 	}
@@ -197,7 +197,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeInvalidPassword, "Token expired"),
+			errors.New(errors.ErrAuthInvalidPassword, "Password is incorrect"),
 		)
 		return
 	}
@@ -209,7 +209,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusInternalServerError,
-			errors.New(errors.ErrCodeFailedToHashed, "Hash password failed"),
+			errors.New(errors.ErrAuthPasswordHashFailed, "Failed to hash password"),
 		)
 		return
 	}
@@ -240,7 +240,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, "Invalid UserID"),
+			errors.New(errors.ErrInvalidParse, "Invalid UserID"),
 		)
 		return
 	}
@@ -255,7 +255,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -276,7 +276,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeNotMatchedPassword, "Old password is incorrect"),
+			errors.New(errors.ErrAuthPasswordMismatch, "Old password is incorrect"),
 		)
 		return
 	}
@@ -286,7 +286,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeOldAndNewShouldDiff, "New password must be different from old password"),
+			errors.New(errors.ErrAuthPasswordMismatch, "New password must be different from old password"),
 		)
 		return
 	}
@@ -296,7 +296,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeNotMatchedPassword, "New password and confirm password do not match"),
+			errors.New(errors.ErrAuthInvalidPassword, "New password and confirm password do not match"),
 		)
 		return
 	}
@@ -308,7 +308,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusInternalServerError,
-			errors.New(errors.ErrCodeFailedToHashed, "Hash password failed"),
+			errors.New(errors.ErrAuthPasswordHashFailed, "Hash password failed"),
 		)
 		return
 	}
@@ -338,7 +338,7 @@ func (handler *UserHandler) DeleteUser(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, err.Error()),
+			errors.New(errors.ErrInvalidParse, err.Error()),
 		)
 		return
 	}
@@ -375,7 +375,7 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, err.Error()),
+			errors.New(errors.ErrInvalidParse, err.Error()),
 		)
 
 		return
@@ -393,7 +393,7 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, err.Error()),
+			errors.New(errors.ErrInvalidData, err.Error()),
 		)
 		return
 	}
@@ -437,7 +437,7 @@ func (handler *UserHandler) GetUser(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, err.Error()),
+			errors.New(errors.ErrInvalidParse, err.Error()),
 		)
 		return
 	}
@@ -463,7 +463,7 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, "Invalid UserID"),
+			errors.New(errors.ErrInvalidParse, "Invalid UserID"),
 		)
 		return
 	}
@@ -533,7 +533,7 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeParseError, "Invalid UserID"),
+			errors.New(errors.ErrInvalidParse, "Invalid UserID"),
 		)
 		return
 	}
@@ -551,7 +551,7 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrCodeValidation, "Invalid UserID"),
+			errors.New(errors.ErrInvalidData, "Invalid UserID"),
 		)
 		return
 	}

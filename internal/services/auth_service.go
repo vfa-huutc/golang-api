@@ -49,18 +49,18 @@ func NewAuthService(repo *repositories.UserRepository, tokenService *RefreshToke
 func (service *AuthService) Login(email, password string, ctx *gin.Context) (*LoginResponse, error) {
 	user, err := service.repo.FindByField("email", email)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeNotFound, err.Error())
+		return nil, errors.New(errors.ErrResourceNotFound, err.Error())
 	}
 
 	// Validate password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, errors.New(errors.ErrCodeInvalidPassword, err.Error())
+		return nil, errors.New(errors.ErrAuthInvalidPassword, err.Error())
 	}
 
 	// Generate refresh token
 	token, err := configs.GenerateToken(user.ID)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeInternal, err.Error())
+		return nil, errors.New(errors.ErrServerInternal, err.Error())
 	}
 
 	// Create new refresh token
@@ -104,12 +104,12 @@ func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*Login
 	// Get user details from the database using the user ID from refresh token
 	user, err := service.repo.GetByID(res.UserId)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	// Generate new access token for the user
 	resultToken, err := configs.GenerateToken(user.ID)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeBadRequest, err.Error())
+		return nil, errors.New(errors.ErrServerInternal, err.Error())
 	}
 
 	// Return new access and refresh tokens

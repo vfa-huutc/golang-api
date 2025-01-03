@@ -29,7 +29,7 @@ func NewSettingService(repo *repositories.SettingRepostitory) *SettingService {
 func (service *SettingService) GetSetting() (*[]models.Setting, error) {
 	data, err := service.repo.GetAll()
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return data, nil
 }
@@ -43,7 +43,7 @@ func (service *SettingService) GetSetting() (*[]models.Setting, error) {
 func (service *SettingService) UpdateMany(settings *[]models.Setting) error {
 	err := service.repo.UpdateMany(settings)
 	if err != nil {
-		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+		return errors.New(errors.ErrDatabaseUpdate, err.Error())
 	}
 	return nil
 }
@@ -58,7 +58,7 @@ func (service *SettingService) UpdateMany(settings *[]models.Setting) error {
 func (service *SettingService) GetSettingByKey(key string) (*models.Setting, error) {
 	data, err := service.repo.GetByKey(key)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return data, nil
 }
@@ -73,7 +73,7 @@ func (service *SettingService) GetSettingByKey(key string) (*models.Setting, err
 func (service *SettingService) Update(setting *models.Setting) error {
 	err := service.repo.Update(setting)
 	if err != nil {
-		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+		return errors.New(errors.ErrDatabaseUpdate, err.Error())
 	}
 	return nil
 }
@@ -88,7 +88,7 @@ func (service *SettingService) Update(setting *models.Setting) error {
 func (service *SettingService) Create(setting *models.Setting) error {
 	err := service.repo.Create(setting)
 	if err != nil {
-		return errors.New(errors.ErrCodeDBInsert, err.Error())
+		return errors.New(errors.ErrDatabaseInsert, err.Error())
 	}
 	return nil
 }

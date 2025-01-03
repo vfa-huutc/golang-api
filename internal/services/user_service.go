@@ -52,7 +52,7 @@ func NewUserService(repo *repositories.UserRepository) *UserService {
 func (service *UserService) GetUser(id uint) (*models.User, error) {
 	data, err := service.repo.GetByID(id)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return data, nil
 }
@@ -71,7 +71,7 @@ func (service *UserService) GetUser(id uint) (*models.User, error) {
 func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 	data, err := service.repo.FindByField("email", email)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return data, nil
 }
@@ -93,7 +93,7 @@ func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 func (service *UserService) CreateUser(user *models.User) error {
 	err := service.repo.Create(user)
 	if err != nil {
-		return errors.New(errors.ErrCodeDBInsert, err.Error())
+		return errors.New(errors.ErrDatabaseInsert, err.Error())
 	}
 	return nil
 }
@@ -116,7 +116,7 @@ func (service *UserService) CreateUser(user *models.User) error {
 func (service *UserService) UpdateUser(user *models.User) error {
 	err := service.repo.Update(user)
 	if err != nil {
-		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+		return errors.New(errors.ErrDatabaseUpdate, err.Error())
 	}
 	return nil
 }
@@ -134,7 +134,7 @@ func (service *UserService) UpdateUser(user *models.User) error {
 func (service *UserService) DeleteUser(id uint) error {
 	err := service.repo.Delete(id)
 	if err != nil {
-		return errors.New(errors.ErrCodeDBDelete, err.Error())
+		return errors.New(errors.ErrDatabaseDelete, err.Error())
 	}
 	return nil
 }
@@ -153,7 +153,7 @@ func (service *UserService) DeleteUser(id uint) error {
 func (service *UserService) GetUserByToken(token string) (*models.User, error) {
 	data, err := service.repo.FindByField("token", token)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return data, nil
 }
@@ -172,7 +172,7 @@ func (service *UserService) GetUserByToken(token string) (*models.User, error) {
 func (service *UserService) GetProfile(id uint) (*models.User, error) {
 	data, err := service.repo.GetProfile(id)
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return data, nil
 }
@@ -195,7 +195,7 @@ func (service *UserService) GetProfile(id uint) (*models.User, error) {
 func (service *UserService) UpdateProfile(user *models.User) error {
 	err := service.repo.UpdateProfile(user)
 	if err != nil {
-		return errors.New(errors.ErrCodeDBUpdate, err.Error())
+		return errors.New(errors.ErrDatabaseUpdate, err.Error())
 	}
 	return nil
 }

@@ -64,12 +64,12 @@ func SendMailForgotPassword(user *models.User) error {
 	var htmlBody bytes.Buffer
 	// Execute template with data and write to buffer
 	if err := tmpl.Execute(&htmlBody, data); err != nil {
-		return errors.New(errors.ErrCodeInternal, fmt.Sprintf("error executing template: %+v", err))
+		return errors.New(errors.ErrServerInternal, fmt.Sprintf("error executing template: %+v", err))
 	}
 
 	// Send password reset email to user
 	if err := mailer.Send([]string{user.Email}, "Reset your password", "", htmlBody.String()); err != nil {
-		return errors.New(errors.ErrCodeInternal, fmt.Sprintf("error sending email: %+v", err))
+		return errors.New(errors.ErrServerInternal, fmt.Sprintf("error sending email: %+v", err))
 
 	}
 	return nil

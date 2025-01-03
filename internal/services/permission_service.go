@@ -25,7 +25,7 @@ func NewPermissionService(repo *repositories.PermissionRepository) *PermissionSe
 func (repo *PermissionService) GetAll() (*[]models.Permission, error) {
 	permission, err := repo.repo.GetAll()
 	if err != nil {
-		return nil, errors.New(errors.ErrCodeDBQuery, err.Error())
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return permission, nil
 }
