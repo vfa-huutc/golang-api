@@ -1,5 +1,8 @@
-# Use an official Go runtime as a parent image
+# Build stage: Use an official Go runtime as a parent image
 FROM golang:1.23-alpine as builder
+
+# Set environment variables for Go build
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
@@ -7,32 +10,32 @@ WORKDIR /app
 # Copy the Go Modules manifests
 COPY go.mod go.sum ./
 
-# Download all the dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+# Download all the dependencies. Dependencies will be cached if go.mod and go.sum are unchanged
 RUN go mod tidy
 
 # Copy the source code into the container
 COPY . .
 
-# Build the Go app from the correct main file location
-RUN go build -o main ./cmd/server/main.go
+# Build the Go app with optimizations
+RUN go build -ldflags="-s -w" -o main ./cmd/server/main.go
 
-# Start a new stage from scratch
-FROM alpine:latest  
+# Runtime stage: Use minimal image
+FROM alpine:3.18  
 
 # Install ca-certificates for SSL (if required)
 RUN apk --no-cache add ca-certificates
 
 # Add a new non-root user
-RUN adduser -D appuser
+RUN adduser -D -u 1000 appuser
 
 # Set the Current Working Directory inside the container
-WORKDIR /root/
+WORKDIR /home/appuser/
 
-# Copy the Pre-built binary file from the builder stage
+# Copy the pre-built binary from the builder stage
 COPY --from=builder /app/main .
 
 # Change ownership of the application files to the non-root user
-RUN chown -R appuser:appuser /root
+RUN chown -R appuser:appuser /home/appuser
 
 # Switch to the non-root user
 USER appuser
