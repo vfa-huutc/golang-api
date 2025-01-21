@@ -28,6 +28,7 @@ Thumbs.db
 
 # Ignore any local configuration files
 .env
+.env.example
 
 # Ignore test or coverage files
 coverage/
@@ -35,5 +36,5 @@ testdata/
 
 # Others
 docker-compose.yml
-mysql
+mysql/
 docs/
