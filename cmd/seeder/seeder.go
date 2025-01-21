@@ -17,7 +17,7 @@ func main() {
 	// MySQL database configuration
 	config := configs.DatabaseConfig{
 		Host:     utils.GetEnv("DB_HOST", "127.0.0.1"),
-		Port:     utils.GetEnvAsInt("DB_PORT", 3306),
+		Port:     utils.GetEnv("DB_PORT", "3306"),
 		User:     utils.GetEnv("DB_USERNAME", ""),
 		Password: utils.GetEnv("DB_PASSWORD", ""),
 		DBName:   utils.GetEnv("DB_DATABASE", ""),
