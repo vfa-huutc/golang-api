@@ -30,8 +30,6 @@ The project follows a clean architecture and is organized into the following dir
 │   ├── routes                        # Routes and routing logic
 │   ├── services                      # Business logic for authentication, user, etc.
 │   └── utils                         # Utility functions (e.g., for encryption, validation)
-├── mysql                             # MySQL database files (e.g., data and logs)
-│   └── db/data
 ├── pkg                               # External packages
 │   ├── logger                        # Logger utility
 │   └── mailer                        # Mailer for sending emails
@@ -48,6 +46,7 @@ Before getting started, ensure that you have the following installed:
 - [Docker](https://www.docker.com/products/docker-desktop)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [MySQL](https://www.mysql.com/)
+- [Migrate CLI](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate) (for database migrations)
 
 ## Setup Instructions
 
@@ -56,6 +55,7 @@ Before getting started, ensure that you have the following installed:
 ```bash
 git clone https://github.com/yourusername/yourproject.git
 cd yourproject
+cp .env.example .env
 ```
 
 ### 2. Build and run the application using Docker
@@ -74,11 +74,38 @@ This will:
 
 ### 3. Database Migrations
 
+To create a new migration file, use the following command:
+
+```bash
+migrate create -ext sql -dir internal/database/migrations -seq your_migration_name
+```
+
+For example, to create a feedback table migration:
+```bash
+migrate create -ext sql -dir internal/database/migrations -seq feedback_table
+```
+
+This will create two files:
+- XXXXXX_feedback_table.up.sql (for applying the migration)
+- XXXXXX_feedback_table.down.sql (for reverting the migration)
+
 The project includes migrations for creating the necessary tables in the MySQL database.
 To apply the migrations:
 
 ```bash
 migrate -path ./internal/database/migrations -database "mysql://root:root@tcp(127.0.0.1:3306)/golang_db_2" up
+```
+
+To revert migrations, you can use the down command:
+
+```bash
+migrate -path ./internal/database/migrations -database "mysql://root:root@tcp(127.0.0.1:3306)/golang_db_2" down
+```
+
+You can also revert a specific number of migrations by adding the number after the down command:
+
+```bash
+migrate -path ./internal/database/migrations -database "mysql://root:root@tcp(127.0.0.1:3306)/golang_db_2" down 1
 ```
 
 This will run the migration scripts and populate the database.
@@ -93,25 +120,82 @@ docker-compose exec app go run cmd/seeder/seeder.go
 
 ### 5. Running the Server
 
-To run the application server:
+There are two ways to run the server:
 
+#### Using Air (Recommended for Development)
+
+[Air](https://github.com/air-verse/air) provides live-reloading capability which is great for development. To use it:
+
+1. Install Air:
+```bash
+# binary will be $(go env GOPATH)/bin/air
+curl -sSfL https://raw.githubusercontent.com/air-verse/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
+
+# or install it into ./bin/
+curl -sSfL https://raw.githubusercontent.com/air-verse/air/master/install.sh | sh -s
+
+air -v
+```
+
+2. If the `air` command is not found after installation, add this to your `~/.bash_profile` or `~/.zshrc`:
+```bash
+export PATH=$PATH:$HOME/go/bin
+```
+
+3. Run the server with live-reloading:
 ```bash
 air
 ```
 
-The server will start and be available at `http://localhost:8080`.
+#### Direct Go Run (Alternative)
+
+If you prefer to run the server directly without live-reloading:
+
+```bash
+go run cmd/server/main.go
+```
+
+The server will start and be available at `http://localhost:3000`.
+
+### 6. phpmyadmin
+
+PHPMyAdmin is available for database management through a web interface at:
+- URL: `http://localhost:8080`
+- Username: `root`
+- Password: `root`
 
 ## Environment Variables
 
 The following environment variables are required for the application:
 
-- `DB_USERNAME` - MySQL database username.
-- `DB_PASSWORD` - MySQL database password.
-- `DB_DATABSE`  - MySQL Name of database.
-- `DB_PORT`     - MySQL port number of database.
+Database Configuration:
+- `DB_HOST` - MySQL database host
+- `DB_USERNAME` - MySQL database username
+- `DB_PASSWORD` - MySQL database password
+- `DB_DATABASE` - MySQL database name
+- `DB_PORT` - MySQL port number
 
-These can be set in the `.env` file or passed directly as environment variables.
+JWT Configuration:
+- `JWT_SECRET_KEY` - Secret key for JWT token generation
+- `JWT_EXPIRES_IN` - JWT token expiration time (e.g., "24h")
 
+Server Configuration:
+- `SERVER_PORT` - Port number for the application server (default: 3000)
+- `SERVER_MODE` - Server mode ("development" or "production")
+
+Mail Configuration (if using email features):
+- `SMTP_HOST` - SMTP server host
+- `SMTP_PORT` - SMTP server port
+- `SMTP_USERNAME` - SMTP username
+- `SMTP_PASSWORD` - SMTP password
+- `SMTP_FROM_ADDRESS` - Email address used as sender
+
+Redis Configuration (for caching and session management):
+- `REDIS_HOST` - Redis server host
+- `REDIS_PORT` - Redis server port
+- `REDIS_PASSWORD` - Redis password (if any)
+
+These can be set in the `.env` file or passed directly as environment variables. A sample `.env.example` file is provided in the repository.
 
 Check the `docs/api_spec.md` for a detailed API specification.
 
