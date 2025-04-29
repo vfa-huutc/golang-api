@@ -14,6 +14,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Initialize the default Gin router
 	router := gin.Default()
 
+	// Add middleware for CORS and logging
+	router.Use(middlewares.CORSMiddleware(), middlewares.LogMiddleware(), gin.Recovery())
+
 	// Serve Swagger documentation
 	router.StaticFile("/docs/swagger.json", "./docs/swagger.json")
 	router.StaticFile("/swagger", "./docs/swagger.html")
@@ -50,9 +53,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Set Gin mode from environment variable
 	ginMode := utils.GetEnv("GIN_MODE", "debug")
 	gin.SetMode(ginMode)
-
-	// Add middleware
-	router.Use(gin.Recovery(), middlewares.LogMiddleware())
 
 	router.GET("/healthz", handlers.HealthCheck)
 
