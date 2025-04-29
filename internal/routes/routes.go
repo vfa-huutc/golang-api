@@ -79,6 +79,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			api.PATCH("/roles/:id", roleHandler.UpdateRole)
 			api.DELETE("/roles/:id", roleHandler.DeleteRole)
 
+			// Role permissions management
+			api.POST("/roles/:id/permissions", roleHandler.AssignPermissions)
+			api.GET("/roles/:id/permissions", roleHandler.GetRolePermissions)
+
 			// Settings
 			api.GET("/settings", settingHandler.GetSettings)
 			api.PUT("/settings", settingHandler.UpdateSettings)

@@ -17,6 +17,8 @@ type IRoleHandler interface {
 	GetRole(c *gin.Context)
 	GetRoles(c *gin.Context)
 	DeleteRole(c *gin.Context)
+	AssignPermissions(c *gin.Context)
+	GetRolePermissions(c *gin.Context)
 }
 
 type RoleHandler struct {
@@ -147,4 +149,90 @@ func (handler *RoleHandler) DeleteRole(ctx *gin.Context) {
 		return
 	}
 	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Delete role successfully"})
+}
+
+// AssignPermissions handles assigning permissions to a role
+// It accepts a list of permission IDs to assign to the specified role
+func (handler *RoleHandler) AssignPermissions(ctx *gin.Context) {
+	var input struct {
+		PermissionIDs []uint `json:"permission_ids" binding:"required"`
+	}
+
+	// Bind JSON request body to input struct
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrInvalidData, err.Error()),
+		)
+		return
+	}
+
+	// Get role ID from URL parameter
+	roleId := ctx.Param("id")
+	// Convert role ID string to integer
+	id, err := strconv.Atoi(roleId)
+	if err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrInvalidParse, err.Error()),
+		)
+		return
+	}
+
+	// Verify the role exists
+	_, err = handler.service.GetByID(int64(id))
+	if err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusNotFound,
+			errors.New(errors.ErrResourceNotFound, "Role not found"),
+		)
+		return
+	}
+
+	// Assign permissions to the role
+	if err := handler.service.AssignPermissions(uint(id), input.PermissionIDs); err != nil {
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Permissions assigned to role successfully"})
+}
+
+// GetRolePermissions retrieves all permissions assigned to a role
+func (handler *RoleHandler) GetRolePermissions(ctx *gin.Context) {
+	// Get role ID from URL parameter
+	roleId := ctx.Param("id")
+	// Convert role ID string to integer
+	id, err := strconv.Atoi(roleId)
+	if err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusBadRequest,
+			errors.New(errors.ErrInvalidParse, err.Error()),
+		)
+		return
+	}
+
+	// Verify the role exists
+	_, err = handler.service.GetByID(int64(id))
+	if err != nil {
+		utils.RespondWithError(
+			ctx,
+			http.StatusNotFound,
+			errors.New(errors.ErrResourceNotFound, "Role not found"),
+		)
+		return
+	}
+
+	// Get permissions assigned to the role
+	permissions, err := handler.service.GetRolePermissions(uint(id))
+	if err != nil {
+		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	utils.RespondWithOK(ctx, http.StatusOK, permissions)
 }

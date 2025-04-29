@@ -10,6 +10,8 @@ type IRoleRepository interface {
 	Create(role *models.Role) error
 	Update(role *models.Role) error
 	Delete(role *models.Role) error
+	AssignPermissions(roleID uint, permissionIDs []uint) error
+	GetRolePermissions(roleID uint) ([]models.Permission, error)
 }
 
 type RoleRepository struct {
@@ -63,4 +65,61 @@ func (repo *RoleRepository) Update(role *models.Role) error {
 //   - error: nil if successful, error message if failed
 func (repo *RoleRepository) Delete(role *models.Role) error {
 	return repo.db.Delete(role).Error
+}
+
+// AssignPermissions assigns a list of permissions to a role
+// This implementation replaces the existing permissions with the new set
+// Parameters:
+//   - roleID: The ID of the role to assign permissions to
+//   - permissionIDs: Slice of permission IDs to assign to the role
+//
+// Returns:
+//   - error: nil if successful, error message if failed
+func (repo *RoleRepository) AssignPermissions(roleID uint, permissionIDs []uint) error {
+	// Start a transaction
+	tx := repo.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Delete existing role-permission relationships for this role
+	if err := tx.Unscoped().Delete(&models.RolePermission{}, "role_id = ?", roleID).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	// Create new role-permission relationships
+	for _, permID := range permissionIDs {
+		rolePermission := models.RolePermission{
+			RoleID:       roleID,
+			PermissionID: permID,
+		}
+		if err := tx.Create(&rolePermission).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	// Commit the transaction
+	return tx.Commit().Error
+}
+
+// GetRolePermissions retrieves all permission objects assigned to a role
+// Parameters:
+//   - roleID: The ID of the role to get permissions for
+//
+// Returns:
+//   - []models.Permission: Slice of permission objects assigned to the role
+//   - error: nil if successful, error message if failed
+func (repo *RoleRepository) GetRolePermissions(roleID uint) ([]models.Permission, error) {
+	var permissions []models.Permission
+
+	err := repo.db.Table("permissions").
+		Joins("JOIN role_permissions ON permissions.id = role_permissions.permission_id").
+		Where("role_permissions.role_id = ?", roleID).
+		Find(&permissions).Error
+
+	return permissions, err
 }

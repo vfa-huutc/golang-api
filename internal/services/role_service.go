@@ -11,6 +11,8 @@ type IRoleService interface {
 	Create(role *models.Role) error
 	Update(role *models.Role) error
 	Delete(id int64) error
+	AssignPermissions(roleID uint, permissionIDs []uint) error
+	GetRolePermissions(roleID uint) ([]models.Permission, error)
 }
 
 type RoleService struct {
@@ -78,4 +80,34 @@ func (service *RoleService) Delete(id int64) error {
 		return errors.New(errors.ErrDatabaseDelete, err.Error())
 	}
 	return service.repo.Delete(role)
+}
+
+// AssignPermissions assigns a list of permissions to a role
+// Parameters:
+//   - roleID: The ID of the role to assign permissions to
+//   - permissionIDs: Slice of permission IDs to assign to the role
+//
+// Returns:
+//   - error: Any error that occurred during the operation
+func (service *RoleService) AssignPermissions(roleID uint, permissionIDs []uint) error {
+	err := service.repo.AssignPermissions(roleID, permissionIDs)
+	if err != nil {
+		return errors.New(errors.ErrDatabaseUpdate, err.Error())
+	}
+	return nil
+}
+
+// GetRolePermissions retrieves all permission objects assigned to a role
+// Parameters:
+//   - roleID: The ID of the role to get permissions for
+//
+// Returns:
+//   - []models.Permission: Slice of permission objects assigned to the role
+//   - error: Any error that occurred during the operation
+func (service *RoleService) GetRolePermissions(roleID uint) ([]models.Permission, error) {
+	permissions, err := service.repo.GetRolePermissions(roleID)
+	if err != nil {
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+	}
+	return permissions, nil
 }

@@ -1,4 +1,4 @@
-CREATE TABLE `roles_permissions` (
+CREATE TABLE `role_permissions` (
   `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
