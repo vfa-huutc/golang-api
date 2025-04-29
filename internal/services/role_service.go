@@ -16,10 +16,10 @@ type IRoleService interface {
 }
 
 type RoleService struct {
-	repo *repositories.RoleRepository
+	repo repositories.IRoleRepository
 }
 
-func NewRoleService(repo *repositories.RoleRepository) *RoleService {
+func NewRoleService(repo repositories.IRoleRepository) *RoleService {
 	return &RoleService{
 		repo: repo,
 	}

@@ -22,10 +22,10 @@ type IRoleHandler interface {
 }
 
 type RoleHandler struct {
-	service *services.RoleService
+	service services.IRoleService
 }
 
-func NewRoleHandler(service *services.RoleService) *RoleHandler {
+func NewRoleHandler(service services.IRoleService) *RoleHandler {
 	return &RoleHandler{
 		service: service,
 	}
