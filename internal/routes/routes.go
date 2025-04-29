@@ -14,6 +14,11 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Initialize the default Gin router
 	router := gin.Default()
 
+	// Serve Swagger documentation
+	router.StaticFile("/docs/swagger.json", "./docs/swagger.json")
+	router.StaticFile("/swagger", "./docs/swagger.html")
+	router.StaticFile("/api-docs", "./docs/swagger.html") // Alternative path
+
 	// Initialize repositories
 	userRepo := repositories.NewUserRepsitory(db)
 	refreshRepo := repositories.NewRefreshTokenRepository(db)
