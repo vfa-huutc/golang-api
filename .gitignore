@@ -35,6 +35,5 @@ testdata/
 
 # Others
 mysql
-docs
 tmp/*
 bin/*
