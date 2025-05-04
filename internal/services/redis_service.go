@@ -7,6 +7,14 @@ import (
 	"golang.org/x/net/context"
 )
 
+type IRedisService interface {
+	Set(key string, value interface{}) error
+	Get(key string) (string, error)
+	Delete(key string) error
+	Exists(key string) (bool, error)
+	GetList(listName string) ([]string, error)
+}
+
 type RedisService struct {
 	client *redis.Client
 	ctx    context.Context

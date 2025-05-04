@@ -31,11 +31,11 @@ type IUserhandler interface {
 }
 
 type UserHandler struct {
-	userService  *services.UserService
-	redisService *services.RedisService
+	userService  services.IUserService
+	redisService services.IRedisService
 }
 
-func NewUserHandler(userService *services.UserService, redisService *services.RedisService) *UserHandler {
+func NewUserHandler(userService services.IUserService, redisService services.IRedisService) *UserHandler {
 	return &UserHandler{
 		userService:  userService,
 		redisService: redisService,

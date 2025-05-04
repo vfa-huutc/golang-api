@@ -13,10 +13,10 @@ type IPermissionHandler interface {
 }
 
 type PermissionHandler struct {
-	service *services.PermissionService
+	service services.IPermissionService
 }
 
-func NewPermissionHandler(service *services.PermissionService) *PermissionHandler {
+func NewPermissionHandler(service services.IPermissionService) *PermissionHandler {
 	return &PermissionHandler{service: service}
 }
 

@@ -17,10 +17,10 @@ type ISettingHandler interface {
 }
 
 type SettingHandler struct {
-	service *services.SettingService
+	service services.ISettingService
 }
 
-func NewSettingHandler(service *services.SettingService) *SettingHandler {
+func NewSettingHandler(service services.ISettingService) *SettingHandler {
 	return &SettingHandler{service: service}
 }
 
