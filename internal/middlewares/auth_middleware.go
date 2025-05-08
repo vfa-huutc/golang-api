@@ -24,8 +24,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, "Authorization header required"))
-			ctx.Abort()
-			return
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
@@ -33,8 +31,6 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, err := configs.ValidateToken(tokenString)
 		if err != nil {
 			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, "Unauthorized"))
-			ctx.Abort()
-			return
 		}
 
 		ctx.Set("UserID", claims.ID)

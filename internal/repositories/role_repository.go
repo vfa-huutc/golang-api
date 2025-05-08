@@ -12,6 +12,7 @@ type IRoleRepository interface {
 	Delete(role *models.Role) error
 	AssignPermissions(roleID uint, permissionIDs []uint) error
 	GetRolePermissions(roleID uint) ([]models.Permission, error)
+	GetDB() *gorm.DB
 }
 
 type RoleRepository struct {
@@ -114,12 +115,18 @@ func (repo *RoleRepository) AssignPermissions(roleID uint, permissionIDs []uint)
 //   - []models.Permission: Slice of permission objects assigned to the role
 //   - error: nil if successful, error message if failed
 func (repo *RoleRepository) GetRolePermissions(roleID uint) ([]models.Permission, error) {
-	var permissions []models.Permission
+	var role models.Role
+	repo.db.Preload("Permissions").First(&role, roleID)
+	if role.ID == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
 
-	err := repo.db.Table("permissions").
-		Joins("JOIN role_permissions ON permissions.id = role_permissions.permission_id").
-		Where("role_permissions.role_id = ?", roleID).
-		Find(&permissions).Error
+	return role.Permissions, nil
+}
 
-	return permissions, err
+// GetDB returns the database instance
+// Returns:
+//   - *gorm.DB: The database instance
+func (repo *RoleRepository) GetDB() *gorm.DB {
+	return repo.db
 }

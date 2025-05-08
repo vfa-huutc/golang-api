@@ -9,7 +9,7 @@ import (
 type IUserService interface {
 	GetUser(id uint) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
-	CreateUser(user *models.User) error
+	CreateUser(user *models.User, roleIds []uint) error
 	UpdateUser(user *models.User) error
 	DeleteUser(id uint) error
 	GetUserByToken(token string) (*models.User, error)
@@ -79,6 +79,7 @@ func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 // CreateUser creates a new user in the database using the provided user data
 // Parameters:
 //   - user: Pointer to models.User containing the user information to create
+//   - roleIds: Slice of role IDs to assign to the user
 //
 // Returns:
 //   - error: nil if successful, otherwise returns the error that occurred
@@ -90,11 +91,39 @@ func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 //	    Email: "john@example.com",
 //	}
 //	err := service.CreateUser(user)
-func (service *UserService) CreateUser(user *models.User) error {
-	err := service.repo.Create(user)
+func (service *UserService) CreateUser(user *models.User, roleIds []uint) error {
+	// Start a transaction to ensure both user creation and role assignments succeed or fail together
+	tx := service.repo.GetDB().Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	// Create the user within the transaction
+	createdUser, err := service.repo.Create(user)
 	if err != nil {
+		tx.Rollback()
 		return errors.New(errors.ErrDatabaseInsert, err.Error())
 	}
+
+	// Create user-role associations for each role ID
+	for _, roleId := range roleIds {
+		userRole := models.UserRole{
+			UserID: createdUser.ID,
+			RoleID: roleId,
+		}
+		if err := tx.Create(&userRole).Error; err != nil {
+			tx.Rollback()
+			return errors.New(errors.ErrDatabaseInsert, "Failed to assign roles: "+err.Error())
+		}
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		return errors.New(errors.ErrDatabaseInsert, "Transaction failed: "+err.Error())
+	}
+
 	return nil
 }
 

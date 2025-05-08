@@ -13,13 +13,13 @@ import (
 //     Otherwise includes internal error code and error message.
 func RespondWithError(ctx *gin.Context, statusCode int, err error) {
 	if appErr, ok := err.(*errors.AppError); ok {
-		ctx.JSON(
+		ctx.AbortWithStatusJSON(
 			statusCode,
 			gin.H{"code": appErr.Code, "message": appErr.Message},
 		)
 		return
 	} else {
-		ctx.JSON(
+		ctx.AbortWithStatusJSON(
 			statusCode,
 			gin.H{"code": errors.ErrServerInternal, "message": err.Error()},
 		)
@@ -33,5 +33,5 @@ func RespondWithError(ctx *gin.Context, statusCode int, err error) {
 //   - statusCode: HTTP status code to return
 //   - body: Data to be serialized as JSON response body
 func RespondWithOK(ctx *gin.Context, statusCode int, body interface{}) {
-	ctx.JSON(statusCode, body)
+	ctx.AbortWithStatusJSON(statusCode, body)
 }

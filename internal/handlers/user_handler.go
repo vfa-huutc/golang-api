@@ -51,6 +51,7 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 		Birthday *string `json:"birthday" binding:"required,datetime=2006-01-02"` // Assumes YYYY-MM-DD format
 		Address  *string `json:"address" binding:"required,min=1,max=255"`
 		Gender   int16   `json:"gender" binding:"required,oneof=0 1 2"`
+		RoleIds  []uint  `json:"role_ids" binding:"required"`
 	}
 
 	// Bind and validate the JSON request body to the input struct
@@ -89,7 +90,7 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 
 	// Attempt to create the user in the database
 	// Return 400 Bad Request if creation fails
-	if err := handler.userService.CreateUser(&user); err != nil {
+	if err := handler.userService.CreateUser(&user, input.RoleIds); err != nil {
 		utils.RespondWithError(ctx, http.StatusBadRequest, err)
 		return
 	}

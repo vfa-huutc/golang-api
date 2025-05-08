@@ -14,4 +14,5 @@ type User struct {
 	Gender    int16   `gorm:"type:smallint;not null"`
 	Token     *string `gorm:"type:varchar(100);default:null;unique" json:"-"`
 	ExpiredAt *int64  `gorm:"type:bigint;default:null"`
+	Roles     []Role  `gorm:"many2many:user_roles;"`
 }

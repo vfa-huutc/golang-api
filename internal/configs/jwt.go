@@ -21,7 +21,7 @@ type JwtResult struct {
 
 // GenerateToken creates a new JWT token for the given email
 // Parameters:
-//   - email: the email to be included in the token claims
+//   - id: the userId to be included in the token claims
 //
 // Returns:
 //   - *JwtResult: contains the signed token string and expiration timestamp

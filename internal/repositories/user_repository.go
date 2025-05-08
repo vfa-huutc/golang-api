@@ -8,12 +8,13 @@ import (
 type IUserRepository interface {
 	GetAll() (*[]models.User, error)
 	GetByID(id uint) (*models.User, error)
-	Create(user *models.User) error
+	Create(user *models.User) (*models.User, error)
 	Update(user *models.User) error
-	Delete(user *models.User) error
+	Delete(userId uint) error
 	FindByField(field string, value string) (*models.User, error)
 	GetProfile(id uint) (*models.User, error)
 	UpdateProfile(user *models.User) error
+	GetUserPermissions(userID uint) ([]*models.Permission, error)
 }
 
 type UserRepository struct {
@@ -67,9 +68,13 @@ func (repo *UserRepository) GetByID(id uint) (*models.User, error) {
 //   - user: Pointer to the User model to be created
 //
 // Returns:
+//   - *models.User: Pointer to the created User model with assigned ID
 //   - error: Error if there was a problem creating the user, nil on success
-func (repo *UserRepository) Create(user *models.User) error {
-	return repo.db.Create(&user).Error
+func (repo *UserRepository) Create(user *models.User) (*models.User, error) {
+	if err := repo.db.Create(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 // Update updates an existing user in the database
@@ -132,4 +137,36 @@ func (repo *UserRepository) GetProfile(id uint) (*models.User, error) {
 //   - error: Error if there was a problem updating the profile, nil on success
 func (repo *UserRepository) UpdateProfile(user *models.User) error {
 	return repo.db.Save(&user).Error
+}
+
+// GetUserPermission retrieves all permission associated with a specific user ID
+// Parameters:
+//   - userID: The unique identifier of the user whose roles are to be retrieved
+//
+// Returns:
+//   - []string: Slice containing all permission assigned to the user
+//   - error: Error if there was a database error, nil on success
+func (repo *UserRepository) GetUserPermissions(userID uint) ([]*models.Permission, error) {
+	var user models.User
+
+	repo.db.Preload("Roles.Permissions").First(&user, userID)
+	if user.ID == 0 {
+		return nil, gorm.ErrRecordNotFound
+	}
+	var permissions []*models.Permission
+	for _, role := range user.Roles {
+		for _, permission := range role.Permissions {
+			permissions = append(permissions, &permission)
+		}
+	}
+	return permissions, nil
+}
+
+// GetDB returns the database connection
+// Used for transaction handling and other direct database operations
+//
+// Returns:
+//   - *gorm.DB: The database connection
+func (repo *UserRepository) GetDB() *gorm.DB {
+	return repo.db
 }

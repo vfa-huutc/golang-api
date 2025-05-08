@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
+	"gorm.io/gorm"
 )
 
 // MockRoleRepository is a mock of IRoleRepository interface
@@ -50,6 +51,14 @@ func (m *MockRoleRepository) GetRolePermissions(roleID uint) ([]models.Permissio
 		return nil, args.Error(1)
 	}
 	return args.Get(0).([]models.Permission), args.Error(1)
+}
+
+func (m *MockRoleRepository) GetDB() *gorm.DB {
+	args := m.Called()
+	if args.Get(0) == nil {
+		return nil
+	}
+	return args.Get(0).(*gorm.DB)
 }
 
 func TestGetByID(t *testing.T) {

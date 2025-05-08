@@ -1,5 +1,5 @@
 # Build stage: Use an official Go runtime as a parent image
-FROM golang:1.23-alpine AS builder
+FROM golang:1.23-alpine:latest AS builder
 
 # Set environment variables for Go build
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
@@ -20,7 +20,7 @@ COPY . .
 RUN go build -ldflags="-s -w" -o main ./cmd/server/main.go
 
 # Runtime stage: Use minimal image
-FROM alpine:3.18  
+FROM alpine:3.18:latest 
 
 # Install ca-certificates for SSL (if required)
 RUN apk --no-cache add ca-certificates

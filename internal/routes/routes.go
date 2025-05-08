@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/vfa-khuongdv/golang-cms/internal/guards"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/middlewares"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
@@ -22,7 +23,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	permissionRepo := repositories.NewPermissionRepository(db)
 
 	// Initialize services
-
 	REDIS_HOST := utils.GetEnv("REDIS_HOST", "localhost:6379")
 	REDIS_PASS := utils.GetEnv("REDIS_PASS", "")
 	REDIS_DB := utils.GetEnvAsInt("REDIS_DB", 0)
@@ -34,6 +34,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	roleService := services.NewRoleService(roleRepo)
 	settingService := services.NewSettingService(settingRepo)
 	permissionService := services.NewPermissionService(permissionRepo)
+
+	// Initialize role guard for permission checks
+	roleGuard := guards.NewRoleGuard(db)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authService)
@@ -47,7 +50,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	gin.SetMode(ginMode)
 
 	// Add middleware
-	router.Use(gin.Recovery(), middlewares.LogMiddleware())
+	router.Use(gin.Recovery(), middlewares.LogMiddleware(), middlewares.EmptyBodyMiddleware())
 
 	router.GET("/healthz", handlers.HealthCheck)
 
@@ -61,34 +64,36 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		api.POST("/reset-password", userHandler.ResetPassword)
 
 		// Protected routes (require authentication)
-		api.Use(middlewares.AuthMiddleware())
+		authenticated := api.Group("/")
+		authenticated.Use(middlewares.AuthMiddleware())
 		{
-			// Profile management
-			api.POST("/change-password", userHandler.ChangePassword)
-			api.GET("/profile", userHandler.GetProfile)
-			api.PATCH("/profile", userHandler.UpdateProfile)
+			// Profile management (available to all authenticated users)
+			authenticated.POST("/change-password", userHandler.ChangePassword)
+			authenticated.GET("/profile", userHandler.GetProfile)
+			authenticated.PATCH("/profile", userHandler.UpdateProfile)
 
-			// User management
-			api.POST("/users", userHandler.CreateUser)
-			api.PATCH("/users/:id", userHandler.UpdateUser)
-			api.DELETE("/users/:id", userHandler.DeleteUser)
+			// User management routes with permission checks
+			authenticated.POST("/users", guards.RequirePermissions(roleGuard, "users:create"), userHandler.CreateUser)
+			authenticated.GET("/users/:id", guards.RequirePermissions(roleGuard, "users:view"), userHandler.GetUser)
+			authenticated.PATCH("/users/:id", guards.RequirePermissions(roleGuard, "users:update"), userHandler.UpdateUser)
+			authenticated.DELETE("/users/:id", guards.RequirePermissions(roleGuard, "users:delete"), userHandler.DeleteUser)
 
-			// Role management
-			api.POST("/roles", roleHandler.CreateRole)
-			api.GET("/roles/:id", roleHandler.GetRole)
-			api.PATCH("/roles/:id", roleHandler.UpdateRole)
-			api.DELETE("/roles/:id", roleHandler.DeleteRole)
+			// Role management routes with permission checks
+			authenticated.POST("/roles", guards.RequirePermissions(roleGuard, "roles:create"), roleHandler.CreateRole)
+			authenticated.GET("/roles/:id", guards.RequirePermissions(roleGuard, "roles:view"), roleHandler.GetRole)
+			authenticated.PATCH("/roles/:id", guards.RequirePermissions(roleGuard, "roles:update"), roleHandler.UpdateRole)
+			authenticated.DELETE("/roles/:id", guards.RequirePermissions(roleGuard, "roles:delete"), roleHandler.DeleteRole)
 
-			// Role permissions management
-			api.POST("/roles/:id/permissions", roleHandler.AssignPermissions)
-			api.GET("/roles/:id/permissions", roleHandler.GetRolePermissions)
+			// Role permissions management with permission checks
+			authenticated.POST("/roles/:id/permissions", guards.RequirePermissions(roleGuard, "roles:update"), roleHandler.AssignPermissions)
+			authenticated.GET("/roles/:id/permissions", guards.RequirePermissions(roleGuard, "roles:view"), roleHandler.GetRolePermissions)
 
-			// Settings
-			api.GET("/settings", settingHandler.GetSettings)
-			api.PUT("/settings", settingHandler.UpdateSettings)
+			// Settings with permission checks
+			authenticated.GET("/settings", guards.RequirePermissions(roleGuard, "settings:view"), settingHandler.GetSettings)
+			authenticated.PUT("/settings", guards.RequirePermissions(roleGuard, "settings:update"), settingHandler.UpdateSettings)
 
-			// Permissions
-			api.GET("/permissions", permissionHandler.GetAll)
+			// Permissions with permission checks
+			authenticated.GET("/permissions", guards.RequirePermissions(roleGuard, "roles:view"), permissionHandler.GetAll)
 		}
 	}
 
