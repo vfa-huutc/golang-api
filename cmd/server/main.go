@@ -56,7 +56,11 @@ func main() {
 	db := initializeDatabase()
 
 	// Run migrations
-	runMigrations()
+	isRunMigrate := utils.GetEnv("RUN_MIGRATE", "false")
+	if isRunMigrate == "true" {
+		fmt.Println("Running migrations...")
+		runMigrations()
+	}
 
 	// Setup routes
 	router := routes.SetupRouter(db)
