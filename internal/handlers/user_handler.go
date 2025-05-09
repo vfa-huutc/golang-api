@@ -521,7 +521,7 @@ func (handler *UserHandler) cacheUserProfile(user *models.User) error {
 	profileKey := constants.PROFILE + string(rune(user.ID))
 
 	// Store serialized user data in Redis
-	if err := handler.redisService.Set(profileKey, userJSON); err != nil {
+	if err := handler.redisService.Set(profileKey, userJSON, 60*time.Minute); err != nil {
 		return fmt.Errorf("failed to cache in Redis: %v", err)
 	}
 	return nil

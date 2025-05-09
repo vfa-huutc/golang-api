@@ -34,7 +34,6 @@ coverage/
 testdata/
 
 # Others
-mysql
-docs
-tmp/*
-bin/*
+mysql/
+tmp/
+bin/

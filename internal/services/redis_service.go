@@ -1,6 +1,8 @@
 package services
 
 import (
+	"time"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
@@ -8,7 +10,7 @@ import (
 )
 
 type IRedisService interface {
-	Set(key string, value interface{}) error
+	Set(key string, value interface{}, ttl time.Duration) error
 	Get(key string) (string, error)
 	Delete(key string) error
 	Exists(key string) (bool, error)
@@ -60,7 +62,7 @@ func NewRedisService(address, password string, db int) *RedisService {
 //
 // Returns:
 //   - error: nil if successful, otherwise contains the error message
-func (r *RedisService) Set(key string, value interface{}) error {
+func (r *RedisService) Set(key string, value interface{}, ttl time.Duration) error {
 	err := r.client.Set(r.ctx, key, value, 0).Err()
 	if err != nil {
 		return errors.New(errors.ErrCacheSet, err.Error())

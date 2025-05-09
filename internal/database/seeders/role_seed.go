@@ -6,20 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type Roles struct {
+type RoleSeeder struct {
 	Role          *models.Role
 	PermissionIds []uint
 }
 
 func SeedRoles(db *gorm.DB) error {
-	roles := []Roles{
+	roles := []RoleSeeder{
 		{
 			Role: &models.Role{
 				ID:          1,
 				Name:        "Admin",
 				DisplayName: "Administrator",
 			},
-			PermissionIds: []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
+			PermissionIds: []uint{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}, // Full access to all permissions
 		},
 		{
 			Role: &models.Role{
