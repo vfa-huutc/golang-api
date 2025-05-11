@@ -15,6 +15,11 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Initialize the default Gin router
 	router := gin.Default()
 
+	// Serve Swagger documentation
+	router.StaticFile("/docs/swagger.json", "./docs/swagger.json")
+	router.StaticFile("/swagger", "./docs/swagger.html")
+	router.StaticFile("/api-docs", "./docs/swagger.html") // Alternative path
+
 	// Initialize repositories
 	userRepo := repositories.NewUserRepsitory(db)
 	refreshRepo := repositories.NewRefreshTokenRepository(db)
@@ -49,8 +54,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	ginMode := utils.GetEnv("GIN_MODE", "debug")
 	gin.SetMode(ginMode)
 
-	// Add middleware
-	router.Use(gin.Recovery(), middlewares.LogMiddleware(), middlewares.EmptyBodyMiddleware())
+	// Add middleware for CORS and logging
+	router.Use(
+		middlewares.CORSMiddleware(),
+		middlewares.LogMiddleware(),
+		gin.Recovery(),
+		middlewares.EmptyBodyMiddleware(),
+	)
 
 	router.GET("/healthz", handlers.HealthCheck)
 
