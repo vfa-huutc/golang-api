@@ -1,10 +1,16 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
 
-// RolePermission represents the many-to-many relationship between roles and permissions
+	"gorm.io/gorm"
+)
+
 type RolePermission struct {
-	gorm.Model
-	RoleID       uint `gorm:"uniqueIndex:idx_role_permission"`
-	PermissionID uint `gorm:"uniqueIndex:idx_role_permission"`
+	ID           uint           `gorm:"column:id;primaryKey" json:"id"`
+	RoleID       uint           `gorm:"column:role_id;uniqueIndex:idx_role_permission" json:"roleId"`
+	PermissionID uint           `gorm:"column:permission_id;uniqueIndex:idx_role_permission" json:"permissionId"`
+	CreatedAt    time.Time      `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt    time.Time      `gorm:"column:updated_at" json:"updatedAt"`
+	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at;index" json:"deletedAt,omitempty"`
 }

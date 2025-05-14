@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
-	"gorm.io/gorm"
 )
 
 // MockRoleRepository is a mock of IRoleRepository interface
@@ -38,27 +37,6 @@ func (m *MockRoleRepository) Update(role *models.Role) error {
 func (m *MockRoleRepository) Delete(role *models.Role) error {
 	args := m.Called(role)
 	return args.Error(0)
-}
-
-func (m *MockRoleRepository) AssignPermissions(roleID uint, permissionIDs []uint) error {
-	args := m.Called(roleID, permissionIDs)
-	return args.Error(0)
-}
-
-func (m *MockRoleRepository) GetRolePermissions(roleID uint) ([]models.Permission, error) {
-	args := m.Called(roleID)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).([]models.Permission), args.Error(1)
-}
-
-func (m *MockRoleRepository) GetDB() *gorm.DB {
-	args := m.Called()
-	if args.Get(0) == nil {
-		return nil
-	}
-	return args.Get(0).(*gorm.DB)
 }
 
 func TestGetByID(t *testing.T) {
@@ -244,88 +222,6 @@ func TestDelete(t *testing.T) {
 
 		// Assert expectations
 		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-}
-
-func TestAssignPermissions(t *testing.T) {
-	mockRepo := new(MockRoleRepository)
-	roleService := services.NewRoleService(mockRepo)
-
-	t.Run("Success", func(t *testing.T) {
-		roleID := uint(1)
-		permissionIDs := []uint{1, 2, 3}
-
-		// Setup expectations
-		mockRepo.On("AssignPermissions", roleID, permissionIDs).Return(nil).Once()
-
-		// Call service method
-		err := roleService.AssignPermissions(roleID, permissionIDs)
-
-		// Assert expectations
-		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Error", func(t *testing.T) {
-		roleID := uint(1)
-		permissionIDs := []uint{1, 999, 3} // Invalid permission ID
-
-		// Setup expectations - simulate a database error
-		mockRepo.On("AssignPermissions", roleID, permissionIDs).Return(
-			errors.New(errors.ErrDatabaseUpdate, "foreign key constraint"),
-		).Once()
-
-		// Call service method
-		err := roleService.AssignPermissions(roleID, permissionIDs)
-
-		// Assert expectations
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "code: 2003")
-		mockRepo.AssertExpectations(t)
-	})
-}
-
-func TestGetRolePermissions(t *testing.T) {
-	mockRepo := new(MockRoleRepository)
-	roleService := services.NewRoleService(mockRepo)
-
-	t.Run("Success", func(t *testing.T) {
-		roleID := uint(1)
-		expectedPermissions := []models.Permission{
-			{Resource: "users", Action: "create"},
-			{Resource: "users", Action: "read"},
-			{Resource: "users", Action: "update"},
-		}
-
-		// Setup expectations
-		mockRepo.On("GetRolePermissions", roleID).Return(expectedPermissions, nil).Once()
-
-		// Call service method
-		permissions, err := roleService.GetRolePermissions(roleID)
-
-		// Assert expectations
-		assert.NoError(t, err)
-		assert.Equal(t, expectedPermissions, permissions)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Error", func(t *testing.T) {
-		roleID := uint(999) // Non-existent role
-
-		// Setup expectations - simulate a database error
-		mockRepo.On("GetRolePermissions", roleID).Return(
-			nil,
-			errors.New(errors.ErrDatabaseQuery, "record not found"),
-		).Once()
-
-		// Call service method
-		permissions, err := roleService.GetRolePermissions(roleID)
-
-		// Assert expectations
-		assert.Error(t, err)
-		assert.Nil(t, permissions)
-		assert.Contains(t, err.Error(), "code: 2001")
 		mockRepo.AssertExpectations(t)
 	})
 }

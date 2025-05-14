@@ -71,15 +71,16 @@ func (handler *SettingHandler) UpdateSettings(ctx *gin.Context) {
 				logger.Errorf("Create new setting error for key:%s value:%s\n", v.Key, v.Value)
 				continue
 			}
+		} else {
+			// Update setting value
+			value.Value = v.Value
 
+			// Save updated setting
+			if err := handler.service.Update(value); err != nil {
+				logger.Errorf("Update setting error for key:%s value:%s\n", v.Key, v.Value)
+			}
 		}
-		// Update setting value
-		value.Value = v.Value
 
-		// Save updated setting
-		if err := handler.service.Update(value); err != nil {
-			logger.Errorf("Update setting error for key:%s value:%s\n", v.Key, v.Value)
-		}
 	}
 
 	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Update setting successfully"})

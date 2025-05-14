@@ -56,7 +56,7 @@ func (repo *UserRepository) GetAll() (*[]models.User, error) {
 //   - error: Error if the user is not found or if there was a database error
 func (repo *UserRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User
-	if err := repo.db.First(&user, id).Error; err != nil {
+	if err := repo.db.Preload("Roles.Permissions").First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -122,7 +122,7 @@ func (repo *UserRepository) FindByField(field string, value string) (*models.Use
 //   - error: Error if the profile is not found or if there was a database error
 func (repo *UserRepository) GetProfile(id uint) (*models.User, error) {
 	var user models.User
-	if err := repo.db.First(&user, id).Error; err != nil {
+	if err := repo.db.Preload("Roles").First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil

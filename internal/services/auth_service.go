@@ -19,8 +19,8 @@ type AuthService struct {
 }
 
 type LoginResponse struct {
-	AccessToken  configs.JwtResult
-	RefreshToken configs.JwtResult
+	AccessToken  configs.JwtResult `json:"accessToken"`
+	RefreshToken configs.JwtResult `json:"refreshToken"`
 }
 
 // NewAuthService creates and returns a new instance of AuthService

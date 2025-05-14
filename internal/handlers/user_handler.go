@@ -50,7 +50,7 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 		Name     string  `json:"name" binding:"required,min=1,max=45"`
 		Birthday *string `json:"birthday" binding:"required,datetime=2006-01-02"` // Assumes YYYY-MM-DD format
 		Address  *string `json:"address" binding:"required,min=1,max=255"`
-		Gender   int16   `json:"gender" binding:"required,oneof=0 1 2"`
+		Gender   int16   `json:"gender" binding:"required,oneof=1 2 3"`
 		RoleIds  []uint  `json:"role_ids" binding:"required"`
 	}
 
@@ -478,7 +478,8 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 	}
 	// If not in cache, get from DB
 	if userString == "" {
-		dbUser, err := handler.userService.GetUser(userId)
+		logger.Info("User retrieved from DB")
+		dbUser, err := handler.userService.GetProfile(userId)
 		if err != nil {
 			utils.RespondWithError(
 				ctx,

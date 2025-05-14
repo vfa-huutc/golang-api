@@ -21,17 +21,6 @@ type UserService struct {
 	repo repositories.IUserRepository
 }
 
-// NewUserService creates a new instance of UserService with the provided UserRepository.
-// Parameters:
-//   - repo: A pointer to the UserRepository that will handle data operations
-//
-// Returns:
-//   - *UserService: A pointer to the newly created UserService instance
-//
-// Example:
-//
-//	repo := &repositories.UserRepository{}
-//	service := NewUserService(repo)
 func NewUserService(repo repositories.IUserRepository) *UserService {
 	return &UserService{
 		repo: repo,

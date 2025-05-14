@@ -15,8 +15,8 @@ type CustomClaims struct {
 var jwtKey = []byte(utils.GetEnv("JWT_KEY", "replace_your_key"))
 
 type JwtResult struct {
-	Token     string
-	ExpiresAt int64
+	Token     string `json:"token"`
+	ExpiresAt int64  `json:"expiresAt"`
 }
 
 // GenerateToken creates a new JWT token for the given email

@@ -98,13 +98,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			authenticated.PATCH("/roles/:id", guards.RequirePermissions(roleGuard, "roles:update"), roleHandler.UpdateRole)
 			authenticated.DELETE("/roles/:id", guards.RequirePermissions(roleGuard, "roles:delete"), roleHandler.DeleteRole)
 
-			// Role permissions management with permission checks
-			authenticated.POST("/roles/:id/permissions", guards.RequirePermissions(roleGuard, "roles:update"), roleHandler.AssignPermissions)
-			authenticated.GET("/roles/:id/permissions", guards.RequirePermissions(roleGuard, "roles:view"), roleHandler.GetRolePermissions)
-
 			// Settings with permission checks
 			authenticated.GET("/settings", guards.RequirePermissions(roleGuard, "settings:view"), settingHandler.GetSettings)
-			authenticated.PUT("/settings", guards.RequirePermissions(roleGuard, "settings:update"), settingHandler.UpdateSettings)
+			authenticated.PATCH("/settings", guards.RequirePermissions(roleGuard, "settings:update"), settingHandler.UpdateSettings)
 
 			// Permissions with permission checks
 			authenticated.GET("/permissions", guards.RequirePermissions(roleGuard, "roles:view"), permissionHandler.GetAll)
