@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/routes"
@@ -35,14 +34,15 @@ func runMigrations() {
 
 	m, err := migrator.NewMigrator("internal/database/migrations", dsn)
 	if err != nil {
-		log.Fatalf("Migration initialization failed: %v", err)
+		logger.Fatalf("Migration initialization failed: %v", err)
 	}
 	defer m.Close()
 
 	if err := m.Up(); err != nil {
-		log.Fatalf("Migration failed: %v", err)
+		logger.Fatalf("Migration failed: %v", err)
+	} else {
+		logger.Infof("MySQL migrations applied successfully!")
 	}
-	log.Println("MySQL migrations applied successfully!")
 }
 
 func main() {
@@ -68,6 +68,6 @@ func main() {
 	// Start server
 	port := fmt.Sprintf(":%s", utils.GetEnv("PORT", "3000"))
 	if err := router.Run(port); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
+		logger.Fatalf("Failed to start server: %v", err)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type IPermission interface {
+type IPermissionRepository interface {
 	Create(item *models.Permission) error
 	GetAll() (*[]models.Permission, error)
 }
@@ -15,7 +15,7 @@ type PermissionRepository struct {
 }
 
 func NewPermissionRepository(db *gorm.DB) *PermissionRepository {
-	return &PermissionRepository{db}
+	return &PermissionRepository{db: db}
 }
 
 // GetAll retrieves all permission records from the database

@@ -22,9 +22,7 @@ type RefreshTokenRepository struct {
 // Returns:
 //   - *RefreshTokenRepository: pointer to the newly created RefreshTokenRepository
 func NewRefreshTokenRepository(db *gorm.DB) *RefreshTokenRepository {
-	return &RefreshTokenRepository{
-		db: db,
-	}
+	return &RefreshTokenRepository{db: db}
 }
 
 // Create creates a new refresh token in the database

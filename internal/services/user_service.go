@@ -18,7 +18,7 @@ type IUserService interface {
 }
 
 type UserService struct {
-	repo *repositories.UserRepository
+	repo repositories.IUserRepository
 }
 
 // NewUserService creates a new instance of UserService with the provided UserRepository.
@@ -32,7 +32,7 @@ type UserService struct {
 //
 //	repo := &repositories.UserRepository{}
 //	service := NewUserService(repo)
-func NewUserService(repo *repositories.UserRepository) *UserService {
+func NewUserService(repo repositories.IUserRepository) *UserService {
 	return &UserService{
 		repo: repo,
 	}

@@ -22,7 +22,7 @@ func SeedUsers(db *gorm.DB) error {
 				Email:    "john@example.com",
 				Password: utils.HashPassword("password123"),
 			},
-			RoleIds: &[]uint{1},
+			RoleIds: &[]uint{1}, // Admin role
 		},
 		{
 			User: &models.User{
@@ -30,7 +30,7 @@ func SeedUsers(db *gorm.DB) error {
 				Email:    "jane@example.com",
 				Password: utils.HashPassword("password123"),
 			},
-			RoleIds: &[]uint{2},
+			RoleIds: &[]uint{2}, // User role
 		},
 	}
 

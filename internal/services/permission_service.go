@@ -11,11 +11,13 @@ type IPermissionService interface {
 }
 
 type PermissionService struct {
-	repo *repositories.PermissionRepository
+	repo repositories.IPermissionRepository
 }
 
-func NewPermissionService(repo *repositories.PermissionRepository) *PermissionService {
-	return &PermissionService{repo: repo}
+func NewPermissionService(repo repositories.IPermissionRepository) *PermissionService {
+	return &PermissionService{
+		repo: repo,
+	}
 }
 
 // GetAll retrieves all permissions from the repository

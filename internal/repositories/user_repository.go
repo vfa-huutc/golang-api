@@ -15,6 +15,7 @@ type IUserRepository interface {
 	GetProfile(id uint) (*models.User, error)
 	UpdateProfile(user *models.User) error
 	GetUserPermissions(userID uint) ([]*models.Permission, error)
+	GetDB() *gorm.DB
 }
 
 type UserRepository struct {
@@ -28,9 +29,7 @@ type UserRepository struct {
 // Returns:
 //   - *UserRepository: Pointer to the newly created UserRepository instance
 func NewUserRepsitory(db *gorm.DB) *UserRepository {
-	return &UserRepository{
-		db: db,
-	}
+	return &UserRepository{db: db}
 }
 
 // GetAll retrieves all users from the database

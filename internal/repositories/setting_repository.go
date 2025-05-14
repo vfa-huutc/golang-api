@@ -9,8 +9,8 @@ type ISettingRepository interface {
 	GetAll() (*[]models.Setting, error)
 	UpdateMany(settings *[]models.Setting) error
 	GetByKey(key string) (*models.Setting, error)
-	Update(setting *models.Setting) (*models.Setting, error)
-	Create(setting *models.Setting) (*models.Setting, error)
+	Update(setting *models.Setting) error
+	Create(setting *models.Setting) error
 }
 
 type SettingRepostitory struct {

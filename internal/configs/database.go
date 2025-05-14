@@ -40,8 +40,9 @@ func InitDB(config DatabaseConfig) *gorm.DB {
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		logger.Fatalf("Failed to connect to the MySQL database: %+v", err)
+	} else {
+		logger.Info("MySQL database connection established successfully")
 	}
-	logger.Info("MySQL database connection established successfully")
 	DB = db
 	return db
 }

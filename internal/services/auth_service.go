@@ -14,8 +14,8 @@ type IAuthService interface {
 }
 
 type AuthService struct {
-	repo         *repositories.UserRepository
-	tokenService *RefreshTokenService
+	repo         repositories.IUserRepository
+	tokenService IRefreshTokenService
 }
 
 type LoginResponse struct {
@@ -30,7 +30,7 @@ type LoginResponse struct {
 //
 // Returns:
 //   - *AuthService: New AuthService instance initialized with the provided dependencies
-func NewAuthService(repo *repositories.UserRepository, tokenService *RefreshTokenService) *AuthService {
+func NewAuthService(repo repositories.IUserRepository, tokenService IRefreshTokenService) *AuthService {
 	return &AuthService{
 		repo:         repo,
 		tokenService: tokenService,

@@ -12,13 +12,21 @@ import (
 )
 
 func SetupRouter(db *gorm.DB) *gin.Engine {
+	// Set Gin mode from environment variable
+	ginMode := utils.GetEnv("GIN_MODE", "debug")
+	gin.SetMode(ginMode)
+
 	// Initialize the default Gin router
 	router := gin.Default()
 
-	// Serve Swagger documentation
-	router.StaticFile("/docs/swagger.json", "./docs/swagger.json")
-	router.StaticFile("/swagger", "./docs/swagger.html")
-	router.StaticFile("/api-docs", "./docs/swagger.html") // Alternative path
+	stage := utils.GetEnv("STAGE", "dev")
+
+	// Set up Swagger documentation only in non-production environments
+	if stage != "prod" {
+		router.StaticFile("/docs/swagger.json", "./docs/swagger.json")
+		router.StaticFile("/swagger", "./docs/swagger.html")
+		router.StaticFile("/api-docs", "./docs/swagger.html")
+	}
 
 	// Initialize repositories
 	userRepo := repositories.NewUserRepsitory(db)
@@ -49,10 +57,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	roleHandler := handlers.NewRoleHandler(roleService)
 	settingHandler := handlers.NewSettingHandler(settingService)
 	permissionHandler := handlers.NewPermissionHandler(permissionService)
-
-	// Set Gin mode from environment variable
-	ginMode := utils.GetEnv("GIN_MODE", "debug")
-	gin.SetMode(ginMode)
 
 	// Add middleware for CORS and logging
 	router.Use(

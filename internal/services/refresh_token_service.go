@@ -10,13 +10,13 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
-type IRefresTokenService interface {
+type IRefreshTokenService interface {
 	Create(user models.User, ipAddress string) (*configs.JwtResult, error)
 	CreateRefreshToken(tokenString string, ipAddress string) (*RefreshTokenResult, error)
 }
 
 type RefreshTokenService struct {
-	repo *repositories.RefreshTokenRepository
+	repo repositories.IRefreshTokenRepository
 }
 
 // NewRefreshTokenService creates a new instance of RefreshTokenService
@@ -25,7 +25,7 @@ type RefreshTokenService struct {
 //
 // Returns:
 //   - *RefreshTokenService: New instance of RefreshTokenService initialized with the provided repository
-func NewRefreshTokenService(repo *repositories.RefreshTokenRepository) *RefreshTokenService {
+func NewRefreshTokenService(repo repositories.IRefreshTokenRepository) *RefreshTokenService {
 	return &RefreshTokenService{
 		repo: repo,
 	}

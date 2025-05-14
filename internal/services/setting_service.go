@@ -15,11 +15,13 @@ type ISettingService interface {
 }
 
 type SettingService struct {
-	repo *repositories.SettingRepostitory
+	repo repositories.ISettingRepository
 }
 
-func NewSettingService(repo *repositories.SettingRepostitory) *SettingService {
-	return &SettingService{repo: repo}
+func NewSettingService(repo repositories.ISettingRepository) *SettingService {
+	return &SettingService{
+		repo: repo,
+	}
 }
 
 // GetSetting retrieves all settings from the repository
