@@ -16,8 +16,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	ginMode := utils.GetEnv("GIN_MODE", "debug")
 	gin.SetMode(ginMode)
 
-	// Initialize the default Gin router
-	router := gin.Default()
+	// Initialize the new Gin router
+	router := gin.New()
 
 	stage := utils.GetEnv("STAGE", "dev")
 
