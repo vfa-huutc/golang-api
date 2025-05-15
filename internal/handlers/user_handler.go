@@ -48,19 +48,19 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 		Email    string  `json:"email" binding:"required,email"`
 		Password string  `json:"password" binding:"required,min=6,max=255"`
 		Name     string  `json:"name" binding:"required,min=1,max=45"`
-		Birthday *string `json:"birthday" binding:"required,datetime=2006-01-02"` // Assumes YYYY-MM-DD format
+		Birthday *string `json:"birthday" binding:"required,valid_birthday"` // Assumes birthday is valid format: YYYY-MM-DD
 		Address  *string `json:"address" binding:"required,min=1,max=255"`
 		Gender   int16   `json:"gender" binding:"required,oneof=1 2 3"`
 		RoleIds  []uint  `json:"role_ids" binding:"required"`
 	}
 
 	// Bind and validate the JSON request body to the input struct
-	// Return 400 Bad Request if validation fails
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}
@@ -104,10 +104,11 @@ func (handle *UserHandler) ForgotPassword(ctx *gin.Context) {
 	}
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}
@@ -164,10 +165,11 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 	}
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}
@@ -253,10 +255,11 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	}
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}
@@ -391,10 +394,11 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}
@@ -542,18 +546,19 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	// Define input struct for profile update with validation rules
 	var input struct {
-		Name     *string `json:"name" binding:"omitempty,min=1,max=45"`            // Name must be between 1 and 45 characters if provided
-		Birthday *string `json:"birthday" binding:"omitempty,datetime=2006-01-02"` // Birthday must be a valid date (YYYY-MM-DD) if provided
-		Address  *string `json:"address" binding:"omitempty,min=1,max=255"`        // Address must be between 1 and 255 characters if provided
-		Gender   *int16  `json:"gender" binding:"omitempty,oneof=0 1 2"`           // Gender must be 0, 1, or 2 if provided
+		Name     *string `json:"name" binding:"omitempty,min=1,max=45"`       // Name must be between 1 and 45 characters if provided
+		Birthday *string `json:"birthday" binding:"omitempty,valid_birthday"` // Birthday must be a valid date (YYYY-MM-DD) if provided
+		Address  *string `json:"address" binding:"omitempty,min=1,max=255"`   // Address must be between 1 and 255 characters if provided
+		Gender   *int16  `json:"gender" binding:"omitempty,oneof=0 1 2"`      // Gender must be 0, 1, or 2 if provided
 	}
 
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, "Invalid UserID"),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}

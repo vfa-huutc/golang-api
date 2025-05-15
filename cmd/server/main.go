@@ -65,6 +65,9 @@ func main() {
 	// Setup routes
 	router := routes.SetupRouter(db)
 
+	// Initialize custom validator
+	utils.InitValidator()
+
 	// Start server
 	port := fmt.Sprintf(":%s", utils.GetEnv("PORT", "3000"))
 	if err := router.Run(port); err != nil {

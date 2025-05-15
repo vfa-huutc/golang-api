@@ -36,10 +36,11 @@ func (handler *RoleHandler) CreateRole(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}
@@ -64,10 +65,11 @@ func (handler *RoleHandler) UpdateRole(ctx *gin.Context) {
 
 	// Bind JSON request body to input struct
 	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validateError := utils.TranslateValidationErrors(err)
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			errors.New(errors.ErrInvalidData, validateError.Error()),
 		)
 		return
 	}
