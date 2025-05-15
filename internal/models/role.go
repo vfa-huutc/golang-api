@@ -15,5 +15,5 @@ type Role struct {
 	DeletedAt   gorm.DeletedAt `gorm:"column:deleted_at;index" json:"deletedAt,omitempty"`
 
 	// Relations
-	Permissions []Permission `gorm:"many2many:role_permissions;" json:"permissions"`
+	Permissions []Permission `gorm:"many2many:role_permissions;" json:"permissions,omitempty"`
 }

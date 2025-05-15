@@ -3,10 +3,12 @@ package services
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type IUserService interface {
+	PaginateUser(page, limit int) (*utils.Pagination, error)
 	GetUser(id uint) (*models.User, error)
 	GetUserByEmail(email string) (*models.User, error)
 	CreateUser(user *models.User, roleIds []uint) error
@@ -25,6 +27,28 @@ func NewUserService(repo repositories.IUserRepository) *UserService {
 	return &UserService{
 		repo: repo,
 	}
+}
+
+/**
+ * PaginateUser retrieves a paginated list of users from the database.
+ * Parameters:
+ *   - page: The page number to retrieve (default is 1)
+ *   - limit: The number of users per page (default is 10)
+ *
+ * Returns:
+ *   - *utils.Pagination: A pointer to the pagination object containing user data
+ *   - error: nil if successful, otherwise returns the error that occurred
+ *
+ * Example:
+ *   users, err := service.PaginateUser(1, 50) // Gets the second page of users
+ */
+func (service *UserService) PaginateUser(page, limit int) (*utils.Pagination, error) {
+	data, err := service.repo.PaginateUser(page, limit)
+
+	if err != nil {
+		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+	}
+	return data, nil
 }
 
 // GetUser retrieves a user by their ID from the database.

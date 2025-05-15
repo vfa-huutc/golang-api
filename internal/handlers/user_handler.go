@@ -18,6 +18,7 @@ import (
 )
 
 type IUserhandler interface {
+	PaginationUser(c *gin.Context)
 	CreateUser(c *gin.Context)
 	ForgotPassword(c *gin.Context)
 	ResetPassword(c *gin.Context)
@@ -40,6 +41,23 @@ func NewUserHandler(userService services.IUserService, redisService services.IRe
 		userService:  userService,
 		redisService: redisService,
 	}
+}
+
+func (handler *UserHandler) PaginationUser(c *gin.Context) {
+	// Get the page and limit from the request context
+	page, limit := utils.ParsePageAndLimit(c)
+	// Call the userService to get the paginated list of users
+	pagination, err := handler.userService.PaginateUser(page, limit)
+	if err != nil {
+		utils.RespondWithError(
+			c,
+			http.StatusInternalServerError,
+			errors.New(errors.ErrDatabaseQuery, err.Error()),
+		)
+		return
+	}
+
+	utils.RespondWithOK(c, http.StatusOK, pagination)
 }
 
 func (handler *UserHandler) CreateUser(ctx *gin.Context) {

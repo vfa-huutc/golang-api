@@ -21,5 +21,5 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;index" json:"deletedAt,omitempty"`
 
 	// Relations
-	Roles []Role `gorm:"many2many:user_roles;" json:"roles"`
+	Roles []Role `gorm:"many2many:user_roles;" json:"roles,omitempty"`
 }

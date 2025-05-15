@@ -87,6 +87,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			authenticated.PATCH("/profile", userHandler.UpdateProfile)
 
 			// User management routes with permission checks
+			authenticated.GET("/users", guards.RequirePermissions(roleGuard, "users:view"), userHandler.PaginationUser)
 			authenticated.POST("/users", guards.RequirePermissions(roleGuard, "users:create"), userHandler.CreateUser)
 			authenticated.GET("/users/:id", guards.RequirePermissions(roleGuard, "users:view"), userHandler.GetUser)
 			authenticated.PATCH("/users/:id", guards.RequirePermissions(roleGuard, "users:update"), userHandler.UpdateUser)

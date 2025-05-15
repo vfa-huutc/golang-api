@@ -1,20 +1,53 @@
 package utils
 
-// CalculatePagination calculates the offset and limit values for pagination
-// Parameters:
-//   - page: The page number (1-based indexing). If less than 1, defaults to 1
-//   - limit: Number of items per page. If less than 1, defaults to 10
-//
-// Returns:
-//   - offset: The starting position for the current page ((page-1) * limit)
-//   - limit: The number of items per page
-func CalculatePagination(page int, limit int) (int, int) {
-	if page < 1 {
-		page = 1
+import (
+	"strconv"
+
+	"github.com/gin-gonic/gin"
+	"github.com/vfa-khuongdv/golang-cms/internal/constants"
+)
+
+func CalculateTotalPages(totalRows int64, limit int) int {
+	if limit <= 0 {
+		return 0
 	}
-	if limit < 1 {
-		limit = 10 // Default limit if not provided or invalid
+	totalPages := int(totalRows) / limit
+	if int(totalRows)%limit != 0 {
+		totalPages++
 	}
-	offset := (page - 1) * limit
-	return offset, limit
+	return totalPages
+}
+
+func ParsePageAndLimit(c *gin.Context) (int, int) {
+	var pageInt, limitInt int64
+	var page, limit string
+
+	page = c.Query("page")
+	limit = c.Query("limit")
+
+	pageInt, err := strconv.ParseInt(page, 10, 64)
+	if err != nil {
+		pageInt = 1
+	}
+	if pageInt <= 0 {
+		pageInt = 1
+	}
+
+	limitInt, err2 := strconv.ParseInt(limit, 10, 64)
+	if err2 != nil {
+		limitInt = int64(constants.LIMIT)
+	}
+	if limitInt <= 0 {
+		limitInt = int64(constants.LIMIT)
+	}
+
+	return int(pageInt), int(limitInt)
+}
+
+type Pagination struct {
+	Page       int `json:"page"`
+	Limit      int `json:"limit"`
+	TotalItems int `json:"totalItems"`
+	TotalPages int `json:"totalPages"`
+	Data       any `json:"data"`
 }

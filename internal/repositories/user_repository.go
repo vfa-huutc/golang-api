@@ -2,10 +2,12 @@ package repositories
 
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"gorm.io/gorm"
 )
 
 type IUserRepository interface {
+	PaginateUser(page, limit int) (*utils.Pagination, error)
 	GetAll() (*[]models.User, error)
 	GetByID(id uint) (*models.User, error)
 	Create(user *models.User) (*models.User, error)
@@ -22,14 +24,44 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
-// NewUserRepsitory creates and returns a new UserRepository instance
-// Parameters:
-//   - db: Pointer to the gorm.DB database connection
-//
-// Returns:
-//   - *UserRepository: Pointer to the newly created UserRepository instance
 func NewUserRepsitory(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
+}
+
+// PaginateUser retrieves a paginated list of users from the database
+// Parameters:
+//   - page: The page number to retrieve (default is 1)
+//   - limit: The number of users per page (default is 10)
+//
+// Returns:
+//   - *utils.Pagination: A pointer to the pagination object containing user data
+//   - error: nil if successful, otherwise returns the error that occurred
+//
+// Example:
+//   - users, err := repo.PaginateUser(1, 50) // Gets the first page of users
+func (repo *UserRepository) PaginateUser(page, limit int) (*utils.Pagination, error) {
+	var totalRows int64
+	offset := (page - 1) * limit
+
+	// Count total rows
+	if err := repo.db.Model(&models.User{}).Count(&totalRows).Error; err != nil {
+		return nil, err
+	}
+
+	var users []models.User
+	// fetch paginated data
+	if err := repo.db.Offset(offset).Limit(limit).Order("id DESC").Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	pagination := &utils.Pagination{
+		Page:       page,
+		Limit:      limit,
+		TotalItems: int(totalRows),
+		TotalPages: utils.CalculateTotalPages(totalRows, limit),
+		Data:       users,
+	}
+	return pagination, nil
 }
 
 // GetAll retrieves all users from the database
