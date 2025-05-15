@@ -32,6 +32,6 @@ func RespondWithError(ctx *gin.Context, statusCode int, err error) {
 //   - ctx: Gin context for the request
 //   - statusCode: HTTP status code to return
 //   - body: Data to be serialized as JSON response body
-func RespondWithOK(ctx *gin.Context, statusCode int, body interface{}) {
+func RespondWithOK(ctx *gin.Context, statusCode int, body any) {
 	ctx.AbortWithStatusJSON(statusCode, body)
 }

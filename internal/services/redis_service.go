@@ -62,8 +62,8 @@ func NewRedisService(address, password string, db int) *RedisService {
 //
 // Returns:
 //   - error: nil if successful, otherwise contains the error message
-func (r *RedisService) Set(key string, value interface{}, ttl time.Duration) error {
-	err := r.client.Set(r.ctx, key, value, 0).Err()
+func (r *RedisService) Set(key string, value any, ttl time.Duration) error {
+	err := r.client.Set(r.ctx, key, value, ttl).Err()
 	if err != nil {
 		return errors.New(errors.ErrCacheSet, err.Error())
 	}

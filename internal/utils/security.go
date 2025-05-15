@@ -7,7 +7,7 @@ import (
 )
 
 // CensorSensitiveData censors sensitive data in complex data structures
-func CensorSensitiveData(data interface{}, maskFields []string) interface{} {
+func CensorSensitiveData(data any, maskFields []string) any {
 	// Handle nil input
 	if data == nil {
 		return nil
@@ -37,7 +37,7 @@ func CensorSensitiveData(data interface{}, maskFields []string) interface{} {
 }
 
 // censorSlice handles censoring slice types
-func censorSlice(data interface{}, maskFields []string) interface{} {
+func censorSlice(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	censoredSlice := reflect.MakeSlice(val.Type(), val.Len(), val.Len())
 
@@ -51,7 +51,7 @@ func censorSlice(data interface{}, maskFields []string) interface{} {
 }
 
 // censorMap handles censoring map types
-func censorMap(data interface{}, maskFields []string) interface{} {
+func censorMap(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	censoredMap := reflect.MakeMap(val.Type())
 
@@ -79,7 +79,7 @@ func censorMap(data interface{}, maskFields []string) interface{} {
 }
 
 // censorStruct handles censoring struct types
-func censorStruct(data interface{}, maskFields []string) interface{} {
+func censorStruct(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	typ := val.Type()
 
@@ -115,7 +115,7 @@ func contains(slice []string, item string) bool {
 }
 
 // maskValue provides advanced masking for different value types
-func maskValue(value interface{}) interface{} {
+func maskValue(value any) any {
 	switch v := value.(type) {
 	case string:
 		return maskString(v)
@@ -145,14 +145,14 @@ func maskString(s string) string {
 }
 
 // maskReflectedValue handles masking for complex types using reflection
-func maskReflectedValue(value interface{}) interface{} {
+func maskReflectedValue(value any) any {
 	val := reflect.ValueOf(value)
 
 	switch val.Kind() {
 	case reflect.Slice, reflect.Array:
 		// Create a masked slice of the same length
 		maskedSlice := reflect.MakeSlice(val.Type(), val.Len(), val.Len())
-		for i := 0; i < val.Len(); i++ {
+		for i := range val.Len() {
 			maskedSlice.Index(i).Set(reflect.ValueOf("*****"))
 		}
 		return maskedSlice.Interface()
