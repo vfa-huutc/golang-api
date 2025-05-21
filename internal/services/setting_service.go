@@ -7,8 +7,7 @@ import (
 )
 
 type ISettingService interface {
-	GetSetting() (*[]models.Setting, error)
-	UpdateMany(settings *[]models.Setting) error
+	GetSetting() ([]models.Setting, error)
 	GetSettingByKey(key string) (*models.Setting, error)
 	Update(setting *models.Setting) error
 	Create(setting *models.Setting) error
@@ -28,26 +27,12 @@ func NewSettingService(repo repositories.ISettingRepository) *SettingService {
 // Returns:
 //   - *[]models.Setting: pointer to a slice of Setting models containing all settings
 //   - error: any error encountered during the retrieval operation
-func (service *SettingService) GetSetting() (*[]models.Setting, error) {
+func (service *SettingService) GetSetting() ([]models.Setting, error) {
 	data, err := service.repo.GetAll()
 	if err != nil {
 		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
 	}
 	return data, nil
-}
-
-// UpdateSetting updates multiple settings in the repository
-// Parameters:
-//   - settings: pointer to a slice of Setting models to be updated
-//
-// Returns:
-//   - error: any error encountered during the update operation
-func (service *SettingService) UpdateMany(settings *[]models.Setting) error {
-	err := service.repo.UpdateMany(settings)
-	if err != nil {
-		return errors.New(errors.ErrDatabaseUpdate, err.Error())
-	}
-	return nil
 }
 
 // GetSettingByKey retrieves a specific setting from the repository by its key

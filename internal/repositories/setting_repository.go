@@ -6,19 +6,18 @@ import (
 )
 
 type ISettingRepository interface {
-	GetAll() (*[]models.Setting, error)
-	UpdateMany(settings *[]models.Setting) error
+	GetAll() ([]models.Setting, error) // We return a slice of Setting models not a pointer to a slice because we don't need to modify the slice itself, just the elements inside it
 	GetByKey(key string) (*models.Setting, error)
 	Update(setting *models.Setting) error
 	Create(setting *models.Setting) error
 }
 
-type SettingRepostitory struct {
+type SettingRepository struct {
 	db *gorm.DB
 }
 
-func NewSettingRepository(db *gorm.DB) *SettingRepostitory {
-	return &SettingRepostitory{db: db}
+func NewSettingRepository(db *gorm.DB) *SettingRepository {
+	return &SettingRepository{db: db}
 }
 
 // GetAll retrieves all settings from the database
@@ -26,33 +25,16 @@ func NewSettingRepository(db *gorm.DB) *SettingRepostitory {
 //   - None
 //
 // Returns:
-//   - *[]models.Setting: Pointer to slice of Setting models containing all settings
+//   - []models.Setting: Pointer to slice of Setting models containing all settings
 //   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) GetAll() (*[]models.Setting, error) {
+func (repo *SettingRepository) GetAll() ([]models.Setting, error) {
 	var settings []models.Setting
 
 	if err := repo.db.Find(&settings).Error; err != nil {
 		return nil, err
 	}
-	return &settings, nil
+	return settings, nil
 
-}
-
-// UpdateMany updates multiple settings in the database
-// Parameters:
-//   - settings: Slice of Setting models containing the settings to update
-//
-// Returns:
-//   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) UpdateMany(settings *[]models.Setting) error {
-	return repo.db.Transaction(func(tx *gorm.DB) error {
-		for _, setting := range *settings {
-			if err := tx.Model(&models.Setting{}).Where("id = ?", setting.ID).Updates(setting).Error; err != nil {
-				return err
-			}
-		}
-		return nil
-	})
 }
 
 // GetByKey retrieves a setting by its key from the database
@@ -62,7 +44,7 @@ func (repo *SettingRepostitory) UpdateMany(settings *[]models.Setting) error {
 // Returns:
 //   - *models.Setting: Pointer to Setting model if found, nil if not found
 //   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) GetByKey(key string) (*models.Setting, error) {
+func (repo *SettingRepository) GetByKey(key string) (*models.Setting, error) {
 	var setting models.Setting
 
 	if err := repo.db.Model(&models.Setting{}).Where("setting_key = ?", key).First(&setting).Error; err != nil {
@@ -78,7 +60,7 @@ func (repo *SettingRepostitory) GetByKey(key string) (*models.Setting, error) {
 // Returns:
 //   - *models.Setting: Pointer to updated Setting model
 //   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) Update(setting *models.Setting) error {
+func (repo *SettingRepository) Update(setting *models.Setting) error {
 	return repo.db.Save(setting).Error
 }
 
@@ -89,6 +71,6 @@ func (repo *SettingRepostitory) Update(setting *models.Setting) error {
 // Returns:
 //   - *models.Setting: Pointer to created Setting model
 //   - error: Error if database operation fails, nil otherwise
-func (repo *SettingRepostitory) Create(setting *models.Setting) error {
+func (repo *SettingRepository) Create(setting *models.Setting) error {
 	return repo.db.Create(setting).Error
 }

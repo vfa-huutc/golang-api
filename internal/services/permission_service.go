@@ -7,7 +7,7 @@ import (
 )
 
 type IPermissionService interface {
-	GetAll() (*[]models.Permission, error)
+	GetAll() ([]models.Permission, error)
 }
 
 type PermissionService struct {
@@ -24,7 +24,7 @@ func NewPermissionService(repo repositories.IPermissionRepository) *PermissionSe
 // Returns:
 //   - *[]models.Permission: Pointer to slice of Permission models containing all permissions
 //   - error: Error if any occurred during the operation
-func (repo *PermissionService) GetAll() (*[]models.Permission, error) {
+func (repo *PermissionService) GetAll() ([]models.Permission, error) {
 	permission, err := repo.repo.GetAll()
 	if err != nil {
 		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())

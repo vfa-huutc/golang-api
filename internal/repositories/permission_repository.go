@@ -7,7 +7,7 @@ import (
 
 type IPermissionRepository interface {
 	Create(item *models.Permission) error
-	GetAll() (*[]models.Permission, error)
+	GetAll() ([]models.Permission, error)
 }
 
 type PermissionRepository struct {
@@ -22,13 +22,13 @@ func NewPermissionRepository(db *gorm.DB) *PermissionRepository {
 // Returns:
 //   - *[]models.Permission: pointer to slice containing all permissions
 //   - error: nil if successful, error if the database operation fails
-func (repo *PermissionRepository) GetAll() (*[]models.Permission, error) {
+func (repo *PermissionRepository) GetAll() ([]models.Permission, error) {
 	var permissions []models.Permission
 
 	if err := repo.db.Find(&permissions).Error; err != nil {
 		return nil, err
 	}
-	return &permissions, nil
+	return permissions, nil
 }
 
 // Create adds a new permission record to the database
