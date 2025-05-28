@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"time"
+
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"gorm.io/gorm"
 )
@@ -44,7 +46,7 @@ func (repo *RefreshTokenRepository) Create(token *models.RefreshToken) error {
 //   - error: nil if successful, error otherwise
 func (repo *RefreshTokenRepository) FindByToken(token string) (*models.RefreshToken, error) {
 	var refreshToken models.RefreshToken
-	if err := repo.db.Where("refresh_token = ?", token).First(&refreshToken).Error; err != nil {
+	if err := repo.db.Where("refresh_token = ? and expired_at > ?", token, time.Now()).First(&refreshToken).Error; err != nil {
 		return nil, err
 	}
 	return &refreshToken, nil
