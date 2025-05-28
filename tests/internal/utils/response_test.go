@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors" // assuming this is your package path
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 func TestRespondWithError_AppError(t *testing.T) {
