@@ -9,9 +9,19 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 )
+
+type LogResponse struct {
+	Method     string `json:"method"`
+	URL        string `json:"url"`
+	Header     any    `json:"header"`
+	Request    any    `json:"request,omitempty"`
+	Response   any    `json:"response,omitempty"`
+	Latency    string `json:"latency,omitempty"`
+	StatusCode string `json:"status_code"`
+}
 
 // Middleware for logging requests and responses in Gin
 func LogMiddleware() gin.HandlerFunc {
@@ -40,12 +50,12 @@ func LogMiddleware() gin.HandlerFunc {
 
 		timeStart := time.Now()
 
-		logEntry := logrus.WithFields(logrus.Fields{
-			"method":  c.Request.Method,
-			"url":     c.Request.URL.String(),
-			"header":  c.Request.Header,
-			"request": c.Request.URL.Query(),
-		})
+		var logEntry LogResponse
+		logEntry.Method = c.Request.Method
+		logEntry.URL = c.Request.URL.String()
+		logEntry.Header = c.Request.Header
+		logEntry.Request = c.Request.URL.Query()
+		logEntry.Response = nil
 
 		// Read and log request body
 		if c.Request.Body != nil {
@@ -56,12 +66,13 @@ func LogMiddleware() gin.HandlerFunc {
 				if err := json.Unmarshal(bodyBytes, &requestBody); err == nil {
 					// Mask sensitive data in the request body
 					requestBody = utils.CensorSensitiveData(requestBody, sensitiveKeys)
-					logEntry = logEntry.WithField("request", requestBody)
+					// Store the masked data directly without converting to string
+					logEntry.Request = requestBody
 				} else {
-					logEntry = logEntry.WithField("request_raw", string(bodyBytes))
+					logEntry.Request = string(bodyBytes)
 				}
 			} else {
-				logEntry = logEntry.WithField("request_raw", string(bodyBytes))
+				logEntry.Request = string(bodyBytes)
 			}
 		}
 
@@ -76,10 +87,8 @@ func LogMiddleware() gin.HandlerFunc {
 		c.Next()
 
 		timeEnd := time.Now()
-
-		logEntry = logEntry.WithFields(logrus.Fields{
-			"latency": fmt.Sprintf("%d (ms)", timeEnd.Sub(timeStart).Milliseconds()),
-		})
+		// Calculate latency
+		logEntry.Latency = fmt.Sprintf("%d (ms)", timeEnd.Sub(timeStart).Milliseconds())
 
 		// Log response
 		var responseBodyData any
@@ -87,17 +96,23 @@ func LogMiddleware() gin.HandlerFunc {
 			if err := json.Unmarshal(responseBody.Bytes(), &responseBodyData); err == nil {
 				// Mask sensitive data in the response body
 				responseBodyData = utils.CensorSensitiveData(responseBodyData, sensitiveKeys)
-				logEntry = logEntry.WithField("response", responseBodyData)
+				// Store the masked data directly
+				logEntry.Response = responseBodyData
 			} else {
-				logEntry = logEntry.WithField("response_raw", responseBody.String())
+				logEntry.Response = responseBody.String()
 			}
 		} else {
-			logEntry = logEntry.WithField("response_raw", responseBody.String())
+			logEntry.Response = responseBody.String()
 		}
 
-		logEntry = logEntry.WithField("status_code", c.Writer.Status())
-		logEntry.Info("Request handled")
+		logEntry.StatusCode = fmt.Sprintf("%d", c.Writer.Status())
 
+		jsonData, err := json.Marshal(logEntry)
+		if err != nil {
+			logger.Error("Failed to marshal log entry:", err)
+			return
+		}
+		logger.Info(string(jsonData))
 	}
 }
 
