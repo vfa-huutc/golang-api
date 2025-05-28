@@ -41,7 +41,7 @@ func censorSlice(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	censoredSlice := reflect.MakeSlice(val.Type(), val.Len(), val.Len())
 
-	for i := 0; i < val.Len(); i++ {
+	for i := range val.Len() {
 		item := val.Index(i).Interface()
 		censoredItem := CensorSensitiveData(item, maskFields)
 		censoredSlice.Index(i).Set(reflect.ValueOf(censoredItem))
@@ -86,7 +86,7 @@ func censorStruct(data any, maskFields []string) any {
 	// Create a new struct of the same type
 	censoredStruct := reflect.New(typ).Elem()
 
-	for i := 0; i < val.NumField(); i++ {
+	for i := range val.NumField() {
 		field := val.Field(i)
 		fieldType := typ.Field(i)
 
@@ -135,10 +135,7 @@ func maskValue(value any) any {
 func maskString(s string) string {
 	// Default masking for other strings
 	if len(s) > 2 {
-		maskLen := len(s) - 2
-		if maskLen > 8 { // 8 because we keep first and last char
-			maskLen = 8
-		}
+		maskLen := min(len(s)-2, 8)
 		return string(s[0]) + strings.Repeat("*", maskLen) + string(s[len(s)-1])
 	}
 	return strings.Repeat("*", len(s))
@@ -159,7 +156,7 @@ func maskReflectedValue(value any) any {
 	case reflect.Struct:
 		// Create a struct with all fields masked
 		maskedStruct := reflect.New(val.Type()).Elem()
-		for i := 0; i < val.NumField(); i++ {
+		for i := range val.NumField() {
 			maskedStruct.Field(i).Set(reflect.ValueOf("*****"))
 		}
 		return maskedStruct.Interface()

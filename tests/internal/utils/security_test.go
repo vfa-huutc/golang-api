@@ -11,7 +11,7 @@ func TestCensorSensitiveData(t *testing.T) {
 	maskFields := []string{"password", "apiKey"}
 
 	t.Run("Nil input", func(t *testing.T) {
-		var input interface{}
+		var input any
 		result := utils.CensorSensitiveData(input, maskFields)
 		if result != nil {
 			t.Errorf("Expected nil, got %v", result)
