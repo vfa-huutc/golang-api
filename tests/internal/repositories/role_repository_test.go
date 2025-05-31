@@ -1,6 +1,8 @@
 package tests_internal_repositories
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/suite"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
@@ -123,4 +125,8 @@ func (s *RoleRepositoryTestSuite) TestDelete() {
 	// Verify deletion
 	_, err = s.repo.GetByID(int64(role.ID))
 	s.Error(err, "Expected error when retrieving deleted role")
+}
+
+func TestRoleRepositoryTestSuite(t *testing.T) {
+	suite.Run(t, new(RoleRepositoryTestSuite))
 }

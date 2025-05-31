@@ -21,7 +21,7 @@ type RoleGuard struct {
 func NewRoleGuard(db *gorm.DB) *RoleGuard {
 	return &RoleGuard{
 		roleRepo: repositories.NewRoleRepository(db),
-		userRepo: repositories.NewUserRepsitory(db),
+		userRepo: repositories.NewUserRepository(db),
 	}
 }
 

@@ -8,7 +8,7 @@ import (
 
 type IUserRepository interface {
 	PaginateUser(page, limit int) (*utils.Pagination, error)
-	GetAll() (*[]models.User, error)
+	GetAll() ([]models.User, error)
 	GetByID(id uint) (*models.User, error)
 	Create(user *models.User) (*models.User, error)
 	Update(user *models.User) error
@@ -16,7 +16,7 @@ type IUserRepository interface {
 	FindByField(field string, value string) (*models.User, error)
 	GetProfile(id uint) (*models.User, error)
 	UpdateProfile(user *models.User) error
-	GetUserPermissions(userID uint) ([]*models.Permission, error)
+	GetUserPermissions(userID uint) ([]models.Permission, error)
 	GetDB() *gorm.DB
 }
 
@@ -24,7 +24,7 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepsitory(db *gorm.DB) *UserRepository {
+func NewUserRepository(db *gorm.DB) *UserRepository {
 	return &UserRepository{db: db}
 }
 
@@ -71,12 +71,12 @@ func (repo *UserRepository) PaginateUser(page, limit int) (*utils.Pagination, er
 // Returns:
 //   - []models.User: Slice containing all User models in the database
 //   - error: Error if there was a database error, nil on success
-func (repo *UserRepository) GetAll() (*[]models.User, error) {
+func (repo *UserRepository) GetAll() ([]models.User, error) {
 	var users []models.User
 	if err := repo.db.Find(&users).Error; err != nil {
 		return nil, err
 	}
-	return &users, nil
+	return users, nil
 }
 
 // GetByID retrieves a user from the database by their ID
@@ -177,18 +177,16 @@ func (repo *UserRepository) UpdateProfile(user *models.User) error {
 // Returns:
 //   - []string: Slice containing all permission assigned to the user
 //   - error: Error if there was a database error, nil on success
-func (repo *UserRepository) GetUserPermissions(userID uint) ([]*models.Permission, error) {
+func (repo *UserRepository) GetUserPermissions(userID uint) ([]models.Permission, error) {
 	var user models.User
 
 	repo.db.Preload("Roles.Permissions").First(&user, userID)
 	if user.ID == 0 {
 		return nil, gorm.ErrRecordNotFound
 	}
-	var permissions []*models.Permission
+	var permissions []models.Permission
 	for _, role := range user.Roles {
-		for _, permission := range role.Permissions {
-			permissions = append(permissions, &permission)
-		}
+		permissions = append(permissions, role.Permissions...)
 	}
 	return permissions, nil
 }

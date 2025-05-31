@@ -11,6 +11,7 @@ type IRefreshTokenRepository interface {
 	Create(token *models.RefreshToken) error
 	Update(token *models.RefreshToken) error
 	FindByToken(token string) (*models.RefreshToken, error)
+	First(token string) (*models.RefreshToken, error)
 }
 
 type RefreshTokenRepository struct {
@@ -37,6 +38,21 @@ func (repo *RefreshTokenRepository) Create(token *models.RefreshToken) error {
 	return repo.db.Create(token).Error
 }
 
+// First retrieves the first refresh token from the database by its token value
+// Parameters:
+//   - token: string representing the refresh token to search for
+//
+// Returns:
+//   - *models.RefreshToken: pointer to the found RefreshToken model, nil if not found
+//   - error: nil if successful, error otherwise
+func (repo *RefreshTokenRepository) First(token string) (*models.RefreshToken, error) {
+	var refreshToken models.RefreshToken
+	if err := repo.db.Where("refresh_token = ?", token).First(&refreshToken).Error; err != nil {
+		return nil, err
+	}
+	return &refreshToken, nil
+}
+
 // FindByToken retrieves a refresh token from the database by its token value
 // Parameters:
 //   - token: string representing the refresh token to search for
@@ -46,7 +62,7 @@ func (repo *RefreshTokenRepository) Create(token *models.RefreshToken) error {
 //   - error: nil if successful, error otherwise
 func (repo *RefreshTokenRepository) FindByToken(token string) (*models.RefreshToken, error) {
 	var refreshToken models.RefreshToken
-	if err := repo.db.Where("refresh_token = ? and expired_at > ?", token, time.Now()).First(&refreshToken).Error; err != nil {
+	if err := repo.db.Where("refresh_token = ? and expired_at > ?", token, time.Now().Unix()).First(&refreshToken).Error; err != nil {
 		return nil, err
 	}
 	return &refreshToken, nil

@@ -29,7 +29,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	}
 
 	// Initialize repositories
-	userRepo := repositories.NewUserRepsitory(db)
+	userRepo := repositories.NewUserRepository(db)
 	refreshRepo := repositories.NewRefreshTokenRepository(db)
 	roleRepo := repositories.NewRoleRepository(db)
 	settingRepo := repositories.NewSettingRepository(db)
