@@ -3,225 +3,123 @@ package tests_internal_services
 import (
 	"testing"
 
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
-
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
+	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/tests/internal/mocks"
 )
 
-// MockRoleRepository is a mock of IRoleRepository interface
-type MockRoleRepository struct {
-	mock.Mock
+type RoleServiceTestSuite struct {
+	suite.Suite
+	repo        *mocks.MockRoleRepository
+	roleService *services.RoleService
 }
 
-func (m *MockRoleRepository) GetByID(id int64) (*models.Role, error) {
-	args := m.Called(id)
-	if args.Get(0) == nil {
-		return nil, args.Error(1)
-	}
-	return args.Get(0).(*models.Role), args.Error(1)
+func (s *RoleServiceTestSuite) SetupTest() {
+	s.repo = new(mocks.MockRoleRepository)
+	s.roleService = services.NewRoleService(s.repo)
 }
 
-func (m *MockRoleRepository) Create(role *models.Role) error {
-	args := m.Called(role)
-	return args.Error(0)
+func (s *RoleServiceTestSuite) TestGetByID_Success() {
+	expected := &models.Role{Name: "admin", DisplayName: "Administrator"}
+	s.repo.On("GetByID", int64(1)).Return(expected, nil).Once()
+
+	role, err := s.roleService.GetByID(1)
+
+	s.NoError(err)
+	s.Equal(expected, role)
+	s.repo.AssertExpectations(s.T())
 }
 
-func (m *MockRoleRepository) Update(role *models.Role) error {
-	args := m.Called(role)
-	return args.Error(0)
+func (s *RoleServiceTestSuite) TestGetByID_NotFound() {
+	s.repo.On("GetByID", int64(999)).Return((*models.Role)(nil), errors.New(errors.ErrDatabaseQuery, "record not found")).Once()
+
+	role, err := s.roleService.GetByID(999)
+
+	s.Error(err)
+	s.Nil(role)
+	s.Contains(err.Error(), "code: 2001")
+	s.repo.AssertExpectations(s.T())
 }
 
-func (m *MockRoleRepository) Delete(role *models.Role) error {
-	args := m.Called(role)
-	return args.Error(0)
+func (s *RoleServiceTestSuite) TestCreate_Success() {
+	role := &models.Role{Name: "editor", DisplayName: "Content Editor"}
+	s.repo.On("Create", role).Return(nil).Once()
+
+	err := s.roleService.Create(role)
+
+	s.NoError(err)
+	s.repo.AssertExpectations(s.T())
 }
 
-func TestGetByID(t *testing.T) {
-	mockRepo := new(MockRoleRepository)
-	roleService := services.NewRoleService(mockRepo)
+func (s *RoleServiceTestSuite) TestCreate_Error() {
+	role := &models.Role{Name: "existing_role", DisplayName: "Existing Role"}
+	s.repo.On("Create", role).Return(errors.New(errors.ErrDatabaseInsert, "duplicate entry")).Once()
 
-	t.Run("Success", func(t *testing.T) {
-		expectedRole := &models.Role{
-			Name:        "admin",
-			DisplayName: "Administrator",
-		}
+	err := s.roleService.Create(role)
 
-		// Setup expectations
-		mockRepo.On("GetByID", int64(1)).Return(expectedRole, nil).Once()
-
-		// Call service method
-		role, err := roleService.GetByID(1)
-
-		// Assert expectations
-		assert.NoError(t, err)
-		assert.Equal(t, expectedRole, role)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Not found", func(t *testing.T) {
-		// Setup expectations
-		mockRepo.On("GetByID", int64(999)).Return(
-			nil,
-			errors.New(errors.ErrDatabaseQuery, "record not found"),
-		).Once()
-
-		// Call service method
-		role, err := roleService.GetByID(999)
-
-		// Assert expectations
-		assert.Error(t, err)
-		assert.Nil(t, role)
-		assert.Contains(t, err.Error(), "code: 2001")
-		mockRepo.AssertExpectations(t)
-	})
+	s.Error(err)
+	s.Contains(err.Error(), "code: 2002")
+	s.repo.AssertExpectations(s.T())
 }
 
-func TestCreate(t *testing.T) {
-	mockRepo := new(MockRoleRepository)
-	roleService := services.NewRoleService(mockRepo)
+func (s *RoleServiceTestSuite) TestUpdate_Success() {
+	role := &models.Role{Name: "moderator", DisplayName: "Content Moderator"}
+	s.repo.On("Update", role).Return(nil).Once()
 
-	t.Run("Success", func(t *testing.T) {
-		role := &models.Role{
-			Name:        "editor",
-			DisplayName: "Content Editor",
-		}
+	err := s.roleService.Update(role)
 
-		// Setup expectations
-		mockRepo.On("Create", role).Return(nil).Once()
-
-		// Call service method
-		err := roleService.Create(role)
-
-		// Assert expectations
-		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Error", func(t *testing.T) {
-		role := &models.Role{
-			Name:        "existing_role",
-			DisplayName: "Existing Role",
-		}
-
-		// Setup expectations - simulate a database error
-		mockRepo.On("Create", role).Return(
-			errors.New(errors.ErrDatabaseInsert, "duplicate entry"),
-		).Once()
-
-		// Call service method
-		err := roleService.Create(role)
-
-		// Assert expectations
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "code: 2002")
-		mockRepo.AssertExpectations(t)
-	})
+	s.NoError(err)
+	s.repo.AssertExpectations(s.T())
 }
 
-func TestUpdate(t *testing.T) {
-	mockRepo := new(MockRoleRepository)
-	roleService := services.NewRoleService(mockRepo)
+func (s *RoleServiceTestSuite) TestUpdate_Error() {
+	role := &models.Role{Name: "invalid_role", DisplayName: "Invalid Role"}
+	s.repo.On("Update", role).Return(errors.New(errors.ErrDatabaseUpdate, "record not found")).Once()
 
-	t.Run("Success", func(t *testing.T) {
-		role := &models.Role{
-			Name:        "moderator",
-			DisplayName: "Content Moderator",
-		}
+	err := s.roleService.Update(role)
 
-		// Setup expectations
-		mockRepo.On("Update", role).Return(nil).Once()
-
-		// Call service method
-		err := roleService.Update(role)
-
-		// Assert expectations
-		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Error", func(t *testing.T) {
-		role := &models.Role{
-			Name:        "invalid_role",
-			DisplayName: "Invalid Role",
-		}
-
-		// Setup expectations - simulate a database error
-		mockRepo.On("Update", role).Return(
-			errors.New(errors.ErrDatabaseUpdate, "record not found"),
-		).Once()
-
-		// Call service method
-		err := roleService.Update(role)
-
-		// Assert expectations
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "code: 2003")
-		mockRepo.AssertExpectations(t)
-	})
+	s.Error(err)
+	s.Contains(err.Error(), "code: 2003")
+	s.repo.AssertExpectations(s.T())
 }
 
-func TestDelete(t *testing.T) {
-	mockRepo := new(MockRoleRepository)
-	roleService := services.NewRoleService(mockRepo)
+func (s *RoleServiceTestSuite) TestDelete_Success() {
+	roleID := int64(1)
+	role := &models.Role{Name: "guest", DisplayName: "Guest User"}
+	s.repo.On("GetByID", roleID).Return(role, nil).Once()
+	s.repo.On("Delete", role).Return(nil).Once()
 
-	t.Run("Success", func(t *testing.T) {
-		roleID := int64(1)
-		role := &models.Role{
-			Name:        "guest",
-			DisplayName: "Guest User",
-		}
+	err := s.roleService.Delete(roleID)
 
-		// Setup expectations
-		mockRepo.On("GetByID", roleID).Return(role, nil).Once()
-		mockRepo.On("Delete", role).Return(nil).Once()
+	s.NoError(err)
+	s.repo.AssertExpectations(s.T())
+}
 
-		// Call service method
-		err := roleService.Delete(roleID)
+func (s *RoleServiceTestSuite) TestDelete_RoleNotFound() {
+	roleID := int64(999)
+	s.repo.On("GetByID", roleID).Return((*models.Role)(nil), errors.New(errors.ErrDatabaseDelete, "record not found")).Once()
 
-		// Assert expectations
-		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
-	})
+	err := s.roleService.Delete(roleID)
 
-	t.Run("Role not found", func(t *testing.T) {
-		roleID := int64(999)
+	s.Error(err)
+	s.Contains(err.Error(), "code: 2004")
+	s.repo.AssertExpectations(s.T())
+}
 
-		// Setup expectations
-		mockRepo.On("GetByID", roleID).Return(
-			nil,
-			errors.New(errors.ErrDatabaseDelete, "record not found"),
-		).Once()
+func (s *RoleServiceTestSuite) TestDelete_DeleteError() {
+	roleID := int64(2)
+	role := &models.Role{Name: "manager", DisplayName: "Manager"}
+	s.repo.On("GetByID", roleID).Return(role, nil).Once()
+	s.repo.On("Delete", role).Return(errors.New(errors.ErrDatabaseDelete, "foreign key constraint")).Once()
 
-		// Call service method
-		err := roleService.Delete(roleID)
+	err := s.roleService.Delete(roleID)
 
-		// Assert expectations
-		assert.Error(t, err)
-		assert.Contains(t, err.Error(), "code: 2004")
-		mockRepo.AssertExpectations(t)
-	})
+	s.Error(err)
+	s.repo.AssertExpectations(s.T())
+}
 
-	t.Run("Delete error", func(t *testing.T) {
-		roleID := int64(2)
-		role := &models.Role{
-			Name:        "manager",
-			DisplayName: "Manager",
-		}
-
-		// Setup expectations
-		mockRepo.On("GetByID", roleID).Return(role, nil).Once()
-		mockRepo.On("Delete", role).Return(
-			errors.New(errors.ErrDatabaseDelete, "foreign key constraint"),
-		).Once()
-
-		// Call service method
-		err := roleService.Delete(roleID)
-
-		// Assert expectations
-		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
-	})
+func TestRoleServiceTestSuite(t *testing.T) {
+	suite.Run(t, new(RoleServiceTestSuite))
 }

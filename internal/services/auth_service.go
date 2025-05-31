@@ -14,8 +14,8 @@ type IAuthService interface {
 }
 
 type AuthService struct {
-	repo         repositories.IUserRepository
-	tokenService IRefreshTokenService
+	repo                repositories.IUserRepository
+	refreshTokenService IRefreshTokenService
 }
 
 type LoginResponse struct {
@@ -30,10 +30,10 @@ type LoginResponse struct {
 //
 // Returns:
 //   - *AuthService: New AuthService instance initialized with the provided dependencies
-func NewAuthService(repo repositories.IUserRepository, tokenService IRefreshTokenService) *AuthService {
+func NewAuthService(repo repositories.IUserRepository, refreshTokenService IRefreshTokenService) *AuthService {
 	return &AuthService{
-		repo:         repo,
-		tokenService: tokenService,
+		repo:                repo,
+		refreshTokenService: refreshTokenService,
 	}
 }
 
@@ -57,27 +57,27 @@ func (service *AuthService) Login(email, password string, ctx *gin.Context) (*Lo
 		return nil, errors.New(errors.ErrAuthInvalidPassword, err.Error())
 	}
 
-	// Generate refresh token
-	token, err := configs.GenerateToken(user.ID)
+	// Generate access token
+	accessToken, err := configs.GenerateToken(user.ID)
 	if err != nil {
 		return nil, errors.New(errors.ErrServerInternal, err.Error())
 	}
 
 	// Create new refresh token
 	ipAddress := ctx.ClientIP()
-	tokenResult, err := service.tokenService.Create(*user, ipAddress)
+	refreshToken, err := service.refreshTokenService.Create(user, ipAddress)
 	if err != nil {
 		return nil, err // error is already wrapped by the service, so we can return it directly
 	}
 
 	res := &LoginResponse{
 		AccessToken: configs.JwtResult{
-			Token:     token.Token,
-			ExpiresAt: token.ExpiresAt,
+			Token:     accessToken.Token,
+			ExpiresAt: accessToken.ExpiresAt,
 		},
 		RefreshToken: configs.JwtResult{
-			Token:     tokenResult.Token,
-			ExpiresAt: tokenResult.ExpiresAt,
+			Token:     refreshToken.Token,
+			ExpiresAt: refreshToken.ExpiresAt,
 		},
 	}
 
@@ -95,8 +95,8 @@ func (service *AuthService) Login(email, password string, ctx *gin.Context) (*Lo
 func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*LoginResponse, error) {
 	// Get the client's IP address from the request context
 	ipAddress := ctx.ClientIP()
-	// Create new refresh token using the token service
-	res, err := service.tokenService.CreateRefreshToken(token, ipAddress)
+	// Create new refresh token using the refresh token service
+	res, err := service.refreshTokenService.Update(token, ipAddress)
 	if err != nil {
 		return nil, err // error is already wrapped by the service, so we can return it directly
 	}

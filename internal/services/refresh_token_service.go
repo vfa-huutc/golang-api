@@ -11,8 +11,8 @@ import (
 )
 
 type IRefreshTokenService interface {
-	Create(user models.User, ipAddress string) (*configs.JwtResult, error)
-	CreateRefreshToken(tokenString string, ipAddress string) (*RefreshTokenResult, error)
+	Create(user *models.User, ipAddress string) (*configs.JwtResult, error)
+	Update(token string, ipAddress string) (*RefreshTokenResult, error)
 }
 
 type RefreshTokenService struct {
@@ -39,7 +39,7 @@ func NewRefreshTokenService(repo repositories.IRefreshTokenRepository) *RefreshT
 // Returns:
 //   - *configs.JwtResult: Contains the generated token and expiration time
 //   - error: Error if token creation fails
-func (service *RefreshTokenService) Create(user models.User, ipAddress string) (*configs.JwtResult, error) {
+func (service *RefreshTokenService) Create(user *models.User, ipAddress string) (*configs.JwtResult, error) {
 	tokenString := utils.GenerateRandomString(60)
 	expiredAt := time.Now().Add(time.Hour * 24 * 30).Unix()
 	token := models.RefreshToken{
@@ -66,7 +66,7 @@ type RefreshTokenResult struct {
 	UserId uint
 }
 
-// CreateRefreshToken creates a new refresh token based on an existing token
+// Update replaces an existing refresh token with a new one
 // Parameters:
 //   - tokenString: The existing refresh token string to be replaced
 //   - ipAddress: IP address of the user making the request
@@ -80,7 +80,7 @@ type RefreshTokenResult struct {
 //  2. Generates a new random token string
 //  3. Updates the token record with new token, expiry and IP
 //  4. Returns the new token details and associated user ID
-func (service *RefreshTokenService) CreateRefreshToken(tokenString string, ipAddress string) (*RefreshTokenResult, error) {
+func (service *RefreshTokenService) Update(tokenString string, ipAddress string) (*RefreshTokenResult, error) {
 	result, err := service.repo.FindByToken(tokenString)
 	if err != nil {
 		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
