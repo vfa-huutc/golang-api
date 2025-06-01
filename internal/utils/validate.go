@@ -50,8 +50,6 @@ func TranslateValidationErrors(err error) error {
 		switch fe.Tag() {
 		case "required":
 			msg = fmt.Sprintf("%s is required", field)
-		case "omitempty":
-			msg = "" // Skip omitted optional fields
 		case "email":
 			msg = fmt.Sprintf("%s must be a valid email address", field)
 		case "url":
@@ -125,10 +123,6 @@ func TranslateValidationErrors(err error) error {
 
 		default:
 			msg = fmt.Sprintf("%s is invalid", field)
-		}
-
-		if msg == "" {
-			msg = fmt.Sprintf("%s is invalid", field) // Fallback for skipped or empty
 		}
 
 		return errors.New(msg)

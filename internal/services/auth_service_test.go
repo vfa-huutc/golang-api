@@ -1,4 +1,4 @@
-package tests_internal_services
+package services_test
 
 import (
 	"net/http"
@@ -14,7 +14,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
-	"github.com/vfa-khuongdv/golang-cms/tests/internal/mocks"
+	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )

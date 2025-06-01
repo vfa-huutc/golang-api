@@ -1,6 +1,7 @@
-package utils
+package utils_test
 
 import (
+	originError "errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,6 +26,20 @@ func TestRespondWithError_AppError(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	expectedJSON := `{"code":1001,"message":"App error occurred"}`
+	assert.JSONEq(t, expectedJSON, w.Body.String())
+}
+
+func TestRespondWithError_InternalServerError(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+
+	internalErr := originError.New("Internal server error occurred")
+
+	utils.RespondWithError(ctx, http.StatusInternalServerError, internalErr)
+
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	expectedJSON := `{"code":1000,"message":"Internal server error occurred"}`
 	assert.JSONEq(t, expectedJSON, w.Body.String())
 }
 

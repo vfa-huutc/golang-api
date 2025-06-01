@@ -1,4 +1,4 @@
-package tests_internal_repositories
+package repositories_test
 
 import (
 	"testing"

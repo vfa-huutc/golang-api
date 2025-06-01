@@ -1,4 +1,4 @@
-package tests_internal_handlers
+package handlers_test
 
 import (
 	"bytes"

@@ -83,21 +83,47 @@ func censorStruct(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	typ := val.Type()
 
-	// Create a new struct of the same type
 	censoredStruct := reflect.New(typ).Elem()
 
-	for i := range val.NumField() {
+	for i := 0; i < val.NumField(); i++ {
 		field := val.Field(i)
 		fieldType := typ.Field(i)
 
-		// Check if the field name is in maskFields
 		if contains(maskFields, fieldType.Name) {
-			// Mask the field value
-			censoredStruct.Field(i).Set(reflect.ValueOf(maskValue(field.Interface())))
+			// Trường cần mask
+			if field.Kind() == reflect.Ptr {
+				if field.IsNil() {
+					// Nếu con trỏ nil thì giữ nguyên nil
+					censoredStruct.Field(i).Set(reflect.Zero(field.Type()))
+				} else {
+					// Mask giá trị bên trong con trỏ
+					maskedVal := maskValue(field.Elem().Interface())
+					maskedValReflect := reflect.ValueOf(maskedVal)
+
+					// Tạo con trỏ mới cùng kiểu với trường
+					ptr := reflect.New(fieldType.Type.Elem())
+					ptr.Elem().Set(maskedValReflect)
+
+					censoredStruct.Field(i).Set(ptr)
+				}
+			} else {
+				// Trường không phải con trỏ thì mask trực tiếp
+				censoredStruct.Field(i).Set(reflect.ValueOf(maskValue(field.Interface())))
+			}
 		} else {
-			// Recursively censor nested fields
+			// Trường không cần mask, đệ quy censor nested
 			censoredValue := CensorSensitiveData(field.Interface(), maskFields)
-			censoredStruct.Field(i).Set(reflect.ValueOf(censoredValue))
+			if field.Kind() == reflect.Ptr {
+				if field.IsNil() {
+					censoredStruct.Field(i).Set(reflect.Zero(field.Type()))
+				} else {
+					ptr := reflect.New(fieldType.Type.Elem())
+					ptr.Elem().Set(reflect.ValueOf(censoredValue))
+					censoredStruct.Field(i).Set(ptr)
+				}
+			} else {
+				censoredStruct.Field(i).Set(reflect.ValueOf(censoredValue))
+			}
 		}
 	}
 
@@ -122,11 +148,11 @@ func maskValue(value any) any {
 	case fmt.Stringer:
 		return maskString(v.String())
 	case []byte:
-		return maskString(string(v))
+		masked := maskString(string(v))
+		return []byte(masked)
 	case nil:
 		return nil
 	default:
-		// For other types, use reflection to handle more cases
 		return maskReflectedValue(value)
 	}
 }

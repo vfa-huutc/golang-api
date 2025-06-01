@@ -1,4 +1,4 @@
-package tests_internal_repositories
+package repositories_test
 
 import (
 	"testing"
@@ -336,6 +336,13 @@ func (s *UserRepositoryTestSuite) TestGetUserPermissions() {
 	permissions, err = s.repo.GetUserPermissions(mockUsers[1].user.ID)
 	s.NoError(err, "Expected no error when getting user permissions")
 	s.Len(permissions, 0, "Expected no permissions for user without roles")
+}
+
+func (s *UserRepositoryTestSuite) TestGetUserPermissionsError() {
+	// Test with invalid user ID
+	permissions, err := s.repo.GetUserPermissions(999)
+	s.Error(err, "Expected error when getting permissions for non-existent user")
+	s.Nil(permissions, "Expected nil permissions for non-existent user")
 }
 
 func (s *UserRepositoryTestSuite) TestGetDB() {

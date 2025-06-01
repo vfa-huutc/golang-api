@@ -7,7 +7,7 @@ import (
 )
 
 type EmailSender interface {
-	Send(to []string, subject, body string) error
+	Send(to []string, subject, plainText, html string) error
 }
 
 type GomailSenderConfig struct {
@@ -18,25 +18,25 @@ type GomailSenderConfig struct {
 	Password string
 }
 
+// Interface for mocking DialAndSend
+type DialAndSender interface {
+	DialAndSend(m ...*gomail.Message) error
+}
+
 type GomailSender struct {
-	config GomailSenderConfig
+	Config GomailSenderConfig
+	Dialer DialAndSender
 }
 
 func NewGomailSender(config GomailSenderConfig) *GomailSender {
-	return &GomailSender{config: config}
+	dialer := gomail.NewDialer(config.Host, config.Port, config.Username, config.Password)
+	return &GomailSender{
+		Config: config,
+		Dialer: dialer,
+	}
 }
 
-// Send sends an email using the SMTP configuration
-// Parameters:
-//   - to: slice of recipient email addresses
-//   - subject: email subject line
-//   - body: html email body content
-//
-// Returns:
-//   - error if sending fails, nil on success
 func (s *GomailSender) Send(to []string, subject, plainText, html string) error {
-
-	// Validate inputs
 	if len(to) == 0 {
 		return errors.New("recipient list cannot be empty")
 	}
@@ -48,10 +48,9 @@ func (s *GomailSender) Send(to []string, subject, plainText, html string) error 
 	}
 
 	m := gomail.NewMessage()
-	m.SetHeader("From", s.config.From)
+	m.SetHeader("From", s.Config.From)
 	m.SetHeader("To", to...)
 	m.SetHeader("Subject", subject)
-	// Add plain text and HTML alternatives
 	if plainText != "" {
 		m.SetBody("text/plain", plainText)
 	}
@@ -59,11 +58,8 @@ func (s *GomailSender) Send(to []string, subject, plainText, html string) error 
 		m.AddAlternative("text/html", html)
 	}
 
-	// Create a new dialer and send the email
-	dialer := gomail.NewDialer(s.config.Host, s.config.Port, s.config.Username, s.config.Password)
-	if err := dialer.DialAndSend(m); err != nil {
+	if err := s.Dialer.DialAndSend(m); err != nil {
 		return err
 	}
-
 	return nil
 }

@@ -11,6 +11,12 @@ import (
 )
 
 func TestLogger(t *testing.T) {
+
+	t.Run("Test Init", func(t *testing.T) {
+		logger.Init()
+		assert.NotNil(t, logrus.StandardLogger().Formatter)
+	})
+
 	t.Run("Info level logs", func(t *testing.T) {
 		t.Run("Info", func(t *testing.T) {
 			hook := test.NewGlobal()
