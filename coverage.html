@@ -168,7 +168,7 @@ p {
 	<body>
 		<div id="doctitle">Coverage Report</div>
         
-        <div id="about">Generated on Sun, 01 Jun 2025 13:47:30 +07 with <a href="https://github.com/matm/gocov-html">gocov-html</a></div>
+        <div id="about">Generated on Sun, 01 Jun 2025 16:01:21 +07 with <a href="https://github.com/matm/gocov-html">gocov-html</a></div>
         
         
         <div class="funcname">Report Overview</div>
@@ -206,8 +206,8 @@ p {
             
             <tr id="s_pkg_github.com/vfa-khuongdv/golang-cms/internal/handlers">
                 <td><code><a href="#pkg_github.com/vfa-khuongdv/golang-cms/internal/handlers">github.com/vfa-khuongdv/golang-cms/internal/handlers</a></code></td>
-                <td class="percent"><code>32.8%</code></td>
-                <td class="linecount"><code>98/299</code></td>
+                <td class="percent"><code>33.1%</code></td>
+                <td class="linecount"><code>99/299</code></td>
             </tr>
             
             <tr id="s_pkg_github.com/vfa-khuongdv/golang-cms/internal/middlewares">
@@ -230,8 +230,8 @@ p {
             
             <tr id="s_pkg_github.com/vfa-khuongdv/golang-cms/internal/services">
                 <td><code><a href="#pkg_github.com/vfa-khuongdv/golang-cms/internal/services">github.com/vfa-khuongdv/golang-cms/internal/services</a></code></td>
-                <td class="percent"><code>46.9%</code></td>
-                <td class="linecount"><code>83/177</code></td>
+                <td class="percent"><code>65.5%</code></td>
+                <td class="linecount"><code>116/177</code></td>
             </tr>
             
             <tr id="s_pkg_github.com/vfa-khuongdv/golang-cms/internal/utils">
@@ -267,7 +267,7 @@ p {
             <tr id="s_pkg_github.com/vfa-khuongdv/golang-cms/tests/mocks">
                 <td><code><a href="#pkg_github.com/vfa-khuongdv/golang-cms/tests/mocks">github.com/vfa-khuongdv/golang-cms/tests/mocks</a></code></td>
                 <td class="percent"><code>0.0%</code></td>
-                <td class="linecount"><code>0/91</code></td>
+                <td class="linecount"><code>0/99</code></td>
             </tr>
             
             </table>
@@ -3049,7 +3049,7 @@ p {
             <tr>
                 <td>38</td>
                 <td>
-                    <code><pre>                                errors.New(errors.ErrAuthForbidden, &#34;User ID not found&#34;),</pre></code>
+                    <code><pre>                                errors.New(errors.ErrForbidden, &#34;User ID not found&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -3140,7 +3140,7 @@ p {
             <tr>
                 <td>51</td>
                 <td>
-                    <code><pre>                                errors.New(errors.ErrAuthForbidden, &#34;Failed to retrieve user permissions&#34;),</pre></code>
+                    <code><pre>                                errors.New(errors.ErrForbidden, &#34;Failed to retrieve user permissions&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -3252,7 +3252,7 @@ p {
             <tr>
                 <td>67</td>
                 <td>
-                    <code><pre>                                        errors.New(errors.ErrAuthForbidden, fmt.Sprintf(&#34;Missing permission: %s&#34;, required)),</pre></code>
+                    <code><pre>                                        errors.New(errors.ErrForbidden, fmt.Sprintf(&#34;Missing permission: %s&#34;, required)),</pre></code>
                 </td>
             </tr>
             
@@ -3417,7 +3417,7 @@ p {
             <tr>
                 <td>38</td>
                 <td>
-                    <code><pre>                                errors.New(errors.ErrAuthForbidden, &#34;User ID not found&#34;),</pre></code>
+                    <code><pre>                                errors.New(errors.ErrForbidden, &#34;User ID not found&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -3508,7 +3508,7 @@ p {
             <tr>
                 <td>51</td>
                 <td>
-                    <code><pre>                                errors.New(errors.ErrAuthForbidden, &#34;Failed to retrieve user permissions&#34;),</pre></code>
+                    <code><pre>                                errors.New(errors.ErrForbidden, &#34;Failed to retrieve user permissions&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -3620,7 +3620,7 @@ p {
             <tr>
                 <td>67</td>
                 <td>
-                    <code><pre>                                        errors.New(errors.ErrAuthForbidden, fmt.Sprintf(&#34;Missing permission: %s&#34;, required)),</pre></code>
+                    <code><pre>                                        errors.New(errors.ErrForbidden, fmt.Sprintf(&#34;Missing permission: %s&#34;, required)),</pre></code>
                 </td>
             </tr>
             
@@ -3682,7 +3682,7 @@ p {
         
         <div id="pkg_github.com/vfa-khuongdv/golang-cms/internal/handlers" class="funcname">
             Package Overview: github.com/vfa-khuongdv/golang-cms/internal/handlers
-            <span class="packageTotal">32.8%</span>
+            <span class="packageTotal">33.1%</span>
         </div>
         <p>Please select a function to see what's left for testing.</p>
 
@@ -3838,6 +3838,21 @@ p {
                 </td>
             </tr>
         
+            <tr id="s_fn_NewAuthHandler">
+                <td>
+                    <code><a href="#fn_NewAuthHandler">NewAuthHandler(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/handlers/auth_handler.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>1/1</code>
+                </td>
+            </tr>
+        
             <tr id="s_fn_NewSettingHandler">
                 <td>
                     <code><a href="#fn_NewSettingHandler">NewSettingHandler(...)</a></code>
@@ -3868,12 +3883,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_NewAuthHandler">
+            <tr id="s_fn_HealthCheck">
                 <td>
-                    <code><a href="#fn_NewAuthHandler">NewAuthHandler(...)</a></code>
+                    <code><a href="#fn_HealthCheck">HealthCheck(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/handlers/auth_handler.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/handlers/health_handler.go</code>
                 </td>
                 <td class="percent">
                     <code>100.0%</code>
@@ -4054,21 +4069,6 @@ p {
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/internal/handlers/user_handler.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/1</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_HealthCheck">
-                <td>
-                    <code><a href="#fn_HealthCheck">HealthCheck(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/handlers/health_handler.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -4260,7 +4260,7 @@ p {
             <tr>
                 <td>85</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, err.Error()),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, err.Error()),</pre></code>
                 </td>
             </tr>
             
@@ -4859,7 +4859,7 @@ p {
             <tr>
                 <td>118</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, err.Error()),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, err.Error()),</pre></code>
                 </td>
             </tr>
             
@@ -5588,7 +5588,7 @@ p {
             <tr>
                 <td>142</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, err.Error()),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, err.Error()),</pre></code>
                 </td>
             </tr>
             
@@ -5866,6 +5866,50 @@ p {
             
         </table>
         
+        <div class="funcname" id="fn_NewAuthHandler">func NewAuthHandler</div>
+        <div class="info">
+            <a href="#s_fn_NewAuthHandler">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/handlers/auth_handler.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>21</td>
+                <td>
+                    <code><pre>func NewAuthHandler(authService services.IAuthService) *AuthHandler {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>22</td>
+                <td>
+                    <code><pre>        return &amp;AuthHandler{</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>23</td>
+                <td>
+                    <code><pre>                authService: authService,</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>24</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>25</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
         <div class="funcname" id="fn_NewSettingHandler">func NewSettingHandler</div>
         <div class="info">
             <a href="#s_fn_NewSettingHandler">Back</a>
@@ -5926,43 +5970,29 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_NewAuthHandler">func NewAuthHandler</div>
+        <div class="funcname" id="fn_HealthCheck">func HealthCheck</div>
         <div class="info">
-            <a href="#s_fn_NewAuthHandler">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/handlers/auth_handler.go</code>:</p>
+            <a href="#s_fn_HealthCheck">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/handlers/health_handler.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>21</td>
+                <td>10</td>
                 <td>
-                    <code><pre>func NewAuthHandler(authService services.IAuthService) *AuthHandler {</pre></code>
+                    <code><pre>func HealthCheck(ctx *gin.Context) {</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>22</td>
+                <td>11</td>
                 <td>
-                    <code><pre>        return &amp;AuthHandler{</pre></code>
+                    <code><pre>        utils.RespondWithOK(ctx, http.StatusOK, gin.H{&#34;status&#34;: &#34;healthy&#34;})</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>23</td>
-                <td>
-                    <code><pre>                authService: authService,</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>24</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>25</td>
+                <td>12</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -6036,7 +6066,7 @@ p {
             <tr>
                 <td>264</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, &#34;Invalid UserID&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, &#34;Invalid UserID&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -6295,7 +6325,7 @@ p {
             <tr>
                 <td>301</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthPasswordMismatch, &#34;Old password is incorrect&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrPasswordMismatch, &#34;Old password is incorrect&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -6365,7 +6395,7 @@ p {
             <tr>
                 <td>311</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthPasswordMismatch, &#34;New password must be different from old password&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrPasswordMismatch, &#34;New password must be different from old password&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -6435,7 +6465,7 @@ p {
             <tr>
                 <td>321</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthInvalidPassword, &#34;New password and confirm password do not match&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrInvalidPassword, &#34;New password and confirm password do not match&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -6519,7 +6549,7 @@ p {
             <tr>
                 <td>333</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthPasswordHashFailed, &#34;Hash password failed&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrPasswordHashFailed, &#34;Hash password failed&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -6717,7 +6747,7 @@ p {
             <tr>
                 <td>560</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, &#34;Invalid UserID&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, &#34;Invalid UserID&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -7433,7 +7463,7 @@ p {
             <tr>
                 <td>211</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthTokenExpired, &#34;Token expired&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrTokenExpired, &#34;Token expired&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -7503,7 +7533,7 @@ p {
             <tr>
                 <td>221</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthInvalidPassword, &#34;Password is incorrect&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrInvalidPassword, &#34;Password is incorrect&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -7587,7 +7617,7 @@ p {
             <tr>
                 <td>233</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthPasswordHashFailed, &#34;Failed to hash password&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrPasswordHashFailed, &#34;Failed to hash password&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -7806,7 +7836,7 @@ p {
             <tr>
                 <td>400</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, err.Error()),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, err.Error()),</pre></code>
                 </td>
             </tr>
             
@@ -8242,7 +8272,7 @@ p {
             <tr>
                 <td>489</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, &#34;Invalid UserID&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, &#34;Invalid UserID&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -9156,7 +9186,7 @@ p {
             <tr>
                 <td>93</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrAuthPasswordHashFailed, &#34;Hash password failed&#34;),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrPasswordHashFailed, &#34;Hash password failed&#34;),</pre></code>
                 </td>
             </tr>
             
@@ -9403,7 +9433,7 @@ p {
             <tr>
                 <td>363</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, err.Error()),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, err.Error()),</pre></code>
                 </td>
             </tr>
             
@@ -9664,7 +9694,7 @@ p {
             <tr>
                 <td>463</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrInvalidParse, err.Error()),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrParseError, err.Error()),</pre></code>
                 </td>
             </tr>
             
@@ -9983,7 +10013,7 @@ p {
             <tr>
                 <td>55</td>
                 <td>
-                    <code><pre>                        errors.New(errors.ErrDatabaseQuery, err.Error()),</pre></code>
+                    <code><pre>                        errors.New(errors.ErrDBQuery, err.Error()),</pre></code>
                 </td>
             </tr>
             
@@ -10081,40 +10111,10 @@ p {
             </tr>
             
         </table>
-        
-        <div class="funcname" id="fn_HealthCheck">func HealthCheck</div>
-        <div class="info">
-            <a href="#s_fn_HealthCheck">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/handlers/health_handler.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>10</td>
-                <td>
-                    <code><pre>func HealthCheck(ctx *gin.Context) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>11</td>
-                <td>
-                    <code><pre>        utils.RespondWithOK(ctx, http.StatusOK, gin.H{&#34;status&#34;: &#34;healthy&#34;})</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>12</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
          
 
         <!--    Can be parsed by external script
-                PACKAGE:github.com/vfa-khuongdv/golang-cms/internal/handlers DONE:32.8
+                PACKAGE:github.com/vfa-khuongdv/golang-cms/internal/handlers DONE:33.1
         -->
         
         <div id="pkg_github.com/vfa-khuongdv/golang-cms/internal/middlewares" class="funcname">
@@ -11446,7 +11446,7 @@ p {
             <tr class="miss">
                 <td>26</td>
                 <td>
-                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, &#34;Authorization header required&#34;))</pre></code>
+                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, &#34;Authorization header required&#34;))</pre></code>
                 </td>
             </tr>
             
@@ -11495,7 +11495,7 @@ p {
             <tr class="miss">
                 <td>33</td>
                 <td>
-                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, &#34;Unauthorized&#34;))</pre></code>
+                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, &#34;Unauthorized&#34;))</pre></code>
                 </td>
             </tr>
             
@@ -11625,7 +11625,7 @@ p {
             <tr>
                 <td>26</td>
                 <td>
-                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, &#34;Authorization header required&#34;))</pre></code>
+                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, &#34;Authorization header required&#34;))</pre></code>
                 </td>
             </tr>
             
@@ -11674,7 +11674,7 @@ p {
             <tr>
                 <td>33</td>
                 <td>
-                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, &#34;Unauthorized&#34;))</pre></code>
+                    <code><pre>                        utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, &#34;Unauthorized&#34;))</pre></code>
                 </td>
             </tr>
             
@@ -15029,7 +15029,7 @@ p {
         
         <div id="pkg_github.com/vfa-khuongdv/golang-cms/internal/services" class="funcname">
             Package Overview: github.com/vfa-khuongdv/golang-cms/internal/services
-            <span class="packageTotal">46.9%</span>
+            <span class="packageTotal">65.5%</span>
         </div>
         <p>Please select a function to see what's left for testing.</p>
 
@@ -15065,6 +15065,51 @@ p {
                 </td>
             </tr>
         
+            <tr id="s_fn_UserService.PaginateUser">
+                <td>
+                    <code><a href="#fn_UserService.PaginateUser">UserService.PaginateUser(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_RoleService.Update">
+                <td>
+                    <code><a href="#fn_RoleService.Update">RoleService.Update(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/role_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_UserService.UpdateProfile">
+                <td>
+                    <code><a href="#fn_UserService.UpdateProfile">UserService.UpdateProfile(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
             <tr id="s_fn_PermissionService.GetAll">
                 <td>
                     <code><a href="#fn_PermissionService.GetAll">PermissionService.GetAll(...)</a></code>
@@ -15080,9 +15125,159 @@ p {
                 </td>
             </tr>
         
+            <tr id="s_fn_UserService.GetProfile">
+                <td>
+                    <code><a href="#fn_UserService.GetProfile">UserService.GetProfile(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_UserService.GetUserByToken">
+                <td>
+                    <code><a href="#fn_UserService.GetUserByToken">UserService.GetUserByToken(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_UserService.DeleteUser">
+                <td>
+                    <code><a href="#fn_UserService.DeleteUser">UserService.DeleteUser(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_UserService.UpdateUser">
+                <td>
+                    <code><a href="#fn_UserService.UpdateUser">UserService.UpdateUser(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_UserService.GetUserByEmail">
+                <td>
+                    <code><a href="#fn_UserService.GetUserByEmail">UserService.GetUserByEmail(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_UserService.GetUser">
+                <td>
+                    <code><a href="#fn_UserService.GetUser">UserService.GetUser(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_RoleService.Create">
+                <td>
+                    <code><a href="#fn_RoleService.Create">RoleService.Create(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/role_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_SettingService.Create">
+                <td>
+                    <code><a href="#fn_SettingService.Create">SettingService.Create(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/setting_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
             <tr id="s_fn_SettingService.Update">
                 <td>
                     <code><a href="#fn_SettingService.Update">SettingService.Update(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/setting_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_SettingService.GetSettingByKey">
+                <td>
+                    <code><a href="#fn_SettingService.GetSettingByKey">SettingService.GetSettingByKey(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/setting_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>100.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>4/4</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_SettingService.GetSetting">
+                <td>
+                    <code><a href="#fn_SettingService.GetSetting">SettingService.GetSetting(...)</a></code>
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/internal/services/setting_service.go</code>
@@ -15110,36 +15305,6 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_SettingService.GetSetting">
-                <td>
-                    <code><a href="#fn_SettingService.GetSetting">SettingService.GetSetting(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/setting_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>100.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>4/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_RoleService.Create">
-                <td>
-                    <code><a href="#fn_RoleService.Create">RoleService.Create(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/role_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>100.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>4/4</code>
-                </td>
-            </tr>
-        
             <tr id="s_fn_RoleService.Delete">
                 <td>
                     <code><a href="#fn_RoleService.Delete">RoleService.Delete(...)</a></code>
@@ -15155,48 +15320,18 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_RoleService.Update">
+            <tr id="s_fn_NewAuthService">
                 <td>
-                    <code><a href="#fn_RoleService.Update">RoleService.Update(...)</a></code>
+                    <code><a href="#fn_NewAuthService">NewAuthService(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/role_service.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/auth_service.go</code>
                 </td>
                 <td class="percent">
                     <code>100.0%</code>
                 </td>
                 <td class="linecount">
-                    <code>4/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_SettingService.GetSettingByKey">
-                <td>
-                    <code><a href="#fn_SettingService.GetSettingByKey">SettingService.GetSettingByKey(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/setting_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>100.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>4/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_SettingService.Create">
-                <td>
-                    <code><a href="#fn_SettingService.Create">SettingService.Create(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/setting_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>100.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>4/4</code>
+                    <code>1/1</code>
                 </td>
             </tr>
         
@@ -15215,12 +15350,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_NewAuthService">
+            <tr id="s_fn_NewRoleService">
                 <td>
-                    <code><a href="#fn_NewAuthService">NewAuthService(...)</a></code>
+                    <code><a href="#fn_NewRoleService">NewRoleService(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/auth_service.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/role_service.go</code>
                 </td>
                 <td class="percent">
                     <code>100.0%</code>
@@ -15245,12 +15380,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_NewRoleService">
+            <tr id="s_fn_NewUserService">
                 <td>
-                    <code><a href="#fn_NewRoleService">NewRoleService(...)</a></code>
+                    <code><a href="#fn_NewUserService">NewUserService(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/role_service.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
                 </td>
                 <td class="percent">
                     <code>100.0%</code>
@@ -15365,36 +15500,6 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_RedisService.Delete">
-                <td>
-                    <code><a href="#fn_RedisService.Delete">RedisService.Delete(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/redis_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_UserService.UpdateUser">
-                <td>
-                    <code><a href="#fn_UserService.UpdateUser">UserService.UpdateUser(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
             <tr id="s_fn_RedisService.GetList">
                 <td>
                     <code><a href="#fn_RedisService.GetList">RedisService.GetList(...)</a></code>
@@ -15410,72 +15515,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_RedisService.Exists">
+            <tr id="s_fn_RedisService.Delete">
                 <td>
-                    <code><a href="#fn_RedisService.Exists">RedisService.Exists(...)</a></code>
+                    <code><a href="#fn_RedisService.Delete">RedisService.Delete(...)</a></code>
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/internal/services/redis_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_UserService.UpdateProfile">
-                <td>
-                    <code><a href="#fn_UserService.UpdateProfile">UserService.UpdateProfile(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_UserService.PaginateUser">
-                <td>
-                    <code><a href="#fn_UserService.PaginateUser">UserService.PaginateUser(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_UserService.GetUser">
-                <td>
-                    <code><a href="#fn_UserService.GetUser">UserService.GetUser(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_UserService.GetUserByEmail">
-                <td>
-                    <code><a href="#fn_UserService.GetUserByEmail">UserService.GetUserByEmail(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -15500,42 +15545,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_UserService.GetProfile">
+            <tr id="s_fn_RedisService.Exists">
                 <td>
-                    <code><a href="#fn_UserService.GetProfile">UserService.GetProfile(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_UserService.GetUserByToken">
-                <td>
-                    <code><a href="#fn_UserService.GetUserByToken">UserService.GetUserByToken(...)</a></code>
+                    <code><a href="#fn_RedisService.Exists">RedisService.Exists(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/4</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_UserService.DeleteUser">
-                <td>
-                    <code><a href="#fn_UserService.DeleteUser">UserService.DeleteUser(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/redis_service.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -15566,21 +15581,6 @@ p {
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/internal/services/redis_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/1</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_NewUserService">
-                <td>
-                    <code><a href="#fn_NewUserService">NewUserService(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/internal/services/user_service.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -15625,7 +15625,7 @@ p {
             <tr>
                 <td>86</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -15709,7 +15709,7 @@ p {
             <tr>
                 <td>98</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseUpdate, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrDBUpdate, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -15886,7 +15886,7 @@ p {
             <tr>
                 <td>55</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseInsert, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrDBInsert, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -15941,347 +15941,64 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_PermissionService.GetAll">func PermissionService.GetAll</div>
+        <div class="funcname" id="fn_UserService.PaginateUser">func UserService.PaginateUser</div>
         <div class="info">
-            <a href="#s_fn_PermissionService.GetAll">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/permission_service.go</code>:</p>
+            <a href="#s_fn_UserService.PaginateUser">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>27</td>
+                <td>45</td>
                 <td>
-                    <code><pre>func (repo *PermissionService) GetAll() ([]models.Permission, error) {</pre></code>
+                    <code><pre>func (service *UserService) PaginateUser(page, limit int) (*utils.Pagination, error) {</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>28</td>
+                <td>46</td>
                 <td>
-                    <code><pre>        permission, err := repo.repo.GetAll()</pre></code>
+                    <code><pre>        data, err := service.repo.PaginateUser(page, limit)</pre></code>
                 </td>
             </tr>
-            
-            <tr>
-                <td>29</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>30</td>
-                <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>31</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>32</td>
-                <td>
-                    <code><pre>        return permission, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>33</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_SettingService.Update">func SettingService.Update</div>
-        <div class="info">
-            <a href="#s_fn_SettingService.Update">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/setting_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>60</td>
-                <td>
-                    <code><pre>func (service *SettingService) Update(setting *models.Setting) error {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>61</td>
-                <td>
-                    <code><pre>        err := service.repo.Update(setting)</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>62</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>63</td>
-                <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseUpdate, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>64</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>65</td>
-                <td>
-                    <code><pre>        return nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>66</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_RoleService.GetByID">func RoleService.GetByID</div>
-        <div class="info">
-            <a href="#s_fn_RoleService.GetByID">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/role_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>33</td>
-                <td>
-                    <code><pre>func (service *RoleService) GetByID(id int64) (*models.Role, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>34</td>
-                <td>
-                    <code><pre>        data, err := service.repo.GetByID(id)</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>35</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>36</td>
-                <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>37</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>38</td>
-                <td>
-                    <code><pre>        return data, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>39</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_SettingService.GetSetting">func SettingService.GetSetting</div>
-        <div class="info">
-            <a href="#s_fn_SettingService.GetSetting">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/setting_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>30</td>
-                <td>
-                    <code><pre>func (service *SettingService) GetSetting() ([]models.Setting, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>31</td>
-                <td>
-                    <code><pre>        data, err := service.repo.GetAll()</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>32</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>33</td>
-                <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>34</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>35</td>
-                <td>
-                    <code><pre>        return data, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>36</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_RoleService.Create">func RoleService.Create</div>
-        <div class="info">
-            <a href="#s_fn_RoleService.Create">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/role_service.go</code>:</p>
-        </div>
-        <table class="listing">
             
             <tr>
                 <td>47</td>
                 <td>
-                    <code><pre>func (service *RoleService) Create(role *models.Role) error {</pre></code>
+                    <code><pre></pre></code>
                 </td>
             </tr>
             
             <tr>
                 <td>48</td>
                 <td>
-                    <code><pre>        err := service.repo.Create(role)</pre></code>
+                    <code><pre>        if err != nil {</pre></code>
                 </td>
             </tr>
             
             <tr>
                 <td>49</td>
                 <td>
-                    <code><pre>        if err != nil {</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
                 </td>
             </tr>
             
             <tr>
                 <td>50</td>
                 <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseInsert, err.Error())</pre></code>
+                    <code><pre>        }</pre></code>
                 </td>
             </tr>
             
             <tr>
                 <td>51</td>
                 <td>
-                    <code><pre>        }</pre></code>
+                    <code><pre>        return data, nil</pre></code>
                 </td>
             </tr>
             
             <tr>
                 <td>52</td>
-                <td>
-                    <code><pre>        return nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>53</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_RoleService.Delete">func RoleService.Delete</div>
-        <div class="info">
-            <a href="#s_fn_RoleService.Delete">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/role_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>75</td>
-                <td>
-                    <code><pre>func (service *RoleService) Delete(id int64) error {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>76</td>
-                <td>
-                    <code><pre>        role, err := service.repo.GetByID(id)</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>77</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>78</td>
-                <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseDelete, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>79</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>80</td>
-                <td>
-                    <code><pre>        return service.repo.Delete(role)</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>81</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -16320,7 +16037,7 @@ p {
             <tr>
                 <td>64</td>
                 <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseUpdate, err.Error())</pre></code>
+                    <code><pre>                return errors.New(errors.ErrDBUpdate, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -16347,57 +16064,521 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_SettingService.GetSettingByKey">func SettingService.GetSettingByKey</div>
+        <div class="funcname" id="fn_UserService.UpdateProfile">func UserService.UpdateProfile</div>
         <div class="info">
-            <a href="#s_fn_SettingService.GetSettingByKey">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/setting_service.go</code>:</p>
+            <a href="#s_fn_UserService.UpdateProfile">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>45</td>
+                <td>237</td>
                 <td>
-                    <code><pre>func (service *SettingService) GetSettingByKey(key string) (*models.Setting, error) {</pre></code>
+                    <code><pre>func (service *UserService) UpdateProfile(user *models.User) error {</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>46</td>
+                <td>238</td>
                 <td>
-                    <code><pre>        data, err := service.repo.GetByKey(key)</pre></code>
+                    <code><pre>        err := service.repo.UpdateProfile(user)</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>47</td>
+                <td>239</td>
                 <td>
                     <code><pre>        if err != nil {</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>48</td>
+                <td>240</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
+                    <code><pre>                return errors.New(errors.ErrDBUpdate, err.Error())</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>49</td>
+                <td>241</td>
                 <td>
                     <code><pre>        }</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>50</td>
+                <td>242</td>
+                <td>
+                    <code><pre>        return nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>243</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_PermissionService.GetAll">func PermissionService.GetAll</div>
+        <div class="info">
+            <a href="#s_fn_PermissionService.GetAll">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/permission_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>27</td>
+                <td>
+                    <code><pre>func (repo *PermissionService) GetAll() ([]models.Permission, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>28</td>
+                <td>
+                    <code><pre>        permission, err := repo.repo.GetAll()</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>29</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>30</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>31</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>32</td>
+                <td>
+                    <code><pre>        return permission, nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>33</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_UserService.GetProfile">func UserService.GetProfile</div>
+        <div class="info">
+            <a href="#s_fn_UserService.GetProfile">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>214</td>
+                <td>
+                    <code><pre>func (service *UserService) GetProfile(id uint) (*models.User, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>215</td>
+                <td>
+                    <code><pre>        data, err := service.repo.GetProfile(id)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>216</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>217</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>218</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>219</td>
                 <td>
                     <code><pre>        return data, nil</pre></code>
                 </td>
             </tr>
             
             <tr>
+                <td>220</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_UserService.GetUserByToken">func UserService.GetUserByToken</div>
+        <div class="info">
+            <a href="#s_fn_UserService.GetUserByToken">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>195</td>
+                <td>
+                    <code><pre>func (service *UserService) GetUserByToken(token string) (*models.User, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>196</td>
+                <td>
+                    <code><pre>        data, err := service.repo.FindByField(&#34;token&#34;, token)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>197</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>198</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>199</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>200</td>
+                <td>
+                    <code><pre>        return data, nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>201</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_UserService.DeleteUser">func UserService.DeleteUser</div>
+        <div class="info">
+            <a href="#s_fn_UserService.DeleteUser">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>176</td>
+                <td>
+                    <code><pre>func (service *UserService) DeleteUser(id uint) error {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>177</td>
+                <td>
+                    <code><pre>        err := service.repo.Delete(id)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>178</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>179</td>
+                <td>
+                    <code><pre>                return errors.New(errors.ErrDBDelete, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>180</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>181</td>
+                <td>
+                    <code><pre>        return nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>182</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_UserService.UpdateUser">func UserService.UpdateUser</div>
+        <div class="info">
+            <a href="#s_fn_UserService.UpdateUser">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>158</td>
+                <td>
+                    <code><pre>func (service *UserService) UpdateUser(user *models.User) error {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>159</td>
+                <td>
+                    <code><pre>        err := service.repo.Update(user)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>160</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>161</td>
+                <td>
+                    <code><pre>                return errors.New(errors.ErrDBUpdate, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>162</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>163</td>
+                <td>
+                    <code><pre>        return nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>164</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_UserService.GetUserByEmail">func UserService.GetUserByEmail</div>
+        <div class="info">
+            <a href="#s_fn_UserService.GetUserByEmail">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>84</td>
+                <td>
+                    <code><pre>func (service *UserService) GetUserByEmail(email string) (*models.User, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>85</td>
+                <td>
+                    <code><pre>        data, err := service.repo.FindByField(&#34;email&#34;, email)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>86</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>87</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>88</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>89</td>
+                <td>
+                    <code><pre>        return data, nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>90</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_UserService.GetUser">func UserService.GetUser</div>
+        <div class="info">
+            <a href="#s_fn_UserService.GetUser">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>65</td>
+                <td>
+                    <code><pre>func (service *UserService) GetUser(id uint) (*models.User, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>66</td>
+                <td>
+                    <code><pre>        data, err := service.repo.GetByID(id)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>67</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>68</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>69</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>70</td>
+                <td>
+                    <code><pre>        return data, nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>71</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_RoleService.Create">func RoleService.Create</div>
+        <div class="info">
+            <a href="#s_fn_RoleService.Create">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/role_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>47</td>
+                <td>
+                    <code><pre>func (service *RoleService) Create(role *models.Role) error {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>48</td>
+                <td>
+                    <code><pre>        err := service.repo.Create(role)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>49</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>50</td>
+                <td>
+                    <code><pre>                return errors.New(errors.ErrDBInsert, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
                 <td>51</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>52</td>
+                <td>
+                    <code><pre>        return nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>53</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -16436,7 +16617,7 @@ p {
             <tr>
                 <td>78</td>
                 <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseInsert, err.Error())</pre></code>
+                    <code><pre>                return errors.New(errors.ErrDBInsert, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -16463,43 +16644,289 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_NewSettingService">func NewSettingService</div>
+        <div class="funcname" id="fn_SettingService.Update">func SettingService.Update</div>
         <div class="info">
-            <a href="#s_fn_NewSettingService">Back</a>
+            <a href="#s_fn_SettingService.Update">Back</a>
             <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/setting_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>20</td>
+                <td>60</td>
                 <td>
-                    <code><pre>func NewSettingService(repo repositories.ISettingRepository) *SettingService {</pre></code>
+                    <code><pre>func (service *SettingService) Update(setting *models.Setting) error {</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>21</td>
+                <td>61</td>
                 <td>
-                    <code><pre>        return &amp;SettingService{</pre></code>
+                    <code><pre>        err := service.repo.Update(setting)</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>22</td>
+                <td>62</td>
                 <td>
-                    <code><pre>                repo: repo,</pre></code>
+                    <code><pre>        if err != nil {</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>23</td>
+                <td>63</td>
+                <td>
+                    <code><pre>                return errors.New(errors.ErrDBUpdate, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>64</td>
                 <td>
                     <code><pre>        }</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>24</td>
+                <td>65</td>
+                <td>
+                    <code><pre>        return nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>66</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_SettingService.GetSettingByKey">func SettingService.GetSettingByKey</div>
+        <div class="info">
+            <a href="#s_fn_SettingService.GetSettingByKey">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/setting_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>45</td>
+                <td>
+                    <code><pre>func (service *SettingService) GetSettingByKey(key string) (*models.Setting, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>46</td>
+                <td>
+                    <code><pre>        data, err := service.repo.GetByKey(key)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>47</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>48</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>49</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>50</td>
+                <td>
+                    <code><pre>        return data, nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>51</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_SettingService.GetSetting">func SettingService.GetSetting</div>
+        <div class="info">
+            <a href="#s_fn_SettingService.GetSetting">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/setting_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>30</td>
+                <td>
+                    <code><pre>func (service *SettingService) GetSetting() ([]models.Setting, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>31</td>
+                <td>
+                    <code><pre>        data, err := service.repo.GetAll()</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>32</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>33</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>34</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>35</td>
+                <td>
+                    <code><pre>        return data, nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>36</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_RoleService.GetByID">func RoleService.GetByID</div>
+        <div class="info">
+            <a href="#s_fn_RoleService.GetByID">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/role_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>33</td>
+                <td>
+                    <code><pre>func (service *RoleService) GetByID(id int64) (*models.Role, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>34</td>
+                <td>
+                    <code><pre>        data, err := service.repo.GetByID(id)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>35</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>36</td>
+                <td>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>37</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>38</td>
+                <td>
+                    <code><pre>        return data, nil</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>39</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_RoleService.Delete">func RoleService.Delete</div>
+        <div class="info">
+            <a href="#s_fn_RoleService.Delete">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/role_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>75</td>
+                <td>
+                    <code><pre>func (service *RoleService) Delete(id int64) error {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>76</td>
+                <td>
+                    <code><pre>        role, err := service.repo.GetByID(id)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>77</td>
+                <td>
+                    <code><pre>        if err != nil {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>78</td>
+                <td>
+                    <code><pre>                return errors.New(errors.ErrDBDelete, err.Error())</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>79</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>80</td>
+                <td>
+                    <code><pre>        return service.repo.Delete(role)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>81</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -16558,43 +16985,43 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_NewRefreshTokenService">func NewRefreshTokenService</div>
+        <div class="funcname" id="fn_NewSettingService">func NewSettingService</div>
         <div class="info">
-            <a href="#s_fn_NewRefreshTokenService">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/refresh_token_service.go</code>:</p>
+            <a href="#s_fn_NewSettingService">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/setting_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>28</td>
+                <td>20</td>
                 <td>
-                    <code><pre>func NewRefreshTokenService(repo repositories.IRefreshTokenRepository) *RefreshTokenService {</pre></code>
+                    <code><pre>func NewSettingService(repo repositories.ISettingRepository) *SettingService {</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>29</td>
+                <td>21</td>
                 <td>
-                    <code><pre>        return &amp;RefreshTokenService{</pre></code>
+                    <code><pre>        return &amp;SettingService{</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>30</td>
+                <td>22</td>
                 <td>
                     <code><pre>                repo: repo,</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>31</td>
+                <td>23</td>
                 <td>
                     <code><pre>        }</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>32</td>
+                <td>24</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -16639,6 +17066,94 @@ p {
             
             <tr>
                 <td>24</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_NewRefreshTokenService">func NewRefreshTokenService</div>
+        <div class="info">
+            <a href="#s_fn_NewRefreshTokenService">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/refresh_token_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>28</td>
+                <td>
+                    <code><pre>func NewRefreshTokenService(repo repositories.IRefreshTokenRepository) *RefreshTokenService {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>29</td>
+                <td>
+                    <code><pre>        return &amp;RefreshTokenService{</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>30</td>
+                <td>
+                    <code><pre>                repo: repo,</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>31</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>32</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_NewUserService">func NewUserService</div>
+        <div class="info">
+            <a href="#s_fn_NewUserService">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>26</td>
+                <td>
+                    <code><pre>func NewUserService(repo repositories.IUserRepository) *UserService {</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>27</td>
+                <td>
+                    <code><pre>        return &amp;UserService{</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>28</td>
+                <td>
+                    <code><pre>                repo: repo,</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>29</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>30</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -16721,7 +17236,7 @@ p {
             <tr>
                 <td>52</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrResourceNotFound, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrNotFound, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -16756,7 +17271,7 @@ p {
             <tr>
                 <td>57</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrAuthInvalidPassword, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrInvalidPassword, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -16798,7 +17313,7 @@ p {
             <tr class="miss">
                 <td>63</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrServerInternal, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrInternal, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -17052,7 +17567,7 @@ p {
             <tr>
                 <td>107</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrDBQuery, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -17087,7 +17602,7 @@ p {
             <tr class="miss">
                 <td>112</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrServerInternal, err.Error())</pre></code>
+                    <code><pre>                return nil, errors.New(errors.ErrInternal, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -17278,7 +17793,7 @@ p {
             <tr class="miss">
                 <td>120</td>
                 <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseInsert, err.Error())</pre></code>
+                    <code><pre>                return errors.New(errors.ErrDBInsert, err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -17355,7 +17870,7 @@ p {
             <tr class="miss">
                 <td>131</td>
                 <td>
-                    <code><pre>                        return errors.New(errors.ErrDatabaseInsert, &#34;Failed to assign roles: &#34;+err.Error())</pre></code>
+                    <code><pre>                        return errors.New(errors.ErrDBInsert, &#34;Failed to assign roles: &#34;+err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -17397,7 +17912,7 @@ p {
             <tr class="miss">
                 <td>137</td>
                 <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseInsert, &#34;Transaction failed: &#34;+err.Error())</pre></code>
+                    <code><pre>                return errors.New(errors.ErrDBInsert, &#34;Transaction failed: &#34;+err.Error())</pre></code>
                 </td>
             </tr>
             
@@ -17693,7 +18208,7 @@ p {
             <tr class="miss">
                 <td>67</td>
                 <td>
-                    <code><pre>                return errors.New(errors.ErrServerInternal, fmt.Sprintf(&#34;error executing template: %+v&#34;, err))</pre></code>
+                    <code><pre>                return errors.New(errors.ErrInternal, fmt.Sprintf(&#34;error executing template: %+v&#34;, err))</pre></code>
                 </td>
             </tr>
             
@@ -17728,40 +18243,33 @@ p {
             <tr class="miss">
                 <td>72</td>
                 <td>
-                    <code><pre>                return errors.New(errors.ErrServerInternal, fmt.Sprintf(&#34;error sending email: %+v&#34;, err))</pre></code>
+                    <code><pre>                return errors.New(errors.ErrInternal, fmt.Sprintf(&#34;error sending email: %+v&#34;, err))</pre></code>
                 </td>
             </tr>
             
             <tr>
                 <td>73</td>
                 <td>
-                    <code><pre></pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>74</td>
-                <td>
                     <code><pre>        }</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>75</td>
+                <td>74</td>
                 <td>
                     <code><pre>        return nil</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>76</td>
+                <td>75</td>
                 <td>
                     <code><pre></pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>77</td>
+                <td>76</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -18018,122 +18526,6 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_RedisService.Delete">func RedisService.Delete</div>
-        <div class="info">
-            <a href="#s_fn_RedisService.Delete">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/redis_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>97</td>
-                <td>
-                    <code><pre>func (r *RedisService) Delete(key string) error {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>98</td>
-                <td>
-                    <code><pre>        err := r.client.Del(r.ctx, key).Err()</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>99</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>100</td>
-                <td>
-                    <code><pre>                return errors.New(errors.ErrCacheDelete, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>101</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>102</td>
-                <td>
-                    <code><pre>        return nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>103</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_UserService.UpdateUser">func UserService.UpdateUser</div>
-        <div class="info">
-            <a href="#s_fn_UserService.UpdateUser">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>158</td>
-                <td>
-                    <code><pre>func (service *UserService) UpdateUser(user *models.User) error {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>159</td>
-                <td>
-                    <code><pre>        err := service.repo.Update(user)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>160</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>161</td>
-                <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseUpdate, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>162</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>163</td>
-                <td>
-                    <code><pre>        return nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>164</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
         <div class="funcname" id="fn_RedisService.GetList">func RedisService.GetList</div>
         <div class="info">
             <a href="#s_fn_RedisService.GetList">Back</a>
@@ -18192,296 +18584,57 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_RedisService.Exists">func RedisService.Exists</div>
+        <div class="funcname" id="fn_RedisService.Delete">func RedisService.Delete</div>
         <div class="info">
-            <a href="#s_fn_RedisService.Exists">Back</a>
+            <a href="#s_fn_RedisService.Delete">Back</a>
             <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/redis_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>112</td>
+                <td>97</td>
                 <td>
-                    <code><pre>func (r *RedisService) Exists(key string) (bool, error) {</pre></code>
+                    <code><pre>func (r *RedisService) Delete(key string) error {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>113</td>
+                <td>98</td>
                 <td>
-                    <code><pre>        count, err := r.client.Exists(r.ctx, key).Result()</pre></code>
+                    <code><pre>        err := r.client.Del(r.ctx, key).Err()</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>114</td>
+                <td>99</td>
                 <td>
                     <code><pre>        if err != nil {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>115</td>
+                <td>100</td>
                 <td>
-                    <code><pre>                return false, errors.New(errors.ErrCacheKeyExists, err.Error())</pre></code>
+                    <code><pre>                return errors.New(errors.ErrCacheDelete, err.Error())</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>116</td>
+                <td>101</td>
                 <td>
                     <code><pre>        }</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>117</td>
-                <td>
-                    <code><pre>        return count &gt; 0, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>118</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_UserService.UpdateProfile">func UserService.UpdateProfile</div>
-        <div class="info">
-            <a href="#s_fn_UserService.UpdateProfile">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>237</td>
-                <td>
-                    <code><pre>func (service *UserService) UpdateProfile(user *models.User) error {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>238</td>
-                <td>
-                    <code><pre>        err := service.repo.UpdateProfile(user)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>239</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>240</td>
-                <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseUpdate, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>241</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>242</td>
+                <td>102</td>
                 <td>
                     <code><pre>        return nil</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>243</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_UserService.PaginateUser">func UserService.PaginateUser</div>
-        <div class="info">
-            <a href="#s_fn_UserService.PaginateUser">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>45</td>
-                <td>
-                    <code><pre>func (service *UserService) PaginateUser(page, limit int) (*utils.Pagination, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>46</td>
-                <td>
-                    <code><pre>        data, err := service.repo.PaginateUser(page, limit)</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>47</td>
-                <td>
-                    <code><pre></pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>48</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>49</td>
-                <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>50</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>51</td>
-                <td>
-                    <code><pre>        return data, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>52</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_UserService.GetUser">func UserService.GetUser</div>
-        <div class="info">
-            <a href="#s_fn_UserService.GetUser">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>65</td>
-                <td>
-                    <code><pre>func (service *UserService) GetUser(id uint) (*models.User, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>66</td>
-                <td>
-                    <code><pre>        data, err := service.repo.GetByID(id)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>67</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>68</td>
-                <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>69</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>70</td>
-                <td>
-                    <code><pre>        return data, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>71</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_UserService.GetUserByEmail">func UserService.GetUserByEmail</div>
-        <div class="info">
-            <a href="#s_fn_UserService.GetUserByEmail">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>84</td>
-                <td>
-                    <code><pre>func (service *UserService) GetUserByEmail(email string) (*models.User, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>85</td>
-                <td>
-                    <code><pre>        data, err := service.repo.FindByField(&#34;email&#34;, email)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>86</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>87</td>
-                <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>88</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>89</td>
-                <td>
-                    <code><pre>        return data, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>90</td>
+                <td>103</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -18547,173 +18700,57 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_UserService.GetProfile">func UserService.GetProfile</div>
+        <div class="funcname" id="fn_RedisService.Exists">func RedisService.Exists</div>
         <div class="info">
-            <a href="#s_fn_UserService.GetProfile">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
+            <a href="#s_fn_RedisService.Exists">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/redis_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>214</td>
+                <td>112</td>
                 <td>
-                    <code><pre>func (service *UserService) GetProfile(id uint) (*models.User, error) {</pre></code>
+                    <code><pre>func (r *RedisService) Exists(key string) (bool, error) {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>215</td>
+                <td>113</td>
                 <td>
-                    <code><pre>        data, err := service.repo.GetProfile(id)</pre></code>
+                    <code><pre>        count, err := r.client.Exists(r.ctx, key).Result()</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>216</td>
+                <td>114</td>
                 <td>
                     <code><pre>        if err != nil {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>217</td>
+                <td>115</td>
                 <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
+                    <code><pre>                return false, errors.New(errors.ErrCacheExists, err.Error())</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>218</td>
+                <td>116</td>
                 <td>
                     <code><pre>        }</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>219</td>
+                <td>117</td>
                 <td>
-                    <code><pre>        return data, nil</pre></code>
+                    <code><pre>        return count &gt; 0, nil</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>220</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_UserService.GetUserByToken">func UserService.GetUserByToken</div>
-        <div class="info">
-            <a href="#s_fn_UserService.GetUserByToken">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>195</td>
-                <td>
-                    <code><pre>func (service *UserService) GetUserByToken(token string) (*models.User, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>196</td>
-                <td>
-                    <code><pre>        data, err := service.repo.FindByField(&#34;token&#34;, token)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>197</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>198</td>
-                <td>
-                    <code><pre>                return nil, errors.New(errors.ErrDatabaseQuery, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>199</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>200</td>
-                <td>
-                    <code><pre>        return data, nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>201</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_UserService.DeleteUser">func UserService.DeleteUser</div>
-        <div class="info">
-            <a href="#s_fn_UserService.DeleteUser">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>176</td>
-                <td>
-                    <code><pre>func (service *UserService) DeleteUser(id uint) error {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>177</td>
-                <td>
-                    <code><pre>        err := service.repo.Delete(id)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>178</td>
-                <td>
-                    <code><pre>        if err != nil {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>179</td>
-                <td>
-                    <code><pre>                return errors.New(errors.ErrDatabaseDelete, err.Error())</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>180</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>181</td>
-                <td>
-                    <code><pre>        return nil</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>182</td>
+                <td>118</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -18794,54 +18831,10 @@ p {
             </tr>
             
         </table>
-        
-        <div class="funcname" id="fn_NewUserService">func NewUserService</div>
-        <div class="info">
-            <a href="#s_fn_NewUserService">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/internal/services/user_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>26</td>
-                <td>
-                    <code><pre>func NewUserService(repo repositories.IUserRepository) *UserService {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>27</td>
-                <td>
-                    <code><pre>        return &amp;UserService{</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>28</td>
-                <td>
-                    <code><pre>                repo: repo,</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>29</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>30</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
          
 
         <!--    Can be parsed by external script
-                PACKAGE:github.com/vfa-khuongdv/golang-cms/internal/services DONE:46.9
+                PACKAGE:github.com/vfa-khuongdv/golang-cms/internal/services DONE:65.5
         -->
         
         <div id="pkg_github.com/vfa-khuongdv/golang-cms/internal/utils" class="funcname">
@@ -21222,7 +21215,7 @@ p {
             <tr>
                 <td>24</td>
                 <td>
-                    <code><pre>                        gin.H{&#34;code&#34;: errors.ErrServerInternal, &#34;message&#34;: err.Error()},</pre></code>
+                    <code><pre>                        gin.H{&#34;code&#34;: errors.ErrInternal, &#34;message&#34;: err.Error()},</pre></code>
                 </td>
             </tr>
             
@@ -23697,6 +23690,21 @@ p {
                 </td>
             </tr>
         
+            <tr id="s_fn_MockPermissionService.GetAll">
+                <td>
+                    <code><a href="#fn_MockPermissionService.GetAll">MockPermissionService.GetAll(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_permission_service.go</code>
+                </td>
+                <td class="percent">
+                    <code>0.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>0/4</code>
+                </td>
+            </tr>
+        
             <tr id="s_fn_MockAuthService.RefreshToken">
                 <td>
                     <code><a href="#fn_MockAuthService.RefreshToken">MockAuthService.RefreshToken(...)</a></code>
@@ -23727,18 +23735,18 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockPermissionService.GetAll">
+            <tr id="s_fn_MockRefreshTokenService.Update">
                 <td>
-                    <code><a href="#fn_MockPermissionService.GetAll">MockPermissionService.GetAll(...)</a></code>
+                    <code><a href="#fn_MockRefreshTokenService.Update">MockRefreshTokenService.Update(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_permission_service.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_refresh_token_service.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
                 </td>
                 <td class="linecount">
-                    <code>0/4</code>
+                    <code>0/3</code>
                 </td>
             </tr>
         
@@ -23757,24 +23765,9 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockRefreshTokenService.Update">
+            <tr id="s_fn_MockRoleService.Delete">
                 <td>
-                    <code><a href="#fn_MockRefreshTokenService.Update">MockRefreshTokenService.Update(...)</a></code>
-                </td>
-                <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_refresh_token_service.go</code>
-                </td>
-                <td class="percent">
-                    <code>0.0%</code>
-                </td>
-                <td class="linecount">
-                    <code>0/3</code>
-                </td>
-            </tr>
-        
-            <tr id="s_fn_MockRoleService.GetRolePermissions">
-                <td>
-                    <code><a href="#fn_MockRoleService.GetRolePermissions">MockRoleService.GetRolePermissions(...)</a></code>
+                    <code><a href="#fn_MockRoleService.Delete">MockRoleService.Delete(...)</a></code>
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_role_service.go</code>
@@ -23787,9 +23780,9 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockSettingRepository.Update">
+            <tr id="s_fn_MockSettingRepository.GetAll">
                 <td>
-                    <code><a href="#fn_MockSettingRepository.Update">MockSettingRepository.Update(...)</a></code>
+                    <code><a href="#fn_MockSettingRepository.GetAll">MockSettingRepository.GetAll(...)</a></code>
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_setting_repository.go</code>
@@ -23802,9 +23795,24 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockRefreshTokenRepository.First">
+            <tr id="s_fn_MockPermissionRepository.Create">
                 <td>
-                    <code><a href="#fn_MockRefreshTokenRepository.First">MockRefreshTokenRepository.First(...)</a></code>
+                    <code><a href="#fn_MockPermissionRepository.Create">MockPermissionRepository.Create(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_permission_repository.go</code>
+                </td>
+                <td class="percent">
+                    <code>0.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>0/2</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_MockRefreshTokenRepository.Create">
+                <td>
+                    <code><a href="#fn_MockRefreshTokenRepository.Create">MockRefreshTokenRepository.Create(...)</a></code>
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>
@@ -23832,12 +23840,57 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockRefreshTokenRepository.Create">
+            <tr id="s_fn_MockRefreshTokenRepository.FindByToken">
                 <td>
-                    <code><a href="#fn_MockRefreshTokenRepository.Create">MockRefreshTokenRepository.Create(...)</a></code>
+                    <code><a href="#fn_MockRefreshTokenRepository.FindByToken">MockRefreshTokenRepository.FindByToken(...)</a></code>
                 </td>
                 <td>
                     <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>
+                </td>
+                <td class="percent">
+                    <code>0.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>0/2</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_MockRefreshTokenRepository.First">
+                <td>
+                    <code><a href="#fn_MockRefreshTokenRepository.First">MockRefreshTokenRepository.First(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>
+                </td>
+                <td class="percent">
+                    <code>0.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>0/2</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_MockTx.Create">
+                <td>
+                    <code><a href="#fn_MockTx.Create">MockTx.Create(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_db.go</code>
+                </td>
+                <td class="percent">
+                    <code>0.0%</code>
+                </td>
+                <td class="linecount">
+                    <code>0/2</code>
+                </td>
+            </tr>
+        
+            <tr id="s_fn_MockDB.Rollback">
+                <td>
+                    <code><a href="#fn_MockDB.Rollback">MockDB.Rollback(...)</a></code>
+                </td>
+                <td>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_db.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -23922,12 +23975,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockPermissionRepository.GetAll">
+            <tr id="s_fn_MockDB.Commit">
                 <td>
-                    <code><a href="#fn_MockPermissionRepository.GetAll">MockPermissionRepository.GetAll(...)</a></code>
+                    <code><a href="#fn_MockDB.Commit">MockDB.Commit(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_permission_repository.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_db.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -23952,12 +24005,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockRoleService.Delete">
+            <tr id="s_fn_MockDB.Begin">
                 <td>
-                    <code><a href="#fn_MockRoleService.Delete">MockRoleService.Delete(...)</a></code>
+                    <code><a href="#fn_MockDB.Begin">MockDB.Begin(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_role_service.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_db.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -23982,12 +24035,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockPermissionRepository.Create">
+            <tr id="s_fn_MockRoleService.GetRolePermissions">
                 <td>
-                    <code><a href="#fn_MockPermissionRepository.Create">MockPermissionRepository.Create(...)</a></code>
+                    <code><a href="#fn_MockRoleService.GetRolePermissions">MockRoleService.GetRolePermissions(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_permission_repository.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_role_service.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -23997,12 +24050,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockSettingRepository.GetAll">
+            <tr id="s_fn_MockPermissionRepository.GetAll">
                 <td>
-                    <code><a href="#fn_MockSettingRepository.GetAll">MockSettingRepository.GetAll(...)</a></code>
+                    <code><a href="#fn_MockPermissionRepository.GetAll">MockPermissionRepository.GetAll(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_setting_repository.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_permission_repository.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -24027,12 +24080,12 @@ p {
                 </td>
             </tr>
         
-            <tr id="s_fn_MockRefreshTokenRepository.FindByToken">
+            <tr id="s_fn_MockSettingRepository.Update">
                 <td>
-                    <code><a href="#fn_MockRefreshTokenRepository.FindByToken">MockRefreshTokenRepository.FindByToken(...)</a></code>
+                    <code><a href="#fn_MockSettingRepository.Update">MockSettingRepository.Update(...)</a></code>
                 </td>
                 <td>
-                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>
+                    <code>github.com/vfa-khuongdv/golang-cms/tests/mocks/mock_setting_repository.go</code>
                 </td>
                 <td class="percent">
                     <code>0.0%</code>
@@ -24351,6 +24404,64 @@ p {
             
         </table>
         
+        <div class="funcname" id="fn_MockPermissionService.GetAll">func MockPermissionService.GetAll</div>
+        <div class="info">
+            <a href="#s_fn_MockPermissionService.GetAll">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_permission_service.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>12</td>
+                <td>
+                    <code><pre>func (m *MockPermissionService) GetAll() ([]models.Permission, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>13</td>
+                <td>
+                    <code><pre>        args := m.Called()</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>14</td>
+                <td>
+                    <code><pre>        if perms, ok := args.Get(0).([]models.Permission); ok {</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>15</td>
+                <td>
+                    <code><pre>                return perms, args.Error(1)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>16</td>
+                <td>
+                    <code><pre>        }</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>17</td>
+                <td>
+                    <code><pre>        return nil, args.Error(1)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>18</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
         <div class="funcname" id="fn_MockAuthService.RefreshToken">func MockAuthService.RefreshToken</div>
         <div class="info">
             <a href="#s_fn_MockAuthService.RefreshToken">Back</a>
@@ -24467,57 +24578,43 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockPermissionService.GetAll">func MockPermissionService.GetAll</div>
+        <div class="funcname" id="fn_MockRefreshTokenService.Update">func MockRefreshTokenService.Update</div>
         <div class="info">
-            <a href="#s_fn_MockPermissionService.GetAll">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_permission_service.go</code>:</p>
+            <a href="#s_fn_MockRefreshTokenService.Update">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>12</td>
+                <td>20</td>
                 <td>
-                    <code><pre>func (m *MockPermissionService) GetAll() ([]models.Permission, error) {</pre></code>
+                    <code><pre>func (m *MockRefreshTokenService) Update(token string, ipAddress string) (*services.RefreshTokenResult, error) {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>13</td>
+                <td>21</td>
                 <td>
-                    <code><pre>        args := m.Called()</pre></code>
+                    <code><pre>        args := m.Called(token, ipAddress)</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>14</td>
+                <td>22</td>
                 <td>
-                    <code><pre>        if perms, ok := args.Get(0).([]models.Permission); ok {</pre></code>
+                    <code><pre>        result, _ := args.Get(0).(*services.RefreshTokenResult)</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>15</td>
+                <td>23</td>
                 <td>
-                    <code><pre>                return perms, args.Error(1)</pre></code>
+                    <code><pre>        return result, args.Error(1)</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>16</td>
-                <td>
-                    <code><pre>        }</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>17</td>
-                <td>
-                    <code><pre>        return nil, args.Error(1)</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>18</td>
+                <td>24</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -24569,80 +24666,36 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockRefreshTokenService.Update">func MockRefreshTokenService.Update</div>
+        <div class="funcname" id="fn_MockRoleService.Delete">func MockRoleService.Delete</div>
         <div class="info">
-            <a href="#s_fn_MockRefreshTokenService.Update">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_service.go</code>:</p>
-        </div>
-        <table class="listing">
-            
-            <tr>
-                <td>20</td>
-                <td>
-                    <code><pre>func (m *MockRefreshTokenService) Update(token string, ipAddress string) (*services.RefreshTokenResult, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>21</td>
-                <td>
-                    <code><pre>        args := m.Called(token, ipAddress)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>22</td>
-                <td>
-                    <code><pre>        result, _ := args.Get(0).(*services.RefreshTokenResult)</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
-                <td>23</td>
-                <td>
-                    <code><pre>        return result, args.Error(1)</pre></code>
-                </td>
-            </tr>
-            
-            <tr>
-                <td>24</td>
-                <td>
-                    <code><pre>}</pre></code>
-                </td>
-            </tr>
-            
-        </table>
-        
-        <div class="funcname" id="fn_MockRoleService.GetRolePermissions">func MockRoleService.GetRolePermissions</div>
-        <div class="info">
-            <a href="#s_fn_MockRoleService.GetRolePermissions">Back</a>
+            <a href="#s_fn_MockRoleService.Delete">Back</a>
             <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_role_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>60</td>
+                <td>44</td>
                 <td>
-                    <code><pre>func (m *MockRoleService) GetRolePermissions(roleID uint) ([]models.Permission, error) {</pre></code>
+                    <code><pre>func (m *MockRoleService) Delete(id int64) error {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>61</td>
+                <td>45</td>
                 <td>
-                    <code><pre>        args := m.Called(roleID)</pre></code>
+                    <code><pre>        args := m.Called(id)</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>62</td>
+                <td>46</td>
                 <td>
-                    <code><pre>        return args.Get(0).([]models.Permission), args.Error(1)</pre></code>
+                    <code><pre>        return args.Error(0)</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>63</td>
+                <td>47</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -24650,31 +24703,179 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockSettingRepository.Update">func MockSettingRepository.Update</div>
+        <div class="funcname" id="fn_MockSettingRepository.GetAll">func MockSettingRepository.GetAll</div>
         <div class="info">
-            <a href="#s_fn_MockSettingRepository.Update">Back</a>
+            <a href="#s_fn_MockSettingRepository.GetAll">Back</a>
             <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_setting_repository.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>12</td>
+                <td>
+                    <code><pre>func (m *MockSettingRepository) GetAll() ([]models.Setting, error) {</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>13</td>
+                <td>
+                    <code><pre>        args := m.Called()</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>14</td>
+                <td>
+                    <code><pre>        return args.Get(0).([]models.Setting), args.Error(1)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>15</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_MockPermissionRepository.Create">func MockPermissionRepository.Create</div>
+        <div class="info">
+            <a href="#s_fn_MockPermissionRepository.Create">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_permission_repository.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>12</td>
+                <td>
+                    <code><pre>func (m *MockPermissionRepository) Create(item *models.Permission) error {</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>13</td>
+                <td>
+                    <code><pre>        args := m.Called(item)</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>14</td>
+                <td>
+                    <code><pre>        return args.Error(0)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>15</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_MockRefreshTokenRepository.Create">func MockRefreshTokenRepository.Create</div>
+        <div class="info">
+            <a href="#s_fn_MockRefreshTokenRepository.Create">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>12</td>
+                <td>
+                    <code><pre>func (m *MockRefreshTokenRepository) Create(token *models.RefreshToken) error {</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>13</td>
+                <td>
+                    <code><pre>        args := m.Called(token)</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>14</td>
+                <td>
+                    <code><pre>        return args.Error(0)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>15</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_MockRefreshTokenRepository.Update">func MockRefreshTokenRepository.Update</div>
+        <div class="info">
+            <a href="#s_fn_MockRefreshTokenRepository.Update">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>:</p>
+        </div>
+        <table class="listing">
+            
+            <tr>
+                <td>17</td>
+                <td>
+                    <code><pre>func (m *MockRefreshTokenRepository) Update(token *models.RefreshToken) error {</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>18</td>
+                <td>
+                    <code><pre>        args := m.Called(token)</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>19</td>
+                <td>
+                    <code><pre>        return args.Error(0)</pre></code>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>20</td>
+                <td>
+                    <code><pre>}</pre></code>
+                </td>
+            </tr>
+            
+        </table>
+        
+        <div class="funcname" id="fn_MockRefreshTokenRepository.FindByToken">func MockRefreshTokenRepository.FindByToken</div>
+        <div class="info">
+            <a href="#s_fn_MockRefreshTokenRepository.FindByToken">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
                 <td>22</td>
                 <td>
-                    <code><pre>func (m *MockSettingRepository) Update(setting *models.Setting) error {</pre></code>
+                    <code><pre>func (m *MockRefreshTokenRepository) FindByToken(token string) (*models.RefreshToken, error) {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
                 <td>23</td>
                 <td>
-                    <code><pre>        args := m.Called(setting)</pre></code>
+                    <code><pre>        args := m.Called(token)</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
                 <td>24</td>
                 <td>
-                    <code><pre>        return args.Error(0)</pre></code>
+                    <code><pre>        return args.Get(0).(*models.RefreshToken), args.Error(1)</pre></code>
                 </td>
             </tr>
             
@@ -24724,36 +24925,36 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockRefreshTokenRepository.Update">func MockRefreshTokenRepository.Update</div>
+        <div class="funcname" id="fn_MockTx.Create">func MockTx.Create</div>
         <div class="info">
-            <a href="#s_fn_MockRefreshTokenRepository.Update">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>:</p>
+            <a href="#s_fn_MockTx.Create">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_db.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>17</td>
+                <td>33</td>
                 <td>
-                    <code><pre>func (m *MockRefreshTokenRepository) Update(token *models.RefreshToken) error {</pre></code>
+                    <code><pre>func (m *MockTx) Create(value interface{}) *gorm.DB {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>18</td>
+                <td>34</td>
                 <td>
-                    <code><pre>        args := m.Called(token)</pre></code>
+                    <code><pre>        args := m.Called(value)</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>19</td>
+                <td>35</td>
                 <td>
-                    <code><pre>        return args.Error(0)</pre></code>
+                    <code><pre>        return &amp;gorm.DB{Error: args.Error(0)}</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>20</td>
+                <td>36</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -24761,36 +24962,36 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockRefreshTokenRepository.Create">func MockRefreshTokenRepository.Create</div>
+        <div class="funcname" id="fn_MockDB.Rollback">func MockDB.Rollback</div>
         <div class="info">
-            <a href="#s_fn_MockRefreshTokenRepository.Create">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>:</p>
+            <a href="#s_fn_MockDB.Rollback">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_db.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>12</td>
+                <td>23</td>
                 <td>
-                    <code><pre>func (m *MockRefreshTokenRepository) Create(token *models.RefreshToken) error {</pre></code>
+                    <code><pre>func (m *MockDB) Rollback() *gorm.DB {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>13</td>
+                <td>24</td>
                 <td>
-                    <code><pre>        args := m.Called(token)</pre></code>
+                    <code><pre>        m.Called()</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>14</td>
+                <td>25</td>
                 <td>
-                    <code><pre>        return args.Error(0)</pre></code>
+                    <code><pre>        return &amp;gorm.DB{}</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>15</td>
+                <td>26</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -24983,36 +25184,36 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockPermissionRepository.GetAll">func MockPermissionRepository.GetAll</div>
+        <div class="funcname" id="fn_MockDB.Commit">func MockDB.Commit</div>
         <div class="info">
-            <a href="#s_fn_MockPermissionRepository.GetAll">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_permission_repository.go</code>:</p>
+            <a href="#s_fn_MockDB.Commit">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_db.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>17</td>
-                <td>
-                    <code><pre>func (m *MockPermissionRepository) GetAll() ([]models.Permission, error) {</pre></code>
-                </td>
-            </tr>
-            
-            <tr class="miss">
                 <td>18</td>
                 <td>
-                    <code><pre>        args := m.Called()</pre></code>
+                    <code><pre>func (m *MockDB) Commit() *gorm.DB {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
                 <td>19</td>
                 <td>
-                    <code><pre>        return args.Get(0).([]models.Permission), args.Error(1)</pre></code>
+                    <code><pre>        m.Called()</pre></code>
+                </td>
+            </tr>
+            
+            <tr class="miss">
+                <td>20</td>
+                <td>
+                    <code><pre>        return &amp;gorm.DB{}</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>20</td>
+                <td>21</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -25057,36 +25258,36 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockRoleService.Delete">func MockRoleService.Delete</div>
+        <div class="funcname" id="fn_MockDB.Begin">func MockDB.Begin</div>
         <div class="info">
-            <a href="#s_fn_MockRoleService.Delete">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_role_service.go</code>:</p>
+            <a href="#s_fn_MockDB.Begin">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_db.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>44</td>
+                <td>13</td>
                 <td>
-                    <code><pre>func (m *MockRoleService) Delete(id int64) error {</pre></code>
+                    <code><pre>func (m *MockDB) Begin() *gorm.DB {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>45</td>
+                <td>14</td>
                 <td>
-                    <code><pre>        args := m.Called(id)</pre></code>
+                    <code><pre>        args := m.Called()</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>46</td>
+                <td>15</td>
                 <td>
-                    <code><pre>        return args.Error(0)</pre></code>
+                    <code><pre>        return args.Get(0).(*gorm.DB)</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>47</td>
+                <td>16</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -25131,36 +25332,36 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockPermissionRepository.Create">func MockPermissionRepository.Create</div>
+        <div class="funcname" id="fn_MockRoleService.GetRolePermissions">func MockRoleService.GetRolePermissions</div>
         <div class="info">
-            <a href="#s_fn_MockPermissionRepository.Create">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_permission_repository.go</code>:</p>
+            <a href="#s_fn_MockRoleService.GetRolePermissions">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_role_service.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>12</td>
+                <td>60</td>
                 <td>
-                    <code><pre>func (m *MockPermissionRepository) Create(item *models.Permission) error {</pre></code>
+                    <code><pre>func (m *MockRoleService) GetRolePermissions(roleID uint) ([]models.Permission, error) {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>13</td>
+                <td>61</td>
                 <td>
-                    <code><pre>        args := m.Called(item)</pre></code>
+                    <code><pre>        args := m.Called(roleID)</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>14</td>
+                <td>62</td>
                 <td>
-                    <code><pre>        return args.Error(0)</pre></code>
+                    <code><pre>        return args.Get(0).([]models.Permission), args.Error(1)</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>15</td>
+                <td>63</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -25168,36 +25369,36 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockSettingRepository.GetAll">func MockSettingRepository.GetAll</div>
+        <div class="funcname" id="fn_MockPermissionRepository.GetAll">func MockPermissionRepository.GetAll</div>
         <div class="info">
-            <a href="#s_fn_MockSettingRepository.GetAll">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_setting_repository.go</code>:</p>
+            <a href="#s_fn_MockPermissionRepository.GetAll">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_permission_repository.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
-                <td>12</td>
+                <td>17</td>
                 <td>
-                    <code><pre>func (m *MockSettingRepository) GetAll() ([]models.Setting, error) {</pre></code>
+                    <code><pre>func (m *MockPermissionRepository) GetAll() ([]models.Permission, error) {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>13</td>
+                <td>18</td>
                 <td>
                     <code><pre>        args := m.Called()</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
-                <td>14</td>
+                <td>19</td>
                 <td>
-                    <code><pre>        return args.Get(0).([]models.Setting), args.Error(1)</pre></code>
+                    <code><pre>        return args.Get(0).([]models.Permission), args.Error(1)</pre></code>
                 </td>
             </tr>
             
             <tr>
-                <td>15</td>
+                <td>20</td>
                 <td>
                     <code><pre>}</pre></code>
                 </td>
@@ -25242,31 +25443,31 @@ p {
             
         </table>
         
-        <div class="funcname" id="fn_MockRefreshTokenRepository.FindByToken">func MockRefreshTokenRepository.FindByToken</div>
+        <div class="funcname" id="fn_MockSettingRepository.Update">func MockSettingRepository.Update</div>
         <div class="info">
-            <a href="#s_fn_MockRefreshTokenRepository.FindByToken">Back</a>
-            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_refresh_token_repository.go</code>:</p>
+            <a href="#s_fn_MockSettingRepository.Update">Back</a>
+            <p>In <code>/Users/khuongdv/Desktop/projects/learn-go/golang-cms/tests/mocks/mock_setting_repository.go</code>:</p>
         </div>
         <table class="listing">
             
             <tr>
                 <td>22</td>
                 <td>
-                    <code><pre>func (m *MockRefreshTokenRepository) FindByToken(token string) (*models.RefreshToken, error) {</pre></code>
+                    <code><pre>func (m *MockSettingRepository) Update(setting *models.Setting) error {</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
                 <td>23</td>
                 <td>
-                    <code><pre>        args := m.Called(token)</pre></code>
+                    <code><pre>        args := m.Called(setting)</pre></code>
                 </td>
             </tr>
             
             <tr class="miss">
                 <td>24</td>
                 <td>
-                    <code><pre>        return args.Get(0).(*models.RefreshToken), args.Error(1)</pre></code>
+                    <code><pre>        return args.Error(0)</pre></code>
                 </td>
             </tr>
             
@@ -25880,7 +26081,7 @@ p {
         <div id="summaryWrapper">
         
             <div class="package">Report Total</div>
-            <div id="totalcov">41.8%</div>
+            <div id="totalcov">44.5%</div>
          
         </div>
          

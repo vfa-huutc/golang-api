@@ -58,10 +58,6 @@ func (s *RefreshTokenServiceTestSuite) TestCreate_Error() {
 	s.repo.AssertExpectations(s.T())
 }
 
-func TestRefreshTokenServiceTestSuite(t *testing.T) {
-	suite.Run(t, new(RefreshTokenServiceTestSuite))
-}
-
 func (s *RefreshTokenServiceTestSuite) TestUpdate_Success() {
 	originalToken := &models.RefreshToken{
 		RefreshToken: "existing_token",
@@ -114,4 +110,8 @@ func (s *RefreshTokenServiceTestSuite) TestUpdate_Error() {
 	assert.Nil(s.T(), result)
 
 	s.repo.AssertExpectations(s.T())
+}
+
+func TestRefreshTokenServiceTestSuite(t *testing.T) {
+	suite.Run(t, new(RefreshTokenServiceTestSuite))
 }
