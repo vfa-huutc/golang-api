@@ -21,7 +21,7 @@ func RespondWithError(ctx *gin.Context, statusCode int, err error) {
 	} else {
 		ctx.AbortWithStatusJSON(
 			statusCode,
-			gin.H{"code": errors.ErrServerInternal, "message": err.Error()},
+			gin.H{"code": errors.ErrInternal, "message": err.Error()},
 		)
 		return
 	}

@@ -12,76 +12,18 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
-	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
 )
 
-// MockRoleService is a mock implementation of the role service
-type MockRoleService struct {
-	mock.Mock
-	services.IRoleService
-}
-
-// Create mocks the Create method of the role service interface.
-// It records the call with the provided role model and returns the error
-// configured in the test setup.
-func (m *MockRoleService) Create(role *models.Role) error {
-	args := m.Called(role)
-	return args.Error(0)
-}
-
-// GetByID mocks the retrieval of a role by its ID.
-// It records the call with the provided ID and returns the configured role model and error.
-func (m *MockRoleService) GetByID(id int64) (*models.Role, error) {
-	args := m.Called(id)
-	var role *models.Role
-	if r := args.Get(0); r != nil {
-		role = r.(*models.Role)
-	}
-	return role, args.Error(1)
-}
-
-// Update mocks the Update method of the role service interface.
-// It records the call with the provided role model and returns the error
-// configured in the test setup.
-func (m *MockRoleService) Update(role *models.Role) error {
-	args := m.Called(role)
-	return args.Error(0)
-}
-
-// Delete mocks the Delete method of the role service interface.
-// It records the call with the provided role ID and returns the error
-// configured in the test setup.
-func (m *MockRoleService) Delete(id int64) error {
-	args := m.Called(id)
-	return args.Error(0)
-}
-
-// AssignPermissions mocks the AssignPermissions method of the role service interface.
-// It records the call with the provided role ID and permission IDs array, then returns
-// the error configured in the test setup.
-func (m *MockRoleService) AssignPermissions(roleID uint, permissionIDs []uint) error {
-	args := m.Called(roleID, permissionIDs)
-	return args.Error(0)
-}
-
-// GetRolePermissions mocks the GetRolePermissions method of the role service interface.
-// It records the call with the provided role ID and returns the configured list of
-// permission models and error from the test setup.
-func (m *MockRoleService) GetRolePermissions(roleID uint) ([]models.Permission, error) {
-	args := m.Called(roleID)
-	return args.Get(0).([]models.Permission), args.Error(1)
-}
-
 func TestCreateRole(t *testing.T) {
-	// Set Gin to Test Mode
 	gin.SetMode(gin.TestMode)
 
 	// Test cases
 	testCases := []struct {
 		name           string
 		requestBody    map[string]interface{}
-		mockSetup      func(*MockRoleService)
+		mockSetup      func(*mocks.MockRoleService)
 		expectedStatus int
 		expectedBody   map[string]interface{}
 	}{
@@ -91,7 +33,7 @@ func TestCreateRole(t *testing.T) {
 				"name":         "admin",
 				"display_name": "Administrator",
 			},
-			mockSetup: func(mrs *MockRoleService) {
+			mockSetup: func(mrs *mocks.MockRoleService) {
 				mrs.On("Create", mock.AnythingOfType("*models.Role")).Return(nil)
 			},
 			expectedStatus: http.StatusCreated,
@@ -105,7 +47,7 @@ func TestCreateRole(t *testing.T) {
 				"name":         "ad", // too short, less than min:3
 				"display_name": "Administrator",
 			},
-			mockSetup: func(mrs *MockRoleService) {
+			mockSetup: func(mrs *mocks.MockRoleService) {
 				// No mock setup needed as validation should fail
 			},
 			expectedStatus: http.StatusBadRequest,
@@ -120,14 +62,14 @@ func TestCreateRole(t *testing.T) {
 				"name":         "admin",
 				"display_name": "Administrator",
 			},
-			mockSetup: func(mrs *MockRoleService) {
+			mockSetup: func(mrs *mocks.MockRoleService) {
 				mrs.On("Create", mock.AnythingOfType("*models.Role")).Return(
-					errors.New(errors.ErrDatabaseInsert, "Database error"),
+					errors.New(errors.ErrDBInsert, "Database error"),
 				)
 			},
 			expectedStatus: http.StatusBadRequest,
 			expectedBody: map[string]interface{}{
-				"code":    float64(errors.ErrDatabaseInsert),
+				"code":    float64(errors.ErrDBInsert),
 				"message": "Database error",
 			},
 		},
@@ -136,7 +78,7 @@ func TestCreateRole(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Setup mock
-			mockService := new(MockRoleService)
+			mockService := new(mocks.MockRoleService)
 			if tc.mockSetup != nil {
 				tc.mockSetup(mockService)
 			}
@@ -184,4 +126,198 @@ func TestCreateRole(t *testing.T) {
 			mockService.AssertExpectations(t)
 		})
 	}
+}
+
+func TestUpdateRole(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	testCases := []struct {
+		name           string
+		paramID        string
+		requestBody    map[string]interface{}
+		mockSetup      func(*mocks.MockRoleService)
+		expectedStatus int
+	}{
+		{
+			name:    "Success - Role Updated",
+			paramID: "1",
+			requestBody: map[string]interface{}{
+				"display_name": "New Name",
+			},
+			mockSetup: func(m *mocks.MockRoleService) {
+				m.On("GetByID", int64(1)).Return(&models.Role{ID: 1, Name: "admin"}, nil)
+				m.On("Update", mock.AnythingOfType("*models.Role")).Return(nil)
+			},
+			expectedStatus: http.StatusOK,
+		},
+		{
+			name:    "Fail - Invalid ID",
+			paramID: "abc",
+			requestBody: map[string]interface{}{
+				"display_name": "New Name",
+			},
+			mockSetup:      nil,
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:    "Fail - Validation Error",
+			paramID: "1",
+			requestBody: map[string]interface{}{
+				"display_name": "x", // too short
+			},
+			mockSetup:      nil,
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:    "Fail - GetByID Error",
+			paramID: "1",
+			requestBody: map[string]interface{}{
+				"display_name": "Valid Name",
+			},
+			mockSetup: func(m *mocks.MockRoleService) {
+				m.On("GetByID", int64(1)).Return(nil, errors.New(errors.ErrNotFound, "not found"))
+			},
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name:    "Fail - Update Error",
+			paramID: "1",
+			requestBody: map[string]interface{}{
+				"display_name": "Valid Name",
+			},
+			mockSetup: func(m *mocks.MockRoleService) {
+				m.On("GetByID", int64(1)).Return(&models.Role{ID: 1}, nil)
+				m.On("Update", mock.AnythingOfType("*models.Role")).Return(errors.New(errors.ErrDBUpdate, "update error"))
+			},
+			expectedStatus: http.StatusBadRequest,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			mockService := new(mocks.MockRoleService)
+			if tc.mockSetup != nil {
+				tc.mockSetup(mockService)
+			}
+
+			handler := handlers.NewRoleHandler(mockService)
+			w := httptest.NewRecorder()
+
+			jsonValue, _ := json.Marshal(tc.requestBody)
+			req, _ := http.NewRequest("PUT", "/api/v1/roles/"+tc.paramID, bytes.NewBuffer(jsonValue))
+			req.Header.Set("Content-Type", "application/json")
+
+			c, _ := gin.CreateTestContext(w)
+			c.Params = gin.Params{{Key: "id", Value: tc.paramID}}
+			c.Request = req
+
+			handler.UpdateRole(c)
+			assert.Equal(t, tc.expectedStatus, w.Code)
+			mockService.AssertExpectations(t)
+		})
+	}
+}
+
+func TestGetRole(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	mockService := new(mocks.MockRoleService)
+	handler := handlers.NewRoleHandler(mockService)
+
+	t.Run("Success - Get Role", func(t *testing.T) {
+		mockService.On("GetByID", int64(1)).Return(&models.Role{ID: 1, Name: "admin"}, nil)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/api/v1/roles/1", nil)
+
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+		c.Request = req
+
+		handler.GetRole(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("Fail - Invalid ID", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/api/v1/roles/abc", nil)
+
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "abc"}}
+		c.Request = req
+
+		handler.GetRole(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("Fail - Service Error", func(t *testing.T) {
+		mockService.On("GetByID", int64(2)).Return(nil, errors.New(errors.ErrNotFound, "not found"))
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("GET", "/api/v1/roles/2", nil)
+
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "2"}}
+		c.Request = req
+
+		handler.GetRole(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		mockService.AssertExpectations(t)
+	})
+}
+
+func TestDeleteRole(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	mockService := new(mocks.MockRoleService)
+	handler := handlers.NewRoleHandler(mockService)
+
+	t.Run("Success - Delete Role", func(t *testing.T) {
+		mockService.On("Delete", int64(1)).Return(nil)
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("DELETE", "/api/v1/roles/1", nil)
+
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+		c.Request = req
+
+		handler.DeleteRole(c)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("Fail - Invalid ID", func(t *testing.T) {
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("DELETE", "/api/v1/roles/abc", nil)
+
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "abc"}}
+		c.Request = req
+
+		handler.DeleteRole(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("Fail - Service Error", func(t *testing.T) {
+		mockService.On("Delete", int64(2)).Return(errors.New(errors.ErrNotFound, "not found"))
+
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("DELETE", "/api/v1/roles/2", nil)
+
+		c, _ := gin.CreateTestContext(w)
+		c.Params = gin.Params{{Key: "id", Value: "2"}}
+		c.Request = req
+
+		handler.DeleteRole(c)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		mockService.AssertExpectations(t)
+	})
 }

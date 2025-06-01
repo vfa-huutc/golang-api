@@ -35,7 +35,7 @@ func RequirePermissions(guard *RoleGuard, requiredPerms ...string) gin.HandlerFu
 			utils.RespondWithError(
 				c,
 				http.StatusForbidden,
-				errors.New(errors.ErrAuthForbidden, "User ID not found"),
+				errors.New(errors.ErrForbidden, "User ID not found"),
 			)
 		}
 
@@ -48,7 +48,7 @@ func RequirePermissions(guard *RoleGuard, requiredPerms ...string) gin.HandlerFu
 			utils.RespondWithError(
 				c,
 				http.StatusForbidden,
-				errors.New(errors.ErrAuthForbidden, "Failed to retrieve user permissions"),
+				errors.New(errors.ErrForbidden, "Failed to retrieve user permissions"),
 			)
 		}
 
@@ -64,7 +64,7 @@ func RequirePermissions(guard *RoleGuard, requiredPerms ...string) gin.HandlerFu
 				utils.RespondWithError(
 					c,
 					http.StatusForbidden,
-					errors.New(errors.ErrAuthForbidden, fmt.Sprintf("Missing permission: %s", required)),
+					errors.New(errors.ErrForbidden, fmt.Sprintf("Missing permission: %s", required)),
 				)
 			}
 		}

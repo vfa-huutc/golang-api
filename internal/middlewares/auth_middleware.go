@@ -23,14 +23,14 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, "Authorization header required"))
+			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, "Authorization header required"))
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		claims, err := configs.ValidateToken(tokenString)
 		if err != nil {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrAuthUnauthorized, "Unauthorized"))
+			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, "Unauthorized"))
 		}
 
 		ctx.Set("UserID", claims.ID)

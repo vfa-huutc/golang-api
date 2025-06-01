@@ -48,7 +48,7 @@ func TestRespondWithError_GenericError(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 
-	genericErr := errors.New(errors.ErrServerInternal, "generic error message")
+	genericErr := errors.New(errors.ErrInternal, "generic error message")
 
 	utils.RespondWithError(ctx, http.StatusInternalServerError, genericErr)
 

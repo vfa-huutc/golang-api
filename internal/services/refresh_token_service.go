@@ -52,7 +52,7 @@ func (service *RefreshTokenService) Create(user *models.User, ipAddress string) 
 
 	err := service.repo.Create(&token)
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseInsert, err.Error())
+		return nil, errors.New(errors.ErrDBInsert, err.Error())
 	}
 
 	return &configs.JwtResult{
@@ -83,7 +83,7 @@ type RefreshTokenResult struct {
 func (service *RefreshTokenService) Update(tokenString string, ipAddress string) (*RefreshTokenResult, error) {
 	result, err := service.repo.FindByToken(tokenString)
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	// Update new token
 	newToken := utils.GenerateRandomString(60)
@@ -95,7 +95,7 @@ func (service *RefreshTokenService) Update(tokenString string, ipAddress string)
 	result.UsedCount += 1
 
 	if err := service.repo.Update(result); err != nil {
-		return nil, errors.New(errors.ErrDatabaseUpdate, err.Error())
+		return nil, errors.New(errors.ErrDBUpdate, err.Error())
 	}
 
 	return &RefreshTokenResult{

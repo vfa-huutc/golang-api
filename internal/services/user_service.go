@@ -46,7 +46,7 @@ func (service *UserService) PaginateUser(page, limit int) (*utils.Pagination, er
 	data, err := service.repo.PaginateUser(page, limit)
 
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	return data, nil
 }
@@ -65,7 +65,7 @@ func (service *UserService) PaginateUser(page, limit int) (*utils.Pagination, er
 func (service *UserService) GetUser(id uint) (*models.User, error) {
 	data, err := service.repo.GetByID(id)
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	return data, nil
 }
@@ -84,7 +84,7 @@ func (service *UserService) GetUser(id uint) (*models.User, error) {
 func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 	data, err := service.repo.FindByField("email", email)
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	return data, nil
 }
@@ -117,7 +117,7 @@ func (service *UserService) CreateUser(user *models.User, roleIds []uint) error 
 	createdUser, err := service.repo.Create(user)
 	if err != nil {
 		tx.Rollback()
-		return errors.New(errors.ErrDatabaseInsert, err.Error())
+		return errors.New(errors.ErrDBInsert, err.Error())
 	}
 
 	// Create user-role associations for each role ID
@@ -128,13 +128,13 @@ func (service *UserService) CreateUser(user *models.User, roleIds []uint) error 
 		}
 		if err := tx.Create(&userRole).Error; err != nil {
 			tx.Rollback()
-			return errors.New(errors.ErrDatabaseInsert, "Failed to assign roles: "+err.Error())
+			return errors.New(errors.ErrDBInsert, "Failed to assign roles: "+err.Error())
 		}
 	}
 
 	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
-		return errors.New(errors.ErrDatabaseInsert, "Transaction failed: "+err.Error())
+		return errors.New(errors.ErrDBInsert, "Transaction failed: "+err.Error())
 	}
 
 	return nil
@@ -158,7 +158,7 @@ func (service *UserService) CreateUser(user *models.User, roleIds []uint) error 
 func (service *UserService) UpdateUser(user *models.User) error {
 	err := service.repo.Update(user)
 	if err != nil {
-		return errors.New(errors.ErrDatabaseUpdate, err.Error())
+		return errors.New(errors.ErrDBUpdate, err.Error())
 	}
 	return nil
 }
@@ -176,7 +176,7 @@ func (service *UserService) UpdateUser(user *models.User) error {
 func (service *UserService) DeleteUser(id uint) error {
 	err := service.repo.Delete(id)
 	if err != nil {
-		return errors.New(errors.ErrDatabaseDelete, err.Error())
+		return errors.New(errors.ErrDBDelete, err.Error())
 	}
 	return nil
 }
@@ -195,7 +195,7 @@ func (service *UserService) DeleteUser(id uint) error {
 func (service *UserService) GetUserByToken(token string) (*models.User, error) {
 	data, err := service.repo.FindByField("token", token)
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	return data, nil
 }
@@ -214,7 +214,7 @@ func (service *UserService) GetUserByToken(token string) (*models.User, error) {
 func (service *UserService) GetProfile(id uint) (*models.User, error) {
 	data, err := service.repo.GetProfile(id)
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	return data, nil
 }
@@ -237,7 +237,7 @@ func (service *UserService) GetProfile(id uint) (*models.User, error) {
 func (service *UserService) UpdateProfile(user *models.User) error {
 	err := service.repo.UpdateProfile(user)
 	if err != nil {
-		return errors.New(errors.ErrDatabaseUpdate, err.Error())
+		return errors.New(errors.ErrDBUpdate, err.Error())
 	}
 	return nil
 }

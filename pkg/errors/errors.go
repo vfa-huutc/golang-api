@@ -4,34 +4,34 @@ import "fmt"
 
 const (
 	// General errors
-	ErrServerInternal   = 1000 // Internal server error
-	ErrResourceNotFound = 1001 // Not found
-	ErrInvalidRequest   = 1002 // Bad request
+	ErrInternal   = 1000 // Internal server error
+	ErrNotFound   = 1001 // Resource not found
+	ErrBadRequest = 1002 // Invalid or bad request
 
 	// Database errors
-	ErrDatabaseConnection = 2000 // Database connection error
-	ErrDatabaseQuery      = 2001 // Database query error
-	ErrDatabaseInsert     = 2002 // Database insert error
-	ErrDatabaseUpdate     = 2003 // Database update error
-	ErrDatabaseDelete     = 2004 // Database delete error
+	ErrDBConnection = 2000 // Failed to connect to DB
+	ErrDBQuery      = 2001 // DB query error
+	ErrDBInsert     = 2002 // DB insert error
+	ErrDBUpdate     = 2003 // DB update error
+	ErrDBDelete     = 2004 // DB delete error
 
 	// Authentication errors
-	ErrAuthUnauthorized       = 3000 // Unauthorized access
-	ErrAuthForbidden          = 3001 // Forbidden access
-	ErrAuthTokenExpired       = 3002 // Token has expired
-	ErrAuthInvalidPassword    = 3003 // Invalid password
-	ErrAuthPasswordHashFailed = 3004 // Failed to hash password
-	ErrAuthPasswordMismatch   = 3005 // Password not matched
-	ErrAuthPasswordNotChanged = 3006 // Old and new password should be different
+	ErrUnauthorized       = 3000 // Unauthorized access
+	ErrForbidden          = 3001 // Forbidden access
+	ErrTokenExpired       = 3002 // Token has expired
+	ErrInvalidPassword    = 3003 // Invalid password
+	ErrPasswordHashFailed = 3004 // Failed to hash password
+	ErrPasswordMismatch   = 3005 // Password mismatch
+	ErrPasswordUnchanged  = 3006 // Old and new password are the same
 
-	// Common errors
-	ErrInvalidParse   = 4000 // Parse error, missing fields, etc.
-	ErrInvalidData    = 4001 // Validation error
-	ErrCacheSet       = 4002 // Set cache error
-	ErrCacheGet       = 4003 // Get cache error
-	ErrCacheDelete    = 4004 // Delete cache error
-	ErrCacheList      = 4005 // List cache error
-	ErrCacheKeyExists = 4006 // Exists cache error)
+	// Common / misc errors
+	ErrParseError  = 4000 // Parsing or field error
+	ErrInvalidData = 4001 // Validation failed
+	ErrCacheSet    = 4002 // Set cache error
+	ErrCacheGet    = 4003 // Get cache error
+	ErrCacheDelete = 4004 // Delete cache error
+	ErrCacheList   = 4005 // List cache error
+	ErrCacheExists = 4006 // Cache key exists check error
 )
 
 // AppError represents a custom error with a code and message.

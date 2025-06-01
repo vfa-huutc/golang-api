@@ -33,7 +33,7 @@ func NewRoleService(repo repositories.IRoleRepository) *RoleService {
 func (service *RoleService) GetByID(id int64) (*models.Role, error) {
 	data, err := service.repo.GetByID(id)
 	if err != nil {
-		return nil, errors.New(errors.ErrDatabaseQuery, err.Error())
+		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	return data, nil
 }
@@ -47,7 +47,7 @@ func (service *RoleService) GetByID(id int64) (*models.Role, error) {
 func (service *RoleService) Create(role *models.Role) error {
 	err := service.repo.Create(role)
 	if err != nil {
-		return errors.New(errors.ErrDatabaseInsert, err.Error())
+		return errors.New(errors.ErrDBInsert, err.Error())
 	}
 	return nil
 }
@@ -61,7 +61,7 @@ func (service *RoleService) Create(role *models.Role) error {
 func (service *RoleService) Update(role *models.Role) error {
 	err := service.repo.Update(role)
 	if err != nil {
-		return errors.New(errors.ErrDatabaseUpdate, err.Error())
+		return errors.New(errors.ErrDBUpdate, err.Error())
 	}
 	return nil
 }
@@ -75,7 +75,7 @@ func (service *RoleService) Update(role *models.Role) error {
 func (service *RoleService) Delete(id int64) error {
 	role, err := service.repo.GetByID(id)
 	if err != nil {
-		return errors.New(errors.ErrDatabaseDelete, err.Error())
+		return errors.New(errors.ErrDBDelete, err.Error())
 	}
 	return service.repo.Delete(role)
 }

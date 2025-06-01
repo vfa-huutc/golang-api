@@ -5,7 +5,6 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 )
 
-// MockPermissionRepository is a mock implementation of IPermissionRepository
 type MockPermissionRepository struct {
 	mock.Mock
 }

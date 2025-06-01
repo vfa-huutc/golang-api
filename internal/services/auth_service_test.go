@@ -83,7 +83,7 @@ func (s *AuthServiceTestSuite) TestLogin_UserNotFound() {
 
 	appErr, ok := err.(*errors.AppError)
 	s.Require().True(ok, "error should be of type *errors.AppError")
-	assert.Equal(s.T(), errors.ErrResourceNotFound, appErr.Code) // Code is 1001 for not found
+	assert.Equal(s.T(), errors.ErrNotFound, appErr.Code) // Code is 1001 for not found
 
 	s.repo.AssertExpectations(s.T())
 
@@ -110,7 +110,7 @@ func (s *AuthServiceTestSuite) TestLogin_InvalidPassword() {
 
 	appErr, ok := err.(*errors.AppError)
 	s.Require().True(ok, "error should be of type *errors.AppError")
-	assert.Equal(s.T(), errors.ErrAuthInvalidPassword, appErr.Code) // Code is 3003 for invalid password
+	assert.Equal(s.T(), errors.ErrInvalidPassword, appErr.Code) // Code is 3003 for invalid password
 
 	s.repo.AssertExpectations(s.T())
 
@@ -129,7 +129,7 @@ func (s *AuthServiceTestSuite) TestLogin_CreateTokenError() {
 
 	s.repo.On("FindByField", "email", email).Return(user, nil)
 	s.refreshTokenService.On("Create", user, ipAddress).
-		Return(nil, errors.New(errors.ErrInvalidRequest, "token generation failed")).
+		Return(nil, errors.New(errors.ErrInvalidData, "token generation failed")).
 		Once()
 
 	// Create a proper gin.Context with ResponseWriter
@@ -147,7 +147,7 @@ func (s *AuthServiceTestSuite) TestLogin_CreateTokenError() {
 	appErr, ok := err.(*errors.AppError)
 	s.Require().True(ok, "error should be of type *errors.AppError")
 
-	assert.Equal(s.T(), errors.ErrInvalidRequest, appErr.Code)
+	assert.Equal(s.T(), errors.ErrInvalidData, appErr.Code)
 
 	s.repo.AssertExpectations(s.T())
 	s.refreshTokenService.AssertExpectations(s.T())
@@ -211,7 +211,7 @@ func (s *AuthServiceTestSuite) TestRefreshToken_UpdateError() {
 	ipAddress := "127.0.0.1"
 
 	// Mock refresh token service to return error for invalid token
-	mockError := errors.New(errors.ErrDatabaseQuery, "token not found")
+	mockError := errors.New(errors.ErrDBQuery, "token not found")
 	s.refreshTokenService.On("Update", invalidToken, ipAddress).Return(nil, mockError).Once()
 
 	// Setup gin test context with IP
@@ -262,7 +262,7 @@ func (s *AuthServiceTestSuite) TestRefreshToken_GetByIDError() {
 
 	appErr, ok := err.(*errors.AppError)
 	s.Require().True(ok, "error should be of type *errors.AppError")
-	assert.Equal(s.T(), errors.ErrDatabaseQuery, appErr.Code) // Code is 2001 for database query error
+	assert.Equal(s.T(), errors.ErrDBQuery, appErr.Code) // Code is 2001 for database query error
 
 	s.T().Logf("Error message: %s", err.Error())
 

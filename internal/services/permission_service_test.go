@@ -45,7 +45,7 @@ func (s *PermissionServiceTestSuite) TestGetAll_Error() {
 	permissions, err := s.permissionService.GetAll()
 
 	s.Error(err)
-	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDatabaseQuery))
+	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDBQuery))
 	s.Nil(permissions)
 }
 func TestPermissionServiceTestSuite(t *testing.T) {

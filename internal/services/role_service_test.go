@@ -33,7 +33,7 @@ func (s *RoleServiceTestSuite) TestGetByID_Success() {
 }
 
 func (s *RoleServiceTestSuite) TestGetByID_NotFound() {
-	s.repo.On("GetByID", int64(999)).Return((*models.Role)(nil), errors.New(errors.ErrDatabaseQuery, "record not found")).Once()
+	s.repo.On("GetByID", int64(999)).Return((*models.Role)(nil), errors.New(errors.ErrDBQuery, "record not found")).Once()
 
 	role, err := s.roleService.GetByID(999)
 
@@ -55,7 +55,7 @@ func (s *RoleServiceTestSuite) TestCreate_Success() {
 
 func (s *RoleServiceTestSuite) TestCreate_Error() {
 	role := &models.Role{Name: "existing_role", DisplayName: "Existing Role"}
-	s.repo.On("Create", role).Return(errors.New(errors.ErrDatabaseInsert, "duplicate entry")).Once()
+	s.repo.On("Create", role).Return(errors.New(errors.ErrDBInsert, "duplicate entry")).Once()
 
 	err := s.roleService.Create(role)
 
@@ -76,7 +76,7 @@ func (s *RoleServiceTestSuite) TestUpdate_Success() {
 
 func (s *RoleServiceTestSuite) TestUpdate_Error() {
 	role := &models.Role{Name: "invalid_role", DisplayName: "Invalid Role"}
-	s.repo.On("Update", role).Return(errors.New(errors.ErrDatabaseUpdate, "record not found")).Once()
+	s.repo.On("Update", role).Return(errors.New(errors.ErrDBUpdate, "record not found")).Once()
 
 	err := s.roleService.Update(role)
 
@@ -99,7 +99,7 @@ func (s *RoleServiceTestSuite) TestDelete_Success() {
 
 func (s *RoleServiceTestSuite) TestDelete_RoleNotFound() {
 	roleID := int64(999)
-	s.repo.On("GetByID", roleID).Return((*models.Role)(nil), errors.New(errors.ErrDatabaseDelete, "record not found")).Once()
+	s.repo.On("GetByID", roleID).Return((*models.Role)(nil), errors.New(errors.ErrDBDelete, "record not found")).Once()
 
 	err := s.roleService.Delete(roleID)
 
@@ -112,7 +112,7 @@ func (s *RoleServiceTestSuite) TestDelete_DeleteError() {
 	roleID := int64(2)
 	role := &models.Role{Name: "manager", DisplayName: "Manager"}
 	s.repo.On("GetByID", roleID).Return(role, nil).Once()
-	s.repo.On("Delete", role).Return(errors.New(errors.ErrDatabaseDelete, "foreign key constraint")).Once()
+	s.repo.On("Delete", role).Return(errors.New(errors.ErrDBDelete, "foreign key constraint")).Once()
 
 	err := s.roleService.Delete(roleID)
 

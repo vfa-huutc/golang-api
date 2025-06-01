@@ -112,7 +112,7 @@ func (r *RedisService) Delete(key string) error {
 func (r *RedisService) Exists(key string) (bool, error) {
 	count, err := r.client.Exists(r.ctx, key).Result()
 	if err != nil {
-		return false, errors.New(errors.ErrCacheKeyExists, err.Error())
+		return false, errors.New(errors.ErrCacheExists, err.Error())
 	}
 	return count > 0, nil
 }

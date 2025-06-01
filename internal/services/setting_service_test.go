@@ -47,7 +47,7 @@ func (s *SettingServiceTestSuite) TestGetSetting_Error() {
 	settings, err := s.settingService.GetSetting()
 
 	s.Error(err)
-	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDatabaseQuery))
+	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDBQuery))
 	s.Nil(settings)
 }
 
@@ -69,7 +69,7 @@ func (s *SettingServiceTestSuite) TestGetSettingByKey_Error() {
 
 	s.Error(err)
 	s.Nil(setting)
-	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDatabaseQuery))
+	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDBQuery))
 }
 
 func (s *SettingServiceTestSuite) TestUpdate_Success() {
@@ -90,7 +90,7 @@ func (s *SettingServiceTestSuite) TestUpdate_Error() {
 	err := s.settingService.Update(setting)
 
 	s.Error(err)
-	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDatabaseUpdate))
+	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDBUpdate))
 
 }
 
@@ -112,7 +112,7 @@ func (s *SettingServiceTestSuite) TestCreate_Error() {
 	err := s.settingService.Create(setting)
 
 	s.Error(err)
-	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDatabaseInsert))
+	s.Contains(err.Error(), fmt.Sprintf("code: %d", errors.ErrDBInsert))
 }
 
 func TestSettingServiceTestSuite(t *testing.T) {
