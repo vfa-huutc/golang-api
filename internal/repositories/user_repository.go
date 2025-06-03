@@ -131,7 +131,7 @@ func (repo *UserRepository) CreateWithTx(tx *gorm.DB, user *models.User) (*model
 // Returns:
 //   - error: Error if there was a problem updating the user, nil on success
 func (repo *UserRepository) Update(user *models.User) error {
-	return repo.db.Save(&user).Error
+	return repo.db.Save(user).Error
 }
 
 // Delete removes a user from the database
@@ -147,13 +147,25 @@ func (repo *UserRepository) Delete(userId uint) error {
 
 // FindByField retrieves a user from the database by a specified field and value
 // Parameters:
-//   - field: The database field name to search on
+//   - field: The field to search by (e.g., "name", "email", "token")
 //   - value: The value to match against the specified field
 //
 // Returns:
 //   - *models.User: Pointer to the retrieved User model if found
 //   - error: Error if user not found or if there was a database error
 func (repo *UserRepository) FindByField(field string, value string) (*models.User, error) {
+	// Validate field input to prevent SQL injection
+	switch field {
+	case "name":
+		field = "name"
+	case "email":
+		field = "email"
+	case "token":
+		field = "token"
+	default:
+		return nil, gorm.ErrInvalidField
+	}
+
 	var user models.User
 	if err := repo.db.Where(field+" = ?", value).First(&user).Error; err != nil {
 		return nil, err
@@ -195,10 +207,8 @@ func (repo *UserRepository) UpdateProfile(user *models.User) error {
 //   - error: Error if there was a database error, nil on success
 func (repo *UserRepository) GetUserPermissions(userID uint) ([]models.Permission, error) {
 	var user models.User
-
-	repo.db.Preload("Roles.Permissions").First(&user, userID)
-	if user.ID == 0 {
-		return nil, gorm.ErrRecordNotFound
+	if err := repo.db.Preload("Roles.Permissions").First(&user, userID).Error; err != nil {
+		return nil, err
 	}
 	var permissions []models.Permission
 	for _, role := range user.Roles {

@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vfa-khuongdv/golang-cms/internal/configs"
+	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
@@ -18,7 +18,7 @@ import (
 // If validation succeeds, it sets the user ID from token claims in context
 // If validation fails, it returns 401 Unauthorized
 func AuthMiddleware() gin.HandlerFunc {
-
+	jwtService := services.NewJWTService()
 	return func(ctx *gin.Context) {
 
 		authHeader := ctx.GetHeader("Authorization")
@@ -28,7 +28,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-		claims, err := configs.ValidateToken(tokenString)
+		claims, err := jwtService.ValidateToken(tokenString)
 		if err != nil {
 			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, "Unauthorized"))
 		}

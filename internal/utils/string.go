@@ -21,3 +21,16 @@ func GenerateRandomString(n int) string {
 	}
 	return string(result)
 }
+
+// StringToPtr converts a string to a pointer to a string
+// Parameters:
+//   - s: the string to convert
+//
+// Returns:
+//   - *string: pointer to the string, or nil if the input string is empty
+func StringToPtr(s string) *string {
+	if s == "" {
+		return nil
+	}
+	return &s
+}

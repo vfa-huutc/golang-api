@@ -14,45 +14,31 @@ type IRedisService interface {
 	Get(key string) (string, error)
 	Delete(key string) error
 	Exists(key string) (bool, error)
-	GetList(listName string) ([]string, error)
 }
 
 type RedisService struct {
-	client *redis.Client
+	client redis.Cmdable
 	ctx    context.Context
 }
 
 // NewRedisService creates and initializes a new Redis service connection
-// Parameters:
-//   - address: Redis server address in format "host:port"
-//   - password: Redis server password (empty string if no password required)
-//   - db: Redis database number to connect to
 //
 // Returns:
 //   - *RedisService: Pointer to initialized Redis service
 //   - Panics if connection fails
-func NewRedisService(address, password string, db int) *RedisService {
-
-	client := redis.NewClient(&redis.Options{
-		Addr:     address,
-		Password: password, // leave empty if no password
-		DB:       db,       // default DB
-	})
-
+func NewRedisService(client redis.Cmdable) *RedisService {
 	ctx := context.Background()
 	_, err := client.Ping(ctx).Result()
-
 	if err != nil {
-		panic("Failed to connect to Redis: " + err.Error())
+		panic(err)
+	} else {
+		logger.Info("Connected to Redis successfully")
 	}
-
-	logger.Infof("Redis run at %s\n", address)
 
 	return &RedisService{
 		client: client,
-		ctx:    ctx,
+		ctx:    context.Background(),
 	}
-
 }
 
 // Set stores a key-value pair in Redis with no expiration time
@@ -115,26 +101,4 @@ func (r *RedisService) Exists(key string) (bool, error) {
 		return false, errors.New(errors.ErrCacheExists, err.Error())
 	}
 	return count > 0, nil
-}
-
-// GetList retrieves all elements from a Redis list
-// Parameters:
-//   - listName: the name of the list to retrieve from Redis
-//
-// Returns:
-//   - []string: slice containing all elements in the list
-//   - error: nil if successful, otherwise contains the error message
-func (e *RedisService) GetList(listName string) ([]string, error) {
-	data, err := e.client.LRange(e.ctx, listName, 0, -1).Result()
-	if err != nil {
-		return nil, errors.New(errors.ErrCacheList, err.Error())
-	}
-	return data, nil
-}
-
-// Close closes the Redis client connection
-// Returns:
-//   - error: nil if successful, otherwise contains the error message
-func (r *RedisService) Close() error {
-	return r.client.Close()
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -180,9 +181,10 @@ func (s *UserRepositoryTestSuite) TestDeleteError() {
 }
 
 func (s *UserRepositoryTestSuite) TestFindByField() {
+
 	mockUsers := []*models.User{
-		{Name: "Find User", Email: "email@example.com", Password: "password", Gender: 1},
-		{Name: "Another User", Email: "another@example.com", Password: "password", Gender: 1},
+		{Name: "Find User", Email: "email@example.com", Password: "password", Token: utils.StringToPtr("token1"), Gender: 1},
+		{Name: "Another User", Email: "another@example.com", Password: "password", Token: utils.StringToPtr("token2"), Gender: 1},
 	}
 
 	for _, user := range mockUsers {
@@ -199,11 +201,22 @@ func (s *UserRepositoryTestSuite) TestFindByField() {
 	foundUserByName, err := s.repo.FindByField("name", "Another User")
 	s.NoError(err, "Expected no error when finding user by name")
 	s.NotNil(foundUserByName, "Expected found user by name to be not nil")
-	s.Equal("Another User", foundUserByName.Name, "Expected user name to be 'Another User'")
+	// find by field token
+	foundUserByToken, err := s.repo.FindByField("token", "token2")
+	s.NoError(err, "Expected no error when finding user by token")
+	s.NotNil(foundUserByToken, "Expected found user by token to be not nil")
+	s.Equal("Another User", foundUserByToken.Name, "Expected user name to be 'Another User'")
+
 	// Test finding user by non-existing field
 	nonExistentUser, err := s.repo.FindByField("email", "notfound@example.com")
 	s.Error(err, "Expected error when finding user by non-existing email")
 	s.Nil(nonExistentUser, "Expected non-existent user to be nil")
+
+	// Test finding user by non-existing field
+	item, err := s.repo.FindByField("sql;", "Non Existent User")
+	s.Error(err, "Expected error when finding user by invalid field")
+	s.Nil(item, "Expected non-existent user to be nil")
+
 }
 
 func (s *UserRepositoryTestSuite) TestFindByFieldError() {
@@ -428,6 +441,39 @@ func (s *UserRepositoryTestSuite) TestCreateWithTx_Error_DuplicateEmail() {
 func (s *UserRepositoryTestSuite) TestGetDB() {
 	db := s.repo.GetDB()
 	s.NotNil(db, "Expected database connection to be not nil")
+}
+
+func (s *UserRepositoryTestSuite) TestUpdate() {
+	// Create a mock user
+	mockUser := &models.User{
+		ID:       1,
+		Name:     "Update User",
+		Email:    "update@example.com",
+		Password: "password",
+		Gender:   1,
+	}
+
+	// Create the user in the database
+	createdUser, err := s.repo.Create(mockUser)
+	s.NoError(err, "Expected no error when creating mock user")
+	s.NotNil(createdUser, "Expected created user to be not nil")
+	// Update the mock user
+	mockUser.ID = createdUser.ID // Ensure we update the correct user
+	mockUser.Name = "Update User"
+	mockUser.Email = "update@example.com"
+	mockUser.Password = "newpassword"
+
+	// Update the user in the database
+	err = s.repo.Update(mockUser)
+	s.NoError(err, "Expected no error when updating user")
+	// Retrieve the updated user
+	updatedUser, err := s.repo.GetByID(mockUser.ID)
+	s.NoError(err, "Expected no error when getting updated user by ID")
+	s.NotNil(updatedUser, "Expected updated user to be not nil")
+	s.Equal("Update User", updatedUser.Name, "Expected user name to be 'Update User'")
+	s.Equal("update@example.com", updatedUser.Email, "Expected user email to be 'update@example.com'")
+	s.Equal("newpassword", updatedUser.Password, "Expected user password to be 'newpassword'")
+	s.Equal(int16(1), updatedUser.Gender, "Expected user gender to be 1")
 }
 
 func TestUserRepositoryTestSuite(t *testing.T) {

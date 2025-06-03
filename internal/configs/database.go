@@ -28,7 +28,7 @@ var DB *gorm.DB
 //
 // Note: Also sets the global DB variable with the connection instance
 func InitDB(config DatabaseConfig) *gorm.DB {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=Local",
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=True&loc=UTC",
 		config.User,
 		config.Password,
 		config.Host,

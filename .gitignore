@@ -37,3 +37,8 @@ testdata/
 mysql/
 tmp/
 bin/
+
+#Coverage report files
+coverage.out
+coverage.html
+coverage.json

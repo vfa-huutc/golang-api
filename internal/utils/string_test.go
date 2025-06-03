@@ -3,6 +3,7 @@ package utils_test
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 )
 
@@ -40,4 +41,18 @@ func TestGenerateRandomStringCharset(t *testing.T) {
 			t.Errorf("Generated string contains invalid character: %c", ch)
 		}
 	}
+}
+
+func TestStringToPtr(t *testing.T) {
+	t.Run("returns pointer when string is non-empty", func(t *testing.T) {
+		input := "hello"
+		ptr := utils.StringToPtr(input)
+		assert.NotNil(t, ptr)
+		assert.Equal(t, input, *ptr)
+	})
+
+	t.Run("returns nil when string is empty", func(t *testing.T) {
+		ptr := utils.StringToPtr("")
+		assert.Nil(t, ptr)
+	})
 }

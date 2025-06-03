@@ -289,3 +289,29 @@ func TestInitValidator(t *testing.T) {
 		t.Errorf("Expected no validation error for valid birthday, got: %v", err)
 	}
 }
+
+func TestTranslateValidationErrors_DefaultCase(t *testing.T) {
+	validate := validator.New()
+
+	// Register a custom tag that is NOT handled in TranslateValidationErrors
+	_ = validate.RegisterValidation("custom_unhandled", func(fl validator.FieldLevel) bool {
+		return false // always fail to trigger the error
+	})
+
+	// Struct with the unhandled custom validation tag
+	input := struct {
+		Field string `validate:"custom_unhandled"`
+	}{
+		Field: "any value",
+	}
+
+	// Validate it
+	err := validate.Struct(input)
+	assert.Error(t, err)
+
+	// Run through TranslateValidationErrors
+	result := utils.TranslateValidationErrors(err)
+
+	// Expect default fallback message
+	assert.EqualError(t, result, "field is invalid")
+}

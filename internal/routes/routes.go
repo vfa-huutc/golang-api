@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"github.com/vfa-khuongdv/golang-cms/internal/guards"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/middlewares"
@@ -36,11 +37,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	permissionRepo := repositories.NewPermissionRepository(db)
 
 	// Initialize services
-	REDIS_HOST := utils.GetEnv("REDIS_HOST", "localhost:6379")
-	REDIS_PASS := utils.GetEnv("REDIS_PASS", "")
-	REDIS_DB := utils.GetEnvAsInt("REDIS_DB", 0)
+	client := redis.NewClient(&redis.Options{
+		Addr:     utils.GetEnv("REDIS_HOST", "localhost:6379"),
+		Password: utils.GetEnv("REDIS_PASS", ""),
+		DB:       utils.GetEnvAsInt("REDIS_DB", 0),
+	})
 
-	redisService := services.NewRedisService(REDIS_HOST, REDIS_PASS, REDIS_DB)
+	redisService := services.NewRedisService(client)
 	refreshTokenService := services.NewRefreshTokenService(refreshRepo)
 	userService := services.NewUserService(userRepo)
 	bcryptService := services.NewBcryptService()
