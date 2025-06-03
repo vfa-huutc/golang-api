@@ -2,10 +2,8 @@ package services
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type IAuthService interface {
@@ -16,11 +14,13 @@ type IAuthService interface {
 type AuthService struct {
 	repo                repositories.IUserRepository
 	refreshTokenService IRefreshTokenService
+	bcryptService       IBcryptService
+	jwtService          IJWTService
 }
 
 type LoginResponse struct {
-	AccessToken  configs.JwtResult `json:"accessToken"`
-	RefreshToken configs.JwtResult `json:"refreshToken"`
+	AccessToken  JwtResult `json:"accessToken"`
+	RefreshToken JwtResult `json:"refreshToken"`
 }
 
 // NewAuthService creates and returns a new instance of AuthService
@@ -30,10 +30,12 @@ type LoginResponse struct {
 //
 // Returns:
 //   - *AuthService: New AuthService instance initialized with the provided dependencies
-func NewAuthService(repo repositories.IUserRepository, refreshTokenService IRefreshTokenService) *AuthService {
+func NewAuthService(repo repositories.IUserRepository, refreshTokenService IRefreshTokenService, bcryptService IBcryptService, jwtService IJWTService) *AuthService {
 	return &AuthService{
 		repo:                repo,
 		refreshTokenService: refreshTokenService,
+		bcryptService:       bcryptService,
+		jwtService:          jwtService,
 	}
 }
 
@@ -53,12 +55,12 @@ func (service *AuthService) Login(email, password string, ctx *gin.Context) (*Lo
 	}
 
 	// Validate password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		return nil, errors.New(errors.ErrInvalidPassword, err.Error())
+	if isValid := service.bcryptService.CheckPasswordHash(password, user.Password); !isValid {
+		return nil, errors.New(errors.ErrInvalidPassword, "Invalid credentials")
 	}
 
 	// Generate access token
-	accessToken, err := configs.GenerateToken(user.ID)
+	accessToken, err := service.jwtService.GenerateToken(user.ID)
 	if err != nil {
 		return nil, errors.New(errors.ErrInternal, err.Error())
 	}
@@ -67,15 +69,15 @@ func (service *AuthService) Login(email, password string, ctx *gin.Context) (*Lo
 	ipAddress := ctx.ClientIP()
 	refreshToken, err := service.refreshTokenService.Create(user, ipAddress)
 	if err != nil {
-		return nil, err // error is already wrapped by the service, so we can return it directly
+		return nil, err
 	}
 
 	res := &LoginResponse{
-		AccessToken: configs.JwtResult{
+		AccessToken: JwtResult{
 			Token:     accessToken.Token,
 			ExpiresAt: accessToken.ExpiresAt,
 		},
-		RefreshToken: configs.JwtResult{
+		RefreshToken: JwtResult{
 			Token:     refreshToken.Token,
 			ExpiresAt: refreshToken.ExpiresAt,
 		},
@@ -107,14 +109,14 @@ func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*Login
 		return nil, errors.New(errors.ErrDBQuery, err.Error())
 	}
 	// Generate new access token for the user
-	resultToken, err := configs.GenerateToken(user.ID)
+	resultToken, err := service.jwtService.GenerateToken(user.ID)
 	if err != nil {
 		return nil, errors.New(errors.ErrInternal, err.Error())
 	}
 
 	// Return new access and refresh tokens
 	return &LoginResponse{
-		AccessToken: configs.JwtResult{
+		AccessToken: JwtResult{
 			Token:     resultToken.Token,
 			ExpiresAt: resultToken.ExpiresAt,
 		},

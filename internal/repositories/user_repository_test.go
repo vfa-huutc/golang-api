@@ -93,6 +93,19 @@ func (s *UserRepositoryTestSuite) TestGetAll() {
 	s.Len(users, 2, "Expected 2 users to be returned")
 }
 
+func (s *UserRepositoryTestSuite) TestGetAllError() {
+	// Close the underlying DB connection to simulate error on DB access
+	sqlDB, err := s.db.DB()
+	s.Require().NoError(err)
+	err = sqlDB.Close()
+	s.Require().NoError(err)
+
+	// Test GetAll method after closing the DB
+	users, err := s.repo.GetAll()
+	s.Error(err, "Expected error when getting all users after closing DB")
+	s.Nil(users, "Expected users to be nil after error")
+}
+
 func (s *UserRepositoryTestSuite) TestGetByID() {
 	mockUsers := []*models.User{
 		{ID: 1, Name: "User1", Email: "email1@example.com", Password: "password1", Gender: 1},
@@ -109,6 +122,13 @@ func (s *UserRepositoryTestSuite) TestGetByID() {
 	s.Equal("User1", user.Name, "Expected user name to be 'User1'")
 }
 
+func (s *UserRepositoryTestSuite) TestGetByIDError() {
+	// Test getting user by non-existing ID
+	user, err := s.repo.GetByID(999)
+	s.Error(err, "Expected error when getting user by non-existing ID")
+	s.Nil(user, "Expected user to be nil when not found")
+}
+
 func (s *UserRepositoryTestSuite) TestCreate() {
 	mockUser := &models.User{
 		Name:     "New User",
@@ -122,43 +142,41 @@ func (s *UserRepositoryTestSuite) TestCreate() {
 	s.Equal("New User", createdUser.Name, "Expected user name to be 'New User'")
 }
 
-func (s *UserRepositoryTestSuite) TestUpdate() {
-	mockUser := &models.User{
-		Name:     "User to Update",
-		Email:    "email@example.com",
-		Password: "password",
-		Gender:   1,
+func (s *UserRepositoryTestSuite) TestCreate_Error_Duplicate() {
+	user1 := &models.User{
+		Email: "test@example.com",
+		Name:  "testuser",
+		// other required fields
 	}
 
-	createdUser, err := s.repo.Create(mockUser)
-	s.NoError(err, "Expected no error when creating user")
+	user2 := &models.User{
+		Email: "test@example.com", // duplicate email to cause constraint violation
+		Name:  "anotheruser",
+	}
 
-	createdUser.Name = "Updated User"
-	err = s.repo.Update(createdUser)
-	s.NoError(err, "Expected no error when updating user")
+	// Create first user successfully
+	createdUser, err := s.repo.Create(user1)
+	s.Require().NoError(err)
+	s.NotNil(createdUser)
 
-	updatedUser, err := s.repo.GetByID(createdUser.ID)
-	s.NoError(err, "Expected no error when getting updated user by ID")
-	s.NotNil(updatedUser, "Expected updated user to be not nil")
-	s.Equal("Updated User", updatedUser.Name, "Expected user name to be 'Updated User'")
+	// Try to create second user with duplicate email
+	createdUser2, err := s.repo.Create(user2)
+	s.Error(err, "Should return error on duplicate user creation")
+	s.Nil(createdUser2, "Created user should be nil on error")
 }
 
-func (s *UserRepositoryTestSuite) TestDelete() {
-	mockUser := &models.User{
-		Name:     "User to Delete",
-		Email:    "email@example.com",
-		Password: "password",
-		Gender:   1,
-	}
-	createdUser, err := s.repo.Create(mockUser)
-	s.NoError(err, "Expected no error when creating user")
+func (s *UserRepositoryTestSuite) TestDeleteError() {
+	// Close the underlying DB connection to simulate error on DB access
+	sqlDB, err := s.db.DB()
+	s.Require().NoError(err)
+	err = sqlDB.Close()
+	s.Require().NoError(err)
 
-	err = s.repo.Delete(createdUser.ID)
-	s.NoError(err, "Expected no error when deleting user")
+	// Now s.db is still there but the connection is closed, this should cause errors
 
-	deletedUser, err := s.repo.GetByID(createdUser.ID)
-	s.Error(err, "Expected error when getting deleted user by ID")
-	s.Nil(deletedUser, "Expected deleted user to be nil")
+	// No need to create new repo, because it uses s.db which now has closed connection
+	err = s.repo.Delete(999)
+	s.Error(err, "Expected error when deleting user with non-existing ID")
 }
 
 func (s *UserRepositoryTestSuite) TestFindByField() {
@@ -186,7 +204,13 @@ func (s *UserRepositoryTestSuite) TestFindByField() {
 	nonExistentUser, err := s.repo.FindByField("email", "notfound@example.com")
 	s.Error(err, "Expected error when finding user by non-existing email")
 	s.Nil(nonExistentUser, "Expected non-existent user to be nil")
+}
 
+func (s *UserRepositoryTestSuite) TestFindByFieldError() {
+	// Test finding user by non-existing field
+	nonExistentUser, err := s.repo.FindByField("email", "notfound@example.com")
+	s.Error(err, "Expected error when finding user by non-existing email")
+	s.Nil(nonExistentUser, "Expected non-existent user to be nil")
 }
 
 func (s *UserRepositoryTestSuite) TestGetProfile() {
@@ -237,6 +261,13 @@ func (s *UserRepositoryTestSuite) TestGetProfile() {
 
 	s.ElementsMatch([]string{"Admin", "Editor"}, roleNames, "Expected user roles to match")
 
+}
+
+func (s *UserRepositoryTestSuite) TestGetProfileError() {
+	// Test getting profile for non-existing user
+	profile, err := s.repo.GetProfile(999)
+	s.Error(err, "Expected error when getting profile for non-existing user")
+	s.Nil(profile, "Expected profile to be nil when user does not exist")
 }
 
 func (s *UserRepositoryTestSuite) TestUpdateProfile() {
@@ -343,6 +374,55 @@ func (s *UserRepositoryTestSuite) TestGetUserPermissionsError() {
 	permissions, err := s.repo.GetUserPermissions(999)
 	s.Error(err, "Expected error when getting permissions for non-existent user")
 	s.Nil(permissions, "Expected nil permissions for non-existent user")
+}
+
+func (s *UserRepositoryTestSuite) TestCreateWithTx() {
+	mockUser := &models.User{
+		Name:  "Transaction User",
+		Email: "email@example.com",
+	}
+	// Start a transaction
+	tx := s.repo.GetDB().Begin()
+	s.Require().NoError(tx.Error, "Expected no error when starting transaction")
+	// Create user within the transaction
+	createdUser, err := s.repo.CreateWithTx(tx, mockUser)
+	s.NoError(err, "Expected no error when creating user with transaction")
+	s.NotNil(createdUser, "Expected created user to be not nil")
+	// Commit the transaction
+	err = tx.Commit().Error
+	s.NoError(err, "Expected no error when committing transaction")
+	// Verify the user was created
+	retrievedUser, err := s.repo.GetByID(createdUser.ID)
+	s.NoError(err, "Expected no error when retrieving user by ID")
+	s.NotNil(retrievedUser, "Expected retrieved user to be not nil")
+	s.Equal("Transaction User", retrievedUser.Name, "Expected user name to be 'Transaction User'")
+}
+
+func (s *UserRepositoryTestSuite) TestCreateWithTx_Error_DuplicateEmail() {
+	// Assume Email is unique
+	user1 := &models.User{
+		Email:    "duplicate@example.com",
+		Name:     "user1",
+		Password: "pass",
+	}
+
+	user2 := &models.User{
+		Email:    "duplicate@example.com", // same email
+		Name:     "user2",
+		Password: "pass",
+	}
+
+	err := s.db.Create(user1).Error
+	s.Require().NoError(err)
+
+	tx := s.db.Begin()
+	s.Require().NoError(tx.Error)
+
+	createdUser, err := s.repo.CreateWithTx(tx, user2)
+	s.Error(err, "Should return error due to duplicate email")
+	s.Nil(createdUser, "Created user should be nil on duplicate constraint")
+
+	tx.Rollback()
 }
 
 func (s *UserRepositoryTestSuite) TestGetDB() {

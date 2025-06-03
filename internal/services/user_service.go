@@ -89,38 +89,32 @@ func (service *UserService) GetUserByEmail(email string) (*models.User, error) {
 	return data, nil
 }
 
-// CreateUser creates a new user in the database using the provided user data
+// CreateUser creates a new user in the database and assigns roles to them.
 // Parameters:
 //   - user: Pointer to models.User containing the user information to create
 //   - roleIds: Slice of role IDs to assign to the user
 //
 // Returns:
 //   - error: nil if successful, otherwise returns the error that occurred
-//
-// Example:
-//
-//	user := &models.User{
-//	    Name: "John Doe",
-//	    Email: "john@example.com",
-//	}
-//	err := service.CreateUser(user)
 func (service *UserService) CreateUser(user *models.User, roleIds []uint) error {
-	// Start a transaction to ensure both user creation and role assignments succeed or fail together
 	tx := service.repo.GetDB().Begin()
+	if tx.Error != nil {
+		return errors.New(errors.ErrDBInsert, "Failed to start transaction: "+tx.Error.Error())
+	}
+
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
+			panic(r)
 		}
 	}()
 
-	// Create the user within the transaction
-	createdUser, err := service.repo.Create(user)
+	createdUser, err := service.repo.CreateWithTx(tx, user)
 	if err != nil {
 		tx.Rollback()
 		return errors.New(errors.ErrDBInsert, err.Error())
 	}
 
-	// Create user-role associations for each role ID
 	for _, roleId := range roleIds {
 		userRole := models.UserRole{
 			UserID: createdUser.ID,
@@ -128,11 +122,10 @@ func (service *UserService) CreateUser(user *models.User, roleIds []uint) error 
 		}
 		if err := tx.Create(&userRole).Error; err != nil {
 			tx.Rollback()
-			return errors.New(errors.ErrDBInsert, "Failed to assign roles: "+err.Error())
+			return errors.New(errors.ErrDBInsert, "Failed to assign role: "+err.Error())
 		}
 	}
 
-	// Commit the transaction
 	if err := tx.Commit().Error; err != nil {
 		return errors.New(errors.ErrDBInsert, "Transaction failed: "+err.Error())
 	}

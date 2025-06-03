@@ -32,14 +32,16 @@ type IUserhandler interface {
 }
 
 type UserHandler struct {
-	userService  services.IUserService
-	redisService services.IRedisService
+	userService   services.IUserService
+	redisService  services.IRedisService
+	bcryptService services.IBcryptService
 }
 
-func NewUserHandler(userService services.IUserService, redisService services.IRedisService) *UserHandler {
+func NewUserHandler(userService services.IUserService, redisService services.IRedisService, bcryptService services.IBcryptService) *UserHandler {
 	return &UserHandler{
-		userService:  userService,
-		redisService: redisService,
+		userService:   userService,
+		redisService:  redisService,
+		bcryptService: bcryptService,
 	}
 }
 
@@ -52,7 +54,7 @@ func (handler *UserHandler) PaginationUser(c *gin.Context) {
 		utils.RespondWithError(
 			c,
 			http.StatusInternalServerError,
-			errors.New(errors.ErrDBQuery, err.Error()),
+			err,
 		)
 		return
 	}
@@ -65,9 +67,9 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 	var input struct {
 		Email    string  `json:"email" binding:"required,email"`
 		Password string  `json:"password" binding:"required,min=6,max=255"`
-		Name     string  `json:"name" binding:"required,min=1,max=45"`
-		Birthday *string `json:"birthday" binding:"required,valid_birthday"` // Assumes birthday is valid format: YYYY-MM-DD
-		Address  *string `json:"address" binding:"required,min=1,max=255"`
+		Name     string  `json:"name" binding:"required,min=1,max=45,not_blank"`     // Name must be between 1-45 chars and not blank
+		Birthday *string `json:"birthday" binding:"required,valid_birthday"`         // Assumes birthday is valid format: YYYY-MM-DD
+		Address  *string `json:"address" binding:"required,min=1,max=255,not_blank"` // Address must be between 1-255 chars and not blank
 		Gender   int16   `json:"gender" binding:"required,oneof=1 2 3"`
 		RoleIds  []uint  `json:"role_ids" binding:"required"`
 	}
@@ -83,10 +85,8 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	// Hash the password using the utils.HashPassword function
-	// If hashing fails (returns empty string), return a 400 error
-	hashpassword := utils.HashPassword(input.Password)
-	if hashpassword == "" {
+	hashpassword, err := handler.bcryptService.HashPassword(input.Password)
+	if err != nil {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
@@ -197,7 +197,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			err,
 		)
 		return
@@ -214,7 +214,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 	}
 
 	// Check if new password is the same as old password
-	if isValid := utils.CheckPasswordHash(input.Password, user.Password); !isValid {
+	if isValid := handler.bcryptService.CheckPasswordHash(input.Password, user.Password); !isValid {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
@@ -225,8 +225,8 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 
 	// Hash the password using the utils.HashPassword function
 	// If hashing fails (returns empty string), return a 400 error
-	hashpassword := utils.HashPassword(input.Password)
-	if hashpassword == "" {
+	hashpassword, err := handler.bcryptService.HashPassword(input.Password)
+	if err != nil {
 		utils.RespondWithError(
 			ctx,
 			http.StatusInternalServerError,
@@ -294,11 +294,11 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	}
 
 	// Check if old password is correct
-	if isValid := utils.CheckPasswordHash(input.OldPassword, user.Password); !isValid {
+	if isValid := handler.bcryptService.CheckPasswordHash(input.OldPassword, user.Password); !isValid {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrPasswordMismatch, "Old password is incorrect"),
+			errors.New(errors.ErrInvalidPassword, "Old password is incorrect"),
 		)
 		return
 	}
@@ -318,15 +318,15 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidPassword, "New password and confirm password do not match"),
+			errors.New(errors.ErrPasswordMismatch, "New password and confirm password do not match"),
 		)
 		return
 	}
 
 	// Hash the password using the utils.HashPassword function
-	// If hashing fails (returns empty string), return a 400 error
-	hashpassword := utils.HashPassword(input.NewPassword)
-	if hashpassword == "" {
+	// If hashing fails (returns empty string), return a 500 error
+	hashpassword, err := handler.bcryptService.HashPassword(input.NewPassword)
+	if err != nil {
 		utils.RespondWithError(
 			ctx,
 			http.StatusInternalServerError,
@@ -360,14 +360,14 @@ func (handler *UserHandler) DeleteUser(ctx *gin.Context) {
 		utils.RespondWithError(
 			ctx,
 			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, err.Error()),
+			errors.New(errors.ErrParseError, "Invalid UserID"),
 		)
 		return
 	}
 
 	// Get user from database
-	item, err := handler.userService.GetUser(uint(userId))
-	if item == nil {
+	user, err := handler.userService.GetUser(uint(userId))
+	if err != nil {
 		utils.RespondWithError(
 			ctx,
 			http.StatusNotFound,
@@ -377,7 +377,7 @@ func (handler *UserHandler) DeleteUser(ctx *gin.Context) {
 	}
 
 	// Delete user from database
-	if err := handler.userService.DeleteUser(uint(userId)); err != nil {
+	if err := handler.userService.DeleteUser(uint(user.ID)); err != nil {
 		utils.RespondWithError(
 			ctx,
 			http.StatusInternalServerError,
@@ -405,10 +405,10 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 
 	// Define input struct with validation tags
 	var input struct {
-		Name     string `json:"name" validate:"min=1,max=45"`           // Name must be between 1-45 chars
-		Birthday string `json:"birthday" validate:"valid_birthday"`     // Birthday must be valid date
-		Address  string `json:"address" validate:"min=1,max=255"`       // Address must be between 1-255 chars
-		Gender   int16  `json:"gender" validate:"required,oneof=0 1 2"` // Gender must be 0, 1 or 2
+		Name     *string `json:"name" binding:"omitempty,min=1,max=45,not_blank"`     // Name must be between 1-45 chars and not blank
+		Birthday *string `json:"birthday" binding:"omitempty,valid_birthday"`         // Assumes birthday is valid format: YYYY-MM-DD
+		Address  *string `json:"address" binding:"omitempty,min=1,max=255,not_blank"` // Address must be between 1-255 chars and not blank
+		Gender   *int16  `json:"gender" binding:"omitempty,oneof=1 2 3"`              // Gender must be one of [1 2 3]
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
@@ -427,17 +427,25 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			err,
 		)
 		return
 	}
 
 	// Update user fields with input values
-	user.Name = input.Name
-	user.Birthday = &input.Birthday
-	user.Address = &input.Address
-	user.Gender = input.Gender
+	if input.Name != nil {
+		user.Name = *input.Name
+	}
+	if input.Birthday != nil {
+		user.Birthday = input.Birthday
+	}
+	if input.Address != nil {
+		user.Address = input.Address
+	}
+	if input.Gender != nil {
+		user.Gender = *input.Gender
+	}
 
 	// Save updated user to database
 	if err := handler.userService.UpdateUser(user); err != nil {
@@ -470,7 +478,7 @@ func (handler *UserHandler) GetUser(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
+			http.StatusNotFound,
 			err,
 		)
 		return
@@ -494,7 +502,8 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 	var user models.User
 
 	// Try to get user from Redis cache
-	userString, err := handler.redisService.Get(constants.PROFILE)
+	cacheKey := constants.PROFILE + string(rune(userId))
+	userString, err := handler.redisService.Get(cacheKey)
 	if err != nil {
 		logger.Warnf("Failed to get user from Redis: %+v", err)
 	}
@@ -520,6 +529,12 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 		logger.Info("User retrieved from Redis")
 		if err := json.Unmarshal([]byte(userString), &user); err != nil {
 			logger.Warnf("Failed to unmarshal user from Redis: %v", err)
+			utils.RespondWithError(
+				ctx,
+				http.StatusInternalServerError,
+				errors.New(errors.ErrParseError, "Failed to parse user data from cache"),
+			)
+			return
 		}
 
 	}
@@ -564,10 +579,10 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	// Define input struct for profile update with validation rules
 	var input struct {
-		Name     *string `json:"name" binding:"omitempty,min=1,max=45"`       // Name must be between 1 and 45 characters if provided
-		Birthday *string `json:"birthday" binding:"omitempty,valid_birthday"` // Birthday must be a valid date (YYYY-MM-DD) if provided
-		Address  *string `json:"address" binding:"omitempty,min=1,max=255"`   // Address must be between 1 and 255 characters if provided
-		Gender   *int16  `json:"gender" binding:"omitempty,oneof=0 1 2"`      // Gender must be 0, 1, or 2 if provided
+		Name     *string `json:"name" binding:"omitempty,min=1,max=45,not_blank"`     // Name must be between 1 and 45 characters and not blank if provided
+		Birthday *string `json:"birthday" binding:"omitempty,valid_birthday"`         // Birthday must be a valid date (YYYY-MM-DD) if provided
+		Address  *string `json:"address" binding:"omitempty,min=1,max=255,not_blank"` // Address must be between 1 and 255 characters and not blank if provided
+		Gender   *int16  `json:"gender" binding:"omitempty,oneof=1 2 3"`              // Gender must be 1, 2, or 3 if provided
 	}
 
 	// Bind and validate JSON request body

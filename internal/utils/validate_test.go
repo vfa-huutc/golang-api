@@ -225,9 +225,7 @@ func TestTranslateValidationErrors_ExtraCases(t *testing.T) {
 	validate := validator.New()
 
 	validate.RegisterValidation("valid_birthday", utils.ValidateBirthday)
-	validate.RegisterValidation("unknown", func(fl validator.FieldLevel) bool {
-		return false
-	})
+	validate.RegisterValidation("not_blank", utils.ValidateNotBlank)
 
 	tests := []struct {
 		name     string
@@ -242,11 +240,11 @@ func TestTranslateValidationErrors_ExtraCases(t *testing.T) {
 			expected: "field must be a valid date (YYYY-MM-DD) and not in the future",
 		},
 		{
-			name: "default case fallback with unknown tag",
+			name: "not_blank (blank field)",
 			input: struct {
-				Field string `validate:"unknown"` // Custom registered tag
-			}{Field: "data"},
-			expected: "field is invalid",
+				Field string `validate:"not_blank"`
+			}{Field: "   "},
+			expected: "field must not be blank",
 		},
 	}
 

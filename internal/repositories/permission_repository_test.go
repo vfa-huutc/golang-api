@@ -46,6 +46,23 @@ func (s *PermissionRepositoryTestSuite) TestCreate() {
 	s.NotEqual(uint(0), permission.ID, "Permission ID should be set after creation")
 }
 
+func (s *PermissionRepositoryTestSuite) TestCreateError() {
+	// resource is 999 characters long, which is too long for the database
+	resource := "r" + string(make([]byte, 998)) // 999 characters long
+	permission := &models.Permission{
+		Resource: resource,
+		Action:   "test_action",
+	}
+	// Create the permission
+	err := s.repo.Create(permission)
+	s.NoError(err)
+	s.NotEqual(uint(0), permission.ID, "Permission ID should be set after creation")
+
+	// Try to create the same permission again
+	err = s.repo.Create(permission)
+	s.Error(err, "Expected error when creating duplicate permission")
+}
+
 func (s *PermissionRepositoryTestSuite) TestGetAll() {
 
 	mock_permissions := []models.Permission{
@@ -76,6 +93,19 @@ func (s *PermissionRepositoryTestSuite) TestGetAll() {
 		s.Equal(perm.Resource, mock_permissions[index].Resource, "Resource should match")
 		s.Equal(perm.Action, mock_permissions[index].Action, "Action should match")
 	}
+}
+
+func (s *PermissionRepositoryTestSuite) TestGetAllError() {
+	// Close the underlying DB connection to simulate error on DB access
+	sqlDB, err := s.db.DB()
+	s.Require().NoError(err)
+	err = sqlDB.Close()
+	s.Require().NoError(err)
+
+	// Now s.db is still there but the connection is closed, this should cause errors
+	permissions, err := s.repo.GetAll()
+	s.Error(err, "Should return an error when DB connection is closed")
+	s.Nil(permissions, "Permissions should be nil on error")
 }
 
 func TestPermissionRepositoryTestSuite(t *testing.T) {

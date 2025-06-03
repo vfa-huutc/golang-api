@@ -11,6 +11,7 @@ type IUserRepository interface {
 	GetAll() ([]models.User, error)
 	GetByID(id uint) (*models.User, error)
 	Create(user *models.User) (*models.User, error)
+	CreateWithTx(tx *gorm.DB, user *models.User) (*models.User, error)
 	Update(user *models.User) error
 	Delete(userId uint) error
 	FindByField(field string, value string) (*models.User, error)
@@ -103,6 +104,21 @@ func (repo *UserRepository) GetByID(id uint) (*models.User, error) {
 //   - error: Error if there was a problem creating the user, nil on success
 func (repo *UserRepository) Create(user *models.User) (*models.User, error) {
 	if err := repo.db.Create(user).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
+}
+
+// CreateWithTx creates a new user in the database within a transaction
+// Parameters:
+//   - tx: Pointer to the gorm.DB transaction
+//   - user: Pointer to the User model to be created
+//
+// Returns:
+//   - *models.User: Pointer to the created User model with assigned ID
+//   - error: Error if there was a problem creating the user, nil on success
+func (repo *UserRepository) CreateWithTx(tx *gorm.DB, user *models.User) (*models.User, error) {
+	if err := tx.Create(user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil

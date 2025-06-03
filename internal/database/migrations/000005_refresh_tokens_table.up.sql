@@ -3,7 +3,7 @@ CREATE TABLE `refresh_tokens` (
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
   `deleted_at` datetime(3) DEFAULT NULL,
-  `refresh_token` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `refresh_token` varchar(60) COLLATE utf8mb4_unicode_ci NOT NULL UNIQUE,
   `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
   `used_count` bigint DEFAULT '0',
   `expired_at` bigint NOT NULL,

@@ -61,6 +61,11 @@ func (m *MockUserRepository) GetUserPermissions(userID uint) ([]models.Permissio
 	return args.Get(0).([]models.Permission), args.Error(1)
 }
 
+func (m *MockUserRepository) CreateWithTx(tx *gorm.DB, user *models.User) (*models.User, error) {
+	args := m.Called(tx, user)
+	return args.Get(0).(*models.User), args.Error(1)
+}
+
 func (m *MockUserRepository) GetDB() *gorm.DB {
 	args := m.Called()
 	return args.Get(0).(*gorm.DB)

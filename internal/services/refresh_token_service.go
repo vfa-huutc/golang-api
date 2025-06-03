@@ -3,7 +3,6 @@ package services
 import (
 	"time"
 
-	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
@@ -11,7 +10,7 @@ import (
 )
 
 type IRefreshTokenService interface {
-	Create(user *models.User, ipAddress string) (*configs.JwtResult, error)
+	Create(user *models.User, ipAddress string) (*JwtResult, error)
 	Update(token string, ipAddress string) (*RefreshTokenResult, error)
 }
 
@@ -39,7 +38,7 @@ func NewRefreshTokenService(repo repositories.IRefreshTokenRepository) *RefreshT
 // Returns:
 //   - *configs.JwtResult: Contains the generated token and expiration time
 //   - error: Error if token creation fails
-func (service *RefreshTokenService) Create(user *models.User, ipAddress string) (*configs.JwtResult, error) {
+func (service *RefreshTokenService) Create(user *models.User, ipAddress string) (*JwtResult, error) {
 	tokenString := utils.GenerateRandomString(60)
 	expiredAt := time.Now().Add(time.Hour * 24 * 30).Unix()
 	token := models.RefreshToken{
@@ -55,14 +54,14 @@ func (service *RefreshTokenService) Create(user *models.User, ipAddress string) 
 		return nil, errors.New(errors.ErrDBInsert, err.Error())
 	}
 
-	return &configs.JwtResult{
+	return &JwtResult{
 		Token:     tokenString,
 		ExpiresAt: expiredAt,
 	}, nil
 }
 
 type RefreshTokenResult struct {
-	Token  *configs.JwtResult
+	Token  *JwtResult
 	UserId uint
 }
 
@@ -99,7 +98,7 @@ func (service *RefreshTokenService) Update(tokenString string, ipAddress string)
 	}
 
 	return &RefreshTokenResult{
-		Token: &configs.JwtResult{
+		Token: &JwtResult{
 			Token:     newToken,
 			ExpiresAt: expiredAt,
 		},

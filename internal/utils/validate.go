@@ -15,7 +15,15 @@ import (
 func InitValidator() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("valid_birthday", ValidateBirthday)
+		v.RegisterValidation("not_blank", ValidateNotBlank)
 	}
+}
+
+// Custom validation func to check no spaces at all in the string
+func ValidateNotBlank(fl validator.FieldLevel) bool {
+	str := fl.Field().String()
+	trimmed := strings.TrimSpace(str)
+	return trimmed != ""
 }
 
 // ValidateBirthday checks if the birthday is in a valid format and not a future date.
@@ -120,6 +128,8 @@ func TranslateValidationErrors(err error) error {
 			msg = fmt.Sprintf("%s must contain unique values", field)
 		case "valid_birthday":
 			msg = fmt.Sprintf("%s must be a valid date (YYYY-MM-DD) and not in the future", field)
+		case "not_blank":
+			msg = fmt.Sprintf("%s must not be blank", field)
 
 		default:
 			msg = fmt.Sprintf("%s is invalid", field)

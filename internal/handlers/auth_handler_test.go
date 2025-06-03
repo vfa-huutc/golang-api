@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	appErrors "github.com/vfa-khuongdv/golang-cms/pkg/errors"
@@ -30,11 +29,11 @@ func TestLogin(t *testing.T) {
 
 		mockService.On("Login", "email@gmail.com", "testpassword", mock.Anything).Return(
 			&services.LoginResponse{
-				AccessToken: configs.JwtResult{
+				AccessToken: services.JwtResult{
 					Token:     "testtoken",
 					ExpiresAt: 0,
 				},
-				RefreshToken: configs.JwtResult{
+				RefreshToken: services.JwtResult{
 					Token:     "testrefreshtoken",
 					ExpiresAt: 0,
 				},
@@ -59,14 +58,15 @@ func TestLogin(t *testing.T) {
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Error", func(t *testing.T) {
+	t.Run("Create Error", func(t *testing.T) {
 		mockService := new(mocks.MockAuthService)
 
 		// Create a new handler with the mock service
 		handler := handlers.NewAuthHandler(mockService)
 
-		// Simulate an error in the service
+		// Mock the Login method to return an error
 		mockService.On("Login", "email@gmail.com", "testpassword", mock.Anything).Return(nil, appErrors.New(appErrors.ErrInvalidPassword, "Invalid email or password"))
+		// Mock the service to return an error when creating a token
 
 		// Create a request with JSON body
 		reqBody := `{"email":"email@gmail.com","password":"testpassword"}`
@@ -75,8 +75,10 @@ func TestLogin(t *testing.T) {
 		c.Request, _ = http.NewRequest("POST", "/api/v1/login", bytes.NewBufferString(reqBody))
 		c.Request.Header.Set("Content-Type", "application/json")
 
-		// Simulate an error in the service
+		// Call the handler
 		handler.Login(c)
+
+		// Assert the response
 		assert.Equal(t, http.StatusUnauthorized, w.Code)
 		expectedBody := map[string]any{
 			"code":    float64(appErrors.ErrInvalidPassword),
@@ -191,11 +193,11 @@ func TestRefreshToken(t *testing.T) {
 
 		mockService.On("RefreshToken", "testrefreshtoken", mock.Anything).Return(
 			&services.LoginResponse{
-				AccessToken: configs.JwtResult{
+				AccessToken: services.JwtResult{
 					Token:     "newtesttoken",
 					ExpiresAt: 0,
 				},
-				RefreshToken: configs.JwtResult{
+				RefreshToken: services.JwtResult{
 					Token:     "newtestrefreshtoken",
 					ExpiresAt: 0,
 				},

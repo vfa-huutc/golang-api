@@ -50,6 +50,26 @@ func (s *RefreshTokenRepositoryTestSuite) TestCreate() {
 	s.NotEqual(uint(0), item.ID, "Expected refresh token ID to be set after creation")
 }
 
+func (s *RefreshTokenRepositoryTestSuite) TestCreate_Error_DuplicateToken() {
+	// Assume Token is unique
+	token1 := &models.RefreshToken{
+		RefreshToken: "duplicate_token",
+		UserID:       1,
+	}
+
+	token2 := &models.RefreshToken{
+		RefreshToken: "duplicate_token", // same token as above
+		UserID:       2,
+	}
+
+	// First insert should succeed
+	err := s.repo.Create(token1)
+	s.Require().NoError(err)
+
+	// Second insert should fail due to unique constraint
+	err = s.repo.Create(token2)
+	s.Error(err, "Expected error due to duplicate token")
+}
 func (s *RefreshTokenRepositoryTestSuite) TestFirst() {
 
 	items := []*models.RefreshToken{
@@ -81,6 +101,13 @@ func (s *RefreshTokenRepositoryTestSuite) TestFirst() {
 	s.Equal(items[0].IpAddress, foundItem.IpAddress, "Expected found refresh token IP address to match the created one")
 	s.Equal(items[0].UserID, foundItem.UserID, "Expected found refresh token UserID to match the created one")
 	s.Equal(items[0].UsedCount, foundItem.UsedCount, "Expected found refresh token UsedCount to match the created one")
+}
+
+func (s *RefreshTokenRepositoryTestSuite) TestFirst_NotFound() {
+	// Test finding a non-existent token
+	foundItem, err := s.repo.First("non_existent_token")
+	s.Error(err, "Expected error when finding a non-existent refresh token")
+	s.Nil(foundItem, "Expected to not find a non-existent refresh token")
 }
 
 func (s *RefreshTokenRepositoryTestSuite) TestFindByTokenNotExpired() {

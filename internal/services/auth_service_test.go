@@ -9,13 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/vfa-khuongdv/golang-cms/internal/configs"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -23,34 +21,50 @@ import (
 type AuthServiceTestSuite struct {
 	suite.Suite
 	repo                *mocks.MockUserRepository
-	roleRepo            *mocks.MockRoleRepository
 	refreshTokenService *mocks.MockRefreshTokenService
 	service             services.IAuthService
+	bcryptService       *mocks.MockBcryptService
+	jwtService          *mocks.MockJWTService
 }
 
 func (s *AuthServiceTestSuite) SetupTest() {
 	s.repo = new(mocks.MockUserRepository)
-	s.roleRepo = new(mocks.MockRoleRepository)
 	s.refreshTokenService = new(mocks.MockRefreshTokenService)
-	s.service = services.NewAuthService(s.repo, s.refreshTokenService)
+	s.bcryptService = new(mocks.MockBcryptService)
+	s.jwtService = new(mocks.MockJWTService)
+
+	s.service = services.NewAuthService(
+		s.repo,
+		s.refreshTokenService,
+		s.bcryptService,
+		s.jwtService,
+	)
 }
 
 func (s *AuthServiceTestSuite) TestLoginSuccess() {
 	// Set up the expected user and mock repository behavior
 	email := "test@example.com"
 	password := "password123"
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+
 	user := &models.User{
 		ID:       1,
 		Email:    email,
-		Password: string(hashedPassword),
+		Password: "hashed_password",
 	}
 	ip := "127.0.0.1"
 
 	// Mock FindByField to return user
 	s.repo.On("FindByField", "email", email).Return(user, nil).Once()
+	// Mock BcryptService to validate password and return true
+	s.bcryptService.On("CheckPasswordHash", password, user.Password).Return(true).Once()
+	// Mock JWTService to generate access token
+	s.jwtService.On("GenerateToken", user.ID).Return(&services.JwtResult{
+		Token:     "mocked-access-token",
+		ExpiresAt: time.Now().Add(1 * time.Hour).Unix(),
+	}, nil).Once()
+
 	// Mock Create to return a valid JWT result
-	s.refreshTokenService.On("Create", user, ip).Return(&configs.JwtResult{
+	s.refreshTokenService.On("Create", user, ip).Return(&services.JwtResult{
 		Token:     "mocked-refresh-token",
 		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 	}, nil)
@@ -91,16 +105,15 @@ func (s *AuthServiceTestSuite) TestLogin_UserNotFound() {
 
 func (s *AuthServiceTestSuite) TestLogin_InvalidPassword() {
 	email := "test@example.com"
-	password := "password123"
 	wrongPassword := "wrongpass"
-	hashedPassword := utils.HashPassword(password)
 	user := &models.User{
 		ID:       1,
 		Email:    email,
-		Password: hashedPassword,
+		Password: "hashed_password", // Assume this is a invalid hashed password
 	}
 
 	s.repo.On("FindByField", "email", email).Return(user, nil)
+	s.bcryptService.On("CheckPasswordHash", wrongPassword, user.Password).Return(false).Once()
 
 	ginCtx, _ := gin.CreateTestContext(nil)
 
@@ -127,7 +140,14 @@ func (s *AuthServiceTestSuite) TestLogin_CreateTokenError() {
 	}
 	ipAddress := "127.0.0.1"
 
+	// Mock user repository and bcrypt service
 	s.repo.On("FindByField", "email", email).Return(user, nil)
+	s.bcryptService.On("CheckPasswordHash", password, user.Password).Return(true).Once()
+	s.jwtService.On("GenerateToken", user.ID).
+		Return(&services.JwtResult{
+			Token:     "mocked-access-token",
+			ExpiresAt: time.Now().Add(1 * time.Hour).Unix(),
+		}, nil).Once()
 	s.refreshTokenService.On("Create", user, ipAddress).
 		Return(nil, errors.New(errors.ErrInvalidData, "token generation failed")).
 		Once()
@@ -153,6 +173,43 @@ func (s *AuthServiceTestSuite) TestLogin_CreateTokenError() {
 	s.refreshTokenService.AssertExpectations(s.T())
 }
 
+func (s *AuthServiceTestSuite) TestLogin_JwtError() {
+	email := "test@example.com"
+	password := "password123"
+	hashedPassword := utils.HashPassword(password)
+	user := &models.User{
+		ID:       1,
+		Email:    email,
+		Password: hashedPassword,
+	}
+	ipAddress := "127.0.0.1"
+
+	// Mock user repository and bcrypt service
+	s.repo.On("FindByField", "email", email).Return(user, nil)
+	s.bcryptService.On("CheckPasswordHash", password, user.Password).Return(true).Once()
+	s.jwtService.On("GenerateToken", user.ID).
+		Return(&services.JwtResult{}, errors.New(errors.ErrInternal, "jwt generation failed")).Once()
+
+	w := httptest.NewRecorder()
+	ginCtx, _ := gin.CreateTestContext(w)
+	ginCtx.Request = &http.Request{
+		RemoteAddr: ipAddress + ":12345",
+	}
+
+	resp, err := s.service.Login(email, password, ginCtx)
+
+	assert.Error(s.T(), err)
+	assert.Nil(s.T(), resp)
+
+	appErr, ok := err.(*errors.AppError)
+	s.Require().True(ok, "error should be of type *errors.AppError")
+
+	assert.Equal(s.T(), errors.ErrInternal, appErr.Code)
+
+	s.repo.AssertExpectations(s.T())
+	s.refreshTokenService.AssertExpectations(s.T())
+}
+
 func (s *AuthServiceTestSuite) TestRefreshToken_Success() {
 	// Test input values
 	oldRefreshToken := "valid-refresh-token"
@@ -160,7 +217,7 @@ func (s *AuthServiceTestSuite) TestRefreshToken_Success() {
 	userID := uint(1)
 
 	// Mock new refresh token that would be returned by refresh token service
-	mockRefreshToken := &configs.JwtResult{
+	mockRefreshToken := &services.JwtResult{
 		Token:     "new-refresh-token",
 		ExpiresAt: time.Now().Add(24 * time.Hour * 30).Unix(), // 30 days
 	}
@@ -177,8 +234,11 @@ func (s *AuthServiceTestSuite) TestRefreshToken_Success() {
 
 	// Should update refresh token with correct old token and IP
 	s.refreshTokenService.On("Update", oldRefreshToken, ipAddress).Return(mockRes, nil).Once()
-	// Should fetch user with ID from refresh token
 	s.repo.On("GetByID", mockRes.UserId).Return(mockUser, nil).Once()
+	s.jwtService.On("GenerateToken", mockUser.ID).Return(&services.JwtResult{
+		Token:     "new-access-token",
+		ExpiresAt: time.Now().Add(1 * time.Hour).Unix(),
+	}, nil).Once()
 
 	// Setup gin test context with IP
 	w := httptest.NewRecorder()
@@ -236,7 +296,7 @@ func (s *AuthServiceTestSuite) TestRefreshToken_GetByIDError() {
 
 	ipAddress := "127.0.0.1"
 	// Mock new refresh token that would be returned by refresh token service
-	mockRefreshToken := &configs.JwtResult{
+	mockRefreshToken := &services.JwtResult{
 		Token:     "new-refresh-token",
 		ExpiresAt: time.Now().Add(24 * time.Hour * 30).Unix(), // 30 days
 	}
@@ -263,6 +323,51 @@ func (s *AuthServiceTestSuite) TestRefreshToken_GetByIDError() {
 	appErr, ok := err.(*errors.AppError)
 	s.Require().True(ok, "error should be of type *errors.AppError")
 	assert.Equal(s.T(), errors.ErrDBQuery, appErr.Code) // Code is 2001 for database query error
+
+	s.T().Logf("Error message: %s", err.Error())
+
+	s.refreshTokenService.AssertExpectations(s.T())
+}
+
+func (s *AuthServiceTestSuite) TestRefreshToken_JwtError() {
+	oldRefreshToken := "old-refresh-token"
+
+	user := &models.User{
+		ID:    1,
+		Email: "email@example.com",
+	}
+
+	ipAddress := "127.0.0.1"
+	// Mock new refresh token that would be returned by refresh token service
+	mockRefreshToken := &services.JwtResult{
+		Token:     "new-refresh-token",
+		ExpiresAt: time.Now().Add(24 * time.Hour * 30).Unix(), // 30 days
+	}
+	mockRes := &services.RefreshTokenResult{
+		UserId: 1,
+		Token:  mockRefreshToken,
+	}
+
+	// Should update refresh token with correct old token and IP
+	s.refreshTokenService.On("Update", oldRefreshToken, ipAddress).Return(mockRes, nil).Once()
+	// Should fetch user with ID from refresh token
+	s.repo.On("GetByID", mockRes.UserId).Return(user, nil).Once()
+	// Should generate new access token for user
+	s.jwtService.On("GenerateToken", user.ID).Return(&services.JwtResult{}, errors.New(errors.ErrInternal, "jwt generation failed")).Once()
+
+	// Setup gin test context with IP
+	w := httptest.NewRecorder()
+	ginCtx, _ := gin.CreateTestContext(w)
+	ginCtx.Request = &http.Request{RemoteAddr: ipAddress + ":12345"}
+
+	// Execute the refresh token flow
+	result, err := s.service.RefreshToken(oldRefreshToken, ginCtx)
+	s.Error(err, "Expected error for valid refresh token")
+	s.Nil(result, "Expected nil result for error case")
+
+	appErr, ok := err.(*errors.AppError)
+	s.Require().True(ok, "error should be of type *errors.AppError")
+	assert.Equal(s.T(), errors.ErrInternal, appErr.Code) // Code is 2001 for database query error
 
 	s.T().Logf("Error message: %s", err.Error())
 
