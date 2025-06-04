@@ -1,4 +1,4 @@
-.PHONY: install-tools test-coverage start-server
+.PHONY: install-tools test-coverage test watch-test start-server start-seeder
 
 install-tools:
 	@if ! command -v migrate >/dev/null 2>&1; then \
@@ -18,31 +18,47 @@ install-tools:
 		echo "air already installed"; \
 	fi
 
-	@if ! command -v gocov >/dev/null 2>&1; then \
-		echo "Installing gocov..."; \
-		go install github.com/axw/gocov/gocov@latest; \
-		echo "gocov installed successfully"; \
+	@if ! command -v gotestsum >/dev/null 2>&1; then \
+		echo "Installing gotestsum..."; \
+		go install gotest.tools/gotestsum@latest; \
+		echo "gotestsum installed successfully"; \
 	else \
-		echo "gocov already installed"; \
+		echo "gotestsum already installed"; \
 	fi
 
-	@if ! command -v gocov-html >/dev/null 2>&1; then \
-		echo "Installing gocov-html..."; \
-		go install github.com/matm/gocov-html@latest; \
-		echo "gocov-html installed successfully"; \
+	@if ! command -v reflex >/dev/null 2>&1; then \
+		echo "Installing reflex (file watcher)..."; \
+		go install github.com/cespare/reflex@latest; \
+		echo "reflex installed successfully"; \
 	else \
-		echo "gocov-html already installed"; \
+		echo "reflex already installed"; \
 	fi
+
+test: install-tools
+	@echo "Running tests with gotestsum..."
+	@gotestsum --format=short-verbose -- ./...
+	@echo "✅ Tests completed."
 
 test-coverage: install-tools
-	@echo "Running tests and generating coverage.json..."
-	@gocov test ./... > coverage.json
-	@echo "Generating HTML coverage report..."
-	@gocov-html < coverage.json > coverage.html
-	@echo "✅ Coverage report generated at coverage.html"
+	@echo "Running tests with coverage..."
+	@gotestsum -- -coverprofile=coverage.out ./...
+	@echo "Generating coverage report..."
+	@go tool cover -func=coverage.out | tee coverage-summary.txt
+	@go tool cover -html=coverage.out -o coverage.html
+	@echo "✅ Coverage summary written to coverage-summary.txt"
+	@echo "✅ Coverage HTML report generated at coverage.html"
+
+watch-test: install-tools
+	@echo "Watching for changes and running tests..."
+	@reflex -r '\.go$$' -s -- sh -c 'clear && gotestsum --format=short-verbose -- ./...'
 
 start-server: install-tools
 	@echo "Starting Docker containers (detached)..."
 	@docker-compose up -d
 	@echo "Starting server with live-reload (air)..."
 	@air
+
+start-seeder:
+	@echo "Seeding the database..."
+	go run ./cmd/seeder/seeder.go
+	@echo "Database seeding completed"

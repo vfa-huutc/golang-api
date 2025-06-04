@@ -369,8 +369,6 @@ func (s *AuthServiceTestSuite) TestRefreshToken_JwtError() {
 	s.Require().True(ok, "error should be of type *errors.AppError")
 	assert.Equal(s.T(), errors.ErrInternal, appErr.Code) // Code is 2001 for database query error
 
-	s.T().Logf("Error message: %s", err.Error())
-
 	s.refreshTokenService.AssertExpectations(s.T())
 }
 
