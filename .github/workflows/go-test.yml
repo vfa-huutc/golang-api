@@ -1,4 +1,4 @@
-name: Go Test then Build
+name: Go Test then Build then Deploy
 
 on:
   push:
@@ -45,3 +45,11 @@ jobs:
 
       - name: Build the project
         run: go build ./...
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy placeholder
+        run: echo "🚀 Deploy success (implementation coming soon)"
