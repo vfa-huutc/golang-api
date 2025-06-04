@@ -32,10 +32,3 @@ jobs:
         run: |
           gotestsum --format=standard-verbose -- -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
-
-      - name: Upload coverage report artifact
-        if: always()
-        uses: actions/upload-artifact@v2
-        with:
-          name: coverage-report
-          path: coverage.out
