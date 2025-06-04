@@ -46,11 +46,25 @@ Before getting started, ensure that you have the following installed:
 - [Docker](https://www.docker.com/products/docker-desktop)
 - [Docker Compose](https://docs.docker.com/compose/)
 - [MySQL](https://www.mysql.com/)
-- [Migrate CLI](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate) (for database migrations)
+- [Makefile](https://www.gnu.org/software/make/) (Usually pre-installed on macOS and Linux)
 
 ## Setup Instructions
 
-### 1. Clone the repository
+### 1. Install Required Tools
+
+Before doing anything else, install all required development tools using the following command:
+
+```bash
+# Install all required tools
+make install-tools
+```
+
+This will install:
+- Migrate CLI (for database migrations)
+- Air (for live reloading)
+- gocov and gocov-html (for test coverage reports)
+
+### 2. Clone the repository
 
 ```bash
 git clone https://github.com/yourusername/yourproject.git
@@ -58,7 +72,7 @@ cd yourproject
 cp .env.example .env
 ```
 
-### 2. Build and run the application using Docker
+### 3. Build and run the application using Docker
 
 You can use Docker Compose to set up both the app and the MySQL database:
 
@@ -72,7 +86,7 @@ This will:
 - Start a MySQL container.
 - Start the application container.
 
-### 3. Database Migrations
+### 4. Database Migrations
 
 To create a new migration file, use the following command:
 
@@ -110,44 +124,38 @@ migrate -path ./internal/database/migrations -database "mysql://root:root@tcp(12
 
 This will run the migration scripts and populate the database.
 
-### 4. Seeding the Database
+### 5. Seeding the Database
 
 To seed the database with initial data (e.g., default users, roles, permissions), run:
 
 ```bash
-docker-compose exec app go run cmd/seeder/seeder.go
+go run cmd/seeder/seeder.go
 ```
 
-### 5. Running the Server
+### 6. Running the Server
 
-There are two ways to run the server:
+The easiest way to run the server is using the provided make command:
 
-#### Using Air (Recommended for Development)
-
-[Air](https://github.com/air-verse/air) provides live-reloading capability which is great for development. To use it:
-
-1. Install Air:
 ```bash
-# binary will be $(go env GOPATH)/bin/air
-curl -sSfL https://raw.githubusercontent.com/air-verse/air/master/install.sh | sh -s -- -b $(go env GOPATH)/bin
-
-# or install it into ./bin/
-curl -sSfL https://raw.githubusercontent.com/air-verse/air/master/install.sh | sh -s
-
-air -v
+make start-server
 ```
 
-2. If the `air` command is not found after installation, add this to your `~/.bash_profile` or `~/.zshrc`:
-```bash
-export PATH=$PATH:$HOME/go/bin
-```
+This command will:
+1. Install required tools (if not already installed)
+2. Start Docker containers in detached mode
+3. Start the server with Air for live reloading
 
-3. Run the server with live-reloading:
+Alternatively, you can run the server in other ways:
+
+#### Using Air Directly
+
+[Air](https://github.com/air-verse/air) provides live-reloading capability which is great for development:
+
 ```bash
 air
 ```
 
-#### Direct Go Run (Alternative)
+#### Direct Go Run
 
 If you prefer to run the server directly without live-reloading:
 
@@ -157,7 +165,7 @@ go run cmd/server/main.go
 
 The server will start and be available at `http://localhost:3000`.
 
-### 6. phpmyadmin
+### 7. phpmyadmin
 
 PHPMyAdmin is available for database management through a web interface at:
 - URL: `http://localhost:8080`
@@ -201,13 +209,18 @@ Check the `docs/api_spec.md` for a detailed API specification.
 
 ## Testing
 
-Run unit tests with the following command:
+To install required testing tools and run tests with coverage report generation:
 
 ```bash
-go test ./...
+make test-coverage
 ```
 
-For specific tests, use:
+This command will:
+1. Install required tools (gocov and gocov-html) if not already installed
+2. Run all tests and generate coverage.json
+3. Generate an HTML coverage report at coverage.html
+
+For specific tests, you can still use:
 
 ```bash
 go test -v path/to/test

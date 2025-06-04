@@ -15,7 +15,7 @@ services:
     volumes:
       - './mysql/db/data:/var/lib/mysql'
     networks:
-      - network
+      - go-network
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}" ]
       retries: 3
@@ -28,7 +28,7 @@ services:
     volumes:
       - 'redis:/data'
     networks:
-      - network
+      - go-network
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       retries: 3
@@ -45,9 +45,9 @@ services:
       PMA_HOST: mysql
       MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
     networks:
-      - network
+      - go-network
 networks:
-  network:
+  go-network:
     driver: bridge
 volumes:
   mysql:
