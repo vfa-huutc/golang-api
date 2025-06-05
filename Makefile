@@ -53,8 +53,38 @@ watch-test: install-tools
 	@reflex -r '\.go$$' -s -- sh -c 'clear && gotestsum --format=short-verbose -- ./...'
 
 start-server: install-tools
+	@echo "Detecting platform and starting Docker..."
+
+	@if [ "$$(uname)" = "Darwin" ]; then \
+		if pgrep -f "OrbStack" > /dev/null; then \
+			echo "Opening OrbStack..."; \
+			open -a OrbStack || echo "Failed to open OrbStack"; \
+		else \
+			echo "Opening Docker Desktop..."; \
+			open -a Docker || echo "Failed to open Docker Desktop"; \
+		fi \
+	else \
+		echo "Running on Linux - ensure Docker is running..."; \
+	fi
+
+	@echo "Waiting for Docker to be ready..."
+	@until docker info > /dev/null 2>&1; do \
+		printf "."; \
+		sleep 1; \
+	done
+	@echo "\nDocker is ready."
+
 	@echo "Starting Docker containers (detached)..."
 	@docker-compose up -d
+
+	@echo "Waiting for MySQL to be ready..."
+	@until docker exec $$(docker ps -qf "name=mysql") \
+		mysqladmin ping -h"127.0.0.1" --silent; do \
+		printf "."; \
+		sleep 1; \
+	done
+	@echo "\nMySQL is ready."
+
 	@echo "Starting server with live-reload (air)..."
 	@air
 
@@ -62,3 +92,4 @@ start-seeder:
 	@echo "Seeding the database..."
 	go run ./cmd/seeder/seeder.go
 	@echo "Database seeding completed"
+	
