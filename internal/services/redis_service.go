@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 	"golang.org/x/net/context"
 )
@@ -47,11 +47,11 @@ func NewRedisService(client redis.Cmdable) *RedisService {
 //   - value: the value to store (can be any type that Redis supports)
 //
 // Returns:
-//   - error: nil if successful, otherwise contains the error message
+//   - *appError.AppError: nil if successful, otherwise contains the error message
 func (r *RedisService) Set(key string, value any, ttl time.Duration) error {
 	err := r.client.Set(r.ctx, key, value, ttl).Err()
 	if err != nil {
-		return errors.New(errors.ErrCacheSet, err.Error())
+		return apperror.NewCacheSetError(err.Error())
 	}
 	return nil
 }
@@ -69,9 +69,9 @@ func (r *RedisService) Get(key string) (string, error) {
 	if err == redis.Nil {
 		return "", nil
 	} else if err != nil {
-		return "", errors.New(errors.ErrCacheGet, err.Error())
+		return "", apperror.NewCacheGetError(err.Error())
 	}
-	return val, err
+	return val, nil
 }
 
 // Delete removes a key-value pair from Redis
@@ -83,7 +83,7 @@ func (r *RedisService) Get(key string) (string, error) {
 func (r *RedisService) Delete(key string) error {
 	err := r.client.Del(r.ctx, key).Err()
 	if err != nil {
-		return errors.New(errors.ErrCacheDelete, err.Error())
+		return apperror.NewCacheDeleteError(err.Error())
 	}
 	return nil
 }
@@ -98,7 +98,7 @@ func (r *RedisService) Delete(key string) error {
 func (r *RedisService) Exists(key string) (bool, error) {
 	count, err := r.client.Exists(r.ctx, key).Result()
 	if err != nil {
-		return false, errors.New(errors.ErrCacheExists, err.Error())
+		return false, apperror.NewCacheExistsError(err.Error())
 	}
 	return count > 0, nil
 }

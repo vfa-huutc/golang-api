@@ -8,7 +8,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 type IRoleHandler interface {
@@ -36,11 +36,10 @@ func (handler *RoleHandler) CreateRole(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
+		validateError := utils.TranslateValidationErrors(err, input)
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
+			validateError,
 		)
 		return
 	}
@@ -51,7 +50,7 @@ func (handler *RoleHandler) CreateRole(ctx *gin.Context) {
 	}
 
 	if err := handler.service.Create(&role); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -65,12 +64,8 @@ func (handler *RoleHandler) UpdateRole(ctx *gin.Context) {
 
 	// Bind JSON request body to input struct
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 
@@ -81,16 +76,15 @@ func (handler *RoleHandler) UpdateRole(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, err.Error()),
+			apperror.NewParseError("Invalid RoleID"),
 		)
 		return
 	}
 
 	// Get role from database by ID
-	role, err := handler.service.GetByID(int64(id))
-	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+	role, roleErr := handler.service.GetByID(int64(id))
+	if roleErr != nil {
+		utils.RespondWithError(ctx, roleErr)
 		return
 	}
 
@@ -99,7 +93,7 @@ func (handler *RoleHandler) UpdateRole(ctx *gin.Context) {
 
 	// Save updated role to database
 	if err := handler.service.Update(role); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -114,16 +108,15 @@ func (handler *RoleHandler) GetRole(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, err.Error()),
+			apperror.NewParseError("Invalid RoleID"),
 		)
 		return
 	}
 
 	// Get role from database by ID
-	role, err := handler.service.GetByID(int64(id))
-	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+	role, roleErr := handler.service.GetByID(int64(id))
+	if roleErr != nil {
+		utils.RespondWithError(ctx, roleErr)
 		return
 	}
 
@@ -138,14 +131,13 @@ func (handler *RoleHandler) DeleteRole(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, err.Error()),
+			apperror.NewParseError("Invalid RoleID"),
 		)
 		return
 	}
 	// Delete role from database
 	if err := handler.service.Delete(int64(id)); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 	utils.RespondWithOK(ctx, http.StatusOK, gin.H{"message": "Delete role successfully"})

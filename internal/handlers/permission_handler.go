@@ -24,7 +24,7 @@ func (handlder *PermissionHandler) GetAll(ctx *gin.Context) {
 	permissions, err := handlder.service.GetAll()
 
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 

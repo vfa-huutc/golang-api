@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 )
 
 type IAuthHandler interface {
@@ -31,10 +30,10 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&credentials); err != nil {
+		validateErr := utils.TranslateValidationErrors(err, credentials)
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			validateErr,
 		)
 		return
 	}
@@ -42,7 +41,7 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 	// login handler
 	res, err := handler.authService.Login(credentials.Email, credentials.Password, ctx)
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusUnauthorized, err)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -50,24 +49,24 @@ func (handler *AuthHandler) Login(ctx *gin.Context) {
 }
 
 func (handler *AuthHandler) RefreshToken(ctx *gin.Context) {
-	var token struct {
+	var input struct {
 		RefreshToken string `json:"refresh_token" binding:"required"`
 	}
 
 	// Bind JSON request body to token struct
-	if err := ctx.ShouldBindJSON(&token); err != nil {
+	if err := ctx.ShouldBindJSON(&input); err != nil {
+		validationErr := utils.TranslateValidationErrors(err, input)
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, err.Error()),
+			validationErr,
 		)
 		return
 	}
 
 	// Call auth service to refresh the token
-	res, err := handler.authService.RefreshToken(token.RefreshToken, ctx)
+	res, err := handler.authService.RefreshToken(input.RefreshToken, ctx)
 	if err != nil {
-		utils.RespondWithError(ctx, http.StatusUnauthorized, err)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 

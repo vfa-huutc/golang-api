@@ -13,7 +13,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 )
 
@@ -51,11 +51,7 @@ func (handler *UserHandler) PaginationUser(c *gin.Context) {
 	// Call the userService to get the paginated list of users
 	pagination, err := handler.userService.PaginateUser(page, limit)
 	if err != nil {
-		utils.RespondWithError(
-			c,
-			http.StatusInternalServerError,
-			err,
-		)
+		utils.RespondWithError(c, err)
 		return
 	}
 
@@ -71,17 +67,13 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 		Birthday *string `json:"birthday" binding:"required,valid_birthday"`         // Assumes birthday is valid format: YYYY-MM-DD
 		Address  *string `json:"address" binding:"required,min=1,max=255,not_blank"` // Address must be between 1-255 chars and not blank
 		Gender   int16   `json:"gender" binding:"required,oneof=1 2 3"`
-		RoleIds  []uint  `json:"role_ids" binding:"required"`
+		RoleIds  []uint  `json:"role_ids" binding:"required,min=1,dive,required"` // RoleIds must be a non-empty array of uints
 	}
 
 	// Bind and validate the JSON request body to the input struct
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 
@@ -89,9 +81,7 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrPasswordHashFailed, "Hash password failed"),
-		)
+			apperror.NewPasswordHashFailedError("Failed to hash password"))
 		return
 	}
 
@@ -109,7 +99,7 @@ func (handler *UserHandler) CreateUser(ctx *gin.Context) {
 	// Attempt to create the user in the database
 	// Return 400 Bad Request if creation fails
 	if err := handler.userService.CreateUser(&user, input.RoleIds); err != nil {
-		utils.RespondWithError(ctx, http.StatusBadRequest, err)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -122,23 +112,15 @@ func (handle *UserHandler) ForgotPassword(ctx *gin.Context) {
 	}
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 
 	// Get user by email from database
 	user, err := handle.userService.GetUserByEmail(input.Email)
 	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -153,21 +135,13 @@ func (handle *UserHandler) ForgotPassword(ctx *gin.Context) {
 
 	// Update user in database with new token
 	if err := handle.userService.UpdateUser(user); err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
 	// Send password reset email to user
 	if err := services.SendMailForgotPassword(user); err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 	logger.Info("Email sent successfully!")
@@ -183,43 +157,27 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 	}
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 
 	// Get user by token from database
 	user, err := handler.userService.GetUserByToken(input.Token)
 	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusNotFound,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
 	// Check if token is expired
 	if time.Now().Unix() > *user.ExpiredAt {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrTokenExpired, "Token expired"),
-		)
+		utils.RespondWithError(ctx, apperror.NewTokenExpiredError("Token is expired"))
 		return
 	}
 
 	// Check if new password is the same as old password
 	if isValid := handler.bcryptService.CheckPasswordHash(input.Password, user.Password); !isValid {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidPassword, "Password is incorrect"),
-		)
+		utils.RespondWithError(ctx, apperror.NewInvalidPasswordError("Old password is incorrect"))
 		return
 	}
 
@@ -227,11 +185,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 	// If hashing fails (returns empty string), return a 400 error
 	hashpassword, err := handler.bcryptService.HashPassword(input.Password)
 	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusInternalServerError,
-			errors.New(errors.ErrPasswordHashFailed, "Failed to hash password"),
-		)
+		utils.RespondWithError(ctx, apperror.NewPasswordHashFailedError("Failed to hash password"))
 		return
 	}
 
@@ -242,11 +196,7 @@ func (handler *UserHandler) ResetPassword(ctx *gin.Context) {
 
 	// Update user in database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -260,8 +210,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	if userId == 0 {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, "Invalid UserID"),
+			apperror.NewParseError("Invalid UserID"),
 		)
 		return
 	}
@@ -273,23 +222,15 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	}
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 
 	// Get user by ID from database
 	user, err := handler.userService.GetUser(uint(userId))
 	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -297,8 +238,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	if isValid := handler.bcryptService.CheckPasswordHash(input.OldPassword, user.Password); !isValid {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidPassword, "Old password is incorrect"),
+			apperror.NewInvalidPasswordError("Old password is incorrect"),
 		)
 		return
 	}
@@ -307,8 +247,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	if input.OldPassword == input.NewPassword {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrPasswordMismatch, "New password must be different from old password"),
+			apperror.NewPasswordMismatchError("New password must be different from old password"),
 		)
 		return
 	}
@@ -317,8 +256,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	if input.NewPassword != input.ConfirmPassword {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrPasswordMismatch, "New password and confirm password do not match"),
+			apperror.NewPasswordMismatchError("New password and confirm password do not match"),
 		)
 		return
 	}
@@ -327,11 +265,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 	// If hashing fails (returns empty string), return a 500 error
 	hashpassword, err := handler.bcryptService.HashPassword(input.NewPassword)
 	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusInternalServerError,
-			errors.New(errors.ErrPasswordHashFailed, "Hash password failed"),
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -340,11 +274,7 @@ func (handler *UserHandler) ChangePassword(ctx *gin.Context) {
 
 	// Update user in database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusInternalServerError,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -359,30 +289,21 @@ func (handler *UserHandler) DeleteUser(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, "Invalid UserID"),
+			apperror.NewParseError("Invalid UserID"),
 		)
 		return
 	}
 
 	// Get user from database
-	user, err := handler.userService.GetUser(uint(userId))
-	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusNotFound,
-			err,
-		)
+	user, userErr := handler.userService.GetUser(uint(userId))
+	if userErr != nil {
+		utils.RespondWithError(ctx, userErr)
 		return
 	}
 
 	// Delete user from database
 	if err := handler.userService.DeleteUser(uint(user.ID)); err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusInternalServerError,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -396,8 +317,7 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, err.Error()),
+			apperror.NewParseError("Invalid UserID"),
 		)
 
 		return
@@ -412,24 +332,16 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 	}
 
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 
 	// Get existing user from database
-	user, err := handler.userService.GetUser(uint(userId))
+	user, userErr := handler.userService.GetUser(uint(userId))
 	// Return error if user not found
-	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusNotFound,
-			err,
-		)
+	if userErr != nil {
+		utils.RespondWithError(ctx, userErr)
 		return
 	}
 
@@ -449,11 +361,7 @@ func (handler *UserHandler) UpdateUser(ctx *gin.Context) {
 
 	// Save updated user to database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -467,20 +375,15 @@ func (handler *UserHandler) GetUser(ctx *gin.Context) {
 	if err != nil {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, err.Error()),
+			apperror.NewParseError("Invalid UserID"),
 		)
 		return
 	}
 
 	// Get user from database
-	user, err := handler.userService.GetUser(uint(userId))
-	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusNotFound,
-			err,
-		)
+	user, userErr := handler.userService.GetUser(uint(userId))
+	if userErr != nil {
+		utils.RespondWithError(ctx, userErr)
 		return
 	}
 
@@ -493,8 +396,7 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 	if userId == 0 {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, "Invalid UserID"),
+			apperror.NewParseError("Invalid UserID"),
 		)
 		return
 	}
@@ -512,11 +414,7 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 		logger.Info("User retrieved from DB")
 		dbUser, err := handler.userService.GetProfile(userId)
 		if err != nil {
-			utils.RespondWithError(
-				ctx,
-				http.StatusBadRequest,
-				err,
-			)
+			utils.RespondWithError(ctx, err)
 			return
 		}
 		user = *dbUser
@@ -531,8 +429,7 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 			logger.Warnf("Failed to unmarshal user from Redis: %v", err)
 			utils.RespondWithError(
 				ctx,
-				http.StatusInternalServerError,
-				errors.New(errors.ErrParseError, "Failed to parse user data from cache"),
+				apperror.NewParseError("Invalid user data in cache"),
 			)
 			return
 		}
@@ -571,8 +468,7 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 	if userId == 0 {
 		utils.RespondWithError(
 			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrParseError, "Invalid UserID"),
+			apperror.NewParseError("Invalid UserID"),
 		)
 		return
 	}
@@ -587,12 +483,8 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	// Bind and validate JSON request body
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 
@@ -601,11 +493,7 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	// Return error if user not found
 	if err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 
@@ -625,11 +513,7 @@ func (handler *UserHandler) UpdateProfile(ctx *gin.Context) {
 
 	// Save updated user to database
 	if err := handler.userService.UpdateUser(user); err != nil {
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			err,
-		)
+		utils.RespondWithError(ctx, err)
 		return
 	}
 	// Clear cache

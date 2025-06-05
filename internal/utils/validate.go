@@ -3,11 +3,13 @@ package utils
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 // InitValidator initializes the validator engine and registers custom validation rules.
@@ -45,97 +47,179 @@ func ValidateBirthday(fl validator.FieldLevel) bool {
 	return true // Valid birthday
 }
 
-func TranslateValidationErrors(err error) error {
+// TranslateValidationErrors converts validation errors from the validator package
+// into a structured ValidationError that can be returned in API responses.
+func TranslateValidationErrors(err error, obj any) *apperror.ValidationError {
 	var ve validator.ValidationErrors
-	if errors.As(err, &ve) {
-		// Get the first validation error
-		fe := ve[0]
+	if !errors.As(err, &ve) {
+		return &apperror.ValidationError{
+			Code:    apperror.ErrValidationFailed,
+			Message: err.Error(),
+			Fields:  []apperror.FieldError{},
+		}
+	}
 
-		field := strings.ToLower(fe.Field())
+	var fieldErrors []apperror.FieldError
+
+	// Reflect type for JSON tag lookup
+	objType := reflect.TypeOf(obj)
+	if objType.Kind() == reflect.Ptr {
+		objType = objType.Elem()
+	}
+
+	for _, fe := range ve {
+		ns := fe.StructNamespace() // e.g. "Settings[0].Value"
+		parts := strings.Split(ns, ".")
+
+		jsonParts := []string{}
+		currType := objType
+
+		for i, part := range parts {
+			fieldName := part
+			indexSuffix := ""
+
+			// Handle slice index, e.g. Settings[0]
+			if idx := strings.Index(part, "["); idx != -1 {
+				fieldName = part[:idx]
+				indexSuffix = part[idx:]
+			}
+
+			field, found := currType.FieldByName(fieldName)
+			if !found {
+				// Join the rest with dots and append
+				jsonParts = append(jsonParts, strings.Join(parts[i:], "."))
+				break
+			}
+
+			jsonTag := field.Tag.Get("json")
+			jsonName := strings.Split(jsonTag, ",")[0]
+			if jsonName == "" || jsonName == "-" {
+				jsonName = fieldName
+			}
+
+			jsonParts = append(jsonParts, jsonName+indexSuffix)
+
+			currType = field.Type
+			// Dereference pointers
+			for currType.Kind() == reflect.Ptr {
+				currType = currType.Elem()
+			}
+			// If slice or array, go to element type
+			if currType.Kind() == reflect.Slice || currType.Kind() == reflect.Array {
+				currType = currType.Elem()
+			}
+		}
+
+		fieldName := strings.Join(jsonParts, ".")
+
 		param := fe.Param()
 		var msg string
 
 		switch fe.Tag() {
 		case "required":
-			msg = fmt.Sprintf("%s is required", field)
+			msg = fmt.Sprintf("%s is required", fieldName)
 		case "email":
-			msg = fmt.Sprintf("%s must be a valid email address", field)
+			msg = fmt.Sprintf("%s must be a valid email address", fieldName)
 		case "url":
-			msg = fmt.Sprintf("%s must be a valid URL", field)
+			msg = fmt.Sprintf("%s must be a valid URL", fieldName)
 		case "uuid":
-			msg = fmt.Sprintf("%s must be a valid UUID", field)
+			msg = fmt.Sprintf("%s must be a valid UUID", fieldName)
 		case "len":
-			msg = fmt.Sprintf("%s must be exactly %s characters long", field, param)
+			msg = fmt.Sprintf("%s must be exactly %s characters long", fieldName, param)
 		case "min":
-			msg = fmt.Sprintf("%s must be at least %s characters long or numeric", field, param)
+			msg = fmt.Sprintf("%s must be at least %s characters long or numeric", fieldName, param)
 		case "max":
-			msg = fmt.Sprintf("%s must be at most %s characters long or numeric", field, param)
+			msg = fmt.Sprintf("%s must be at most %s characters long or numeric", fieldName, param)
 		case "eq":
-			msg = fmt.Sprintf("%s must be equal to %s", field, param)
+			msg = fmt.Sprintf("%s must be equal to %s", fieldName, param)
 		case "ne":
-			msg = fmt.Sprintf("%s must not be equal to %s", field, param)
+			msg = fmt.Sprintf("%s must not be equal to %s", fieldName, param)
 		case "lt":
-			msg = fmt.Sprintf("%s must be less than %s", field, param)
+			msg = fmt.Sprintf("%s must be less than %s", fieldName, param)
 		case "lte":
-			msg = fmt.Sprintf("%s must be less than or equal to %s", field, param)
+			msg = fmt.Sprintf("%s must be less than or equal to %s", fieldName, param)
 		case "gt":
-			msg = fmt.Sprintf("%s must be greater than %s", field, param)
+			msg = fmt.Sprintf("%s must be greater than %s", fieldName, param)
 		case "gte":
-			msg = fmt.Sprintf("%s must be greater than or equal to %s", field, param)
+			msg = fmt.Sprintf("%s must be greater than or equal to %s", fieldName, param)
 		case "oneof":
-			msg = fmt.Sprintf("%s must be one of [%s]", field, param)
+			msg = fmt.Sprintf("%s must be one of [%s]", fieldName, param)
 		case "contains":
-			msg = fmt.Sprintf("%s must contain '%s'", field, param)
+			msg = fmt.Sprintf("%s must contain '%s'", fieldName, param)
 		case "excludes":
-			msg = fmt.Sprintf("%s must not contain '%s'", field, param)
+			msg = fmt.Sprintf("%s must not contain '%s'", fieldName, param)
 		case "startswith":
-			msg = fmt.Sprintf("%s must start with '%s'", field, param)
+			msg = fmt.Sprintf("%s must start with '%s'", fieldName, param)
 		case "endswith":
-			msg = fmt.Sprintf("%s must end with '%s'", field, param)
+			msg = fmt.Sprintf("%s must end with '%s'", fieldName, param)
 		case "ip":
-			msg = fmt.Sprintf("%s must be a valid IP address", field)
+			msg = fmt.Sprintf("%s must be a valid IP address", fieldName)
 		case "ipv4":
-			msg = fmt.Sprintf("%s must be a valid IPv4 address", field)
+			msg = fmt.Sprintf("%s must be a valid IPv4 address", fieldName)
 		case "ipv6":
-			msg = fmt.Sprintf("%s must be a valid IPv6 address", field)
+			msg = fmt.Sprintf("%s must be a valid IPv6 address", fieldName)
 		case "datetime":
-			msg = fmt.Sprintf("%s must be a valid datetime (format: %s)", field, param)
+			msg = fmt.Sprintf("%s must be a valid datetime (format: %s)", fieldName, param)
 		case "numeric":
-			msg = fmt.Sprintf("%s must be a numeric value", field)
+			msg = fmt.Sprintf("%s must be a numeric value", fieldName)
 		case "boolean":
-			msg = fmt.Sprintf("%s must be a boolean value", field)
+			msg = fmt.Sprintf("%s must be a boolean value", fieldName)
 		case "alpha":
-			msg = fmt.Sprintf("%s must contain only letters", field)
+			msg = fmt.Sprintf("%s must contain only letters", fieldName)
 		case "alphanum":
-			msg = fmt.Sprintf("%s must contain only letters and numbers", field)
+			msg = fmt.Sprintf("%s must contain only letters and numbers", fieldName)
 		case "alphanumunicode":
-			msg = fmt.Sprintf("%s must contain only unicode letters and numbers", field)
+			msg = fmt.Sprintf("%s must contain only unicode letters and numbers", fieldName)
 		case "ascii":
-			msg = fmt.Sprintf("%s must contain only ASCII characters", field)
+			msg = fmt.Sprintf("%s must contain only ASCII characters", fieldName)
 		case "printascii":
-			msg = fmt.Sprintf("%s must contain only printable ASCII characters", field)
+			msg = fmt.Sprintf("%s must contain only printable ASCII characters", fieldName)
 		case "base64":
-			msg = fmt.Sprintf("%s must be a valid base64 string", field)
+			msg = fmt.Sprintf("%s must be a valid base64 string", fieldName)
 		case "containsany":
-			msg = fmt.Sprintf("%s must contain at least one of the characters in '%s'", field, param)
+			msg = fmt.Sprintf("%s must contain at least one of the characters in '%s'", fieldName, param)
 		case "excludesall":
-			msg = fmt.Sprintf("%s must not contain any of the characters in '%s'", field, param)
+			msg = fmt.Sprintf("%s must not contain any of the characters in '%s'", fieldName, param)
 		case "excludesrune":
-			msg = fmt.Sprintf("%s must not contain the rune '%s'", field, param)
+			msg = fmt.Sprintf("%s must not contain the rune '%s'", fieldName, param)
 		case "isdefault":
-			msg = fmt.Sprintf("%s must be the default value", field)
+			msg = fmt.Sprintf("%s must be the default value", fieldName)
 		case "unique":
-			msg = fmt.Sprintf("%s must contain unique values", field)
+			msg = fmt.Sprintf("%s must contain unique values", fieldName)
 		case "valid_birthday":
-			msg = fmt.Sprintf("%s must be a valid date (YYYY-MM-DD) and not in the future", field)
+			msg = fmt.Sprintf("%s must be a valid date (YYYY-MM-DD) and not in the future", fieldName)
 		case "not_blank":
-			msg = fmt.Sprintf("%s must not be blank", field)
-
+			msg = fmt.Sprintf("%s must not be blank", fieldName)
 		default:
-			msg = fmt.Sprintf("%s is invalid", field)
+			msg = fmt.Sprintf("%s is invalid", fieldName)
 		}
 
-		return errors.New(msg)
+		fieldErrors = append(fieldErrors, apperror.FieldError{
+			Field:   fieldName,
+			Message: msg,
+		})
 	}
-	return err
+
+	return apperror.NewValidationError("Validation failed", fieldErrors)
+}
+
+// The utility function to map JSON errors to FieldError structs.
+func MapJsonToFieldErrors(json any) []apperror.FieldError {
+	var fieldErrors []apperror.FieldError
+
+	if items, ok := json.([]any); ok {
+		for _, item := range items {
+			if fieldMap, ok := item.(map[string]any); ok {
+				field, _ := fieldMap["field"].(string)
+				message, _ := fieldMap["message"].(string)
+
+				fieldErrors = append(fieldErrors, apperror.FieldError{
+					Field:   field,
+					Message: message,
+				})
+			}
+		}
+	}
+
+	return fieldErrors
 }

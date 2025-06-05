@@ -1,13 +1,12 @@
 package middlewares
 
 import (
-	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 // AuthMiddleware is a Gin middleware function that handles JWT authentication
@@ -23,14 +22,14 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, "Authorization header required"))
+			utils.RespondWithError(ctx, apperror.NewUnauthorizedError("Authorization header required"))
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
 		claims, err := jwtService.ValidateToken(tokenString)
 		if err != nil {
-			utils.RespondWithError(ctx, http.StatusUnauthorized, errors.New(errors.ErrUnauthorized, "Unauthorized"))
+			utils.RespondWithError(ctx, apperror.NewUnauthorizedError("Unauthorized"))
 		}
 
 		ctx.Set("UserID", claims.ID)

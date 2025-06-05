@@ -5,267 +5,475 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
 )
 
 func TestCreateRole(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	// Test cases
-	testCases := []struct {
-		name           string
-		requestBody    map[string]interface{}
-		mockSetup      func(*mocks.MockRoleService)
-		expectedStatus int
-		expectedBody   map[string]interface{}
-	}{
-		{
-			name: "Success - Role Created",
-			requestBody: map[string]interface{}{
-				"name":         "admin",
-				"display_name": "Administrator",
-			},
-			mockSetup: func(mrs *mocks.MockRoleService) {
-				mrs.On("Create", mock.AnythingOfType("*models.Role")).Return(nil)
-			},
-			expectedStatus: http.StatusCreated,
-			expectedBody: map[string]interface{}{
-				"message": "Create new role successfully",
-			},
-		},
-		{
-			name: "Fail - Invalid Request Body",
-			requestBody: map[string]interface{}{
-				"name":         "ad", // too short, less than min:3
-				"display_name": "Administrator",
-			},
-			mockSetup: func(mrs *mocks.MockRoleService) {
-				// No mock setup needed as validation should fail
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedBody: map[string]interface{}{
-				"code":    float64(errors.ErrInvalidData),
-				"message": mock.Anything, // We don't test the exact message
-			},
-		},
-		{
-			name: "Fail - Service Error",
-			requestBody: map[string]interface{}{
-				"name":         "admin",
-				"display_name": "Administrator",
-			},
-			mockSetup: func(mrs *mocks.MockRoleService) {
-				mrs.On("Create", mock.AnythingOfType("*models.Role")).Return(
-					errors.New(errors.ErrDBInsert, "Database error"),
-				)
-			},
-			expectedStatus: http.StatusBadRequest,
-			expectedBody: map[string]interface{}{
-				"code":    float64(errors.ErrDBInsert),
-				"message": "Database error",
-			},
-		},
+	var requestBody = map[string]any{
+		"name":         "admin",
+		"display_name": "Administrator",
+	}
+	role := models.Role{
+		Name:        "admin",
+		DisplayName: "Administrator",
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			// Setup mock
-			mockService := new(mocks.MockRoleService)
-			if tc.mockSetup != nil {
-				tc.mockSetup(mockService)
-			}
+	t.Run("CreateRole - Success", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
-			// Create handler with mock service
-			handler := handlers.NewRoleHandler(mockService)
+		jsonValue, _ := json.Marshal(requestBody)
+		// Mock service methods
+		mockService.On("Create", &role).Return(nil)
 
-			// Create a response recorder
-			w := httptest.NewRecorder()
+		// Create a test context
+		w := httptest.NewRecorder()
+		req, _ := http.NewRequest("POST", "/api/v1/roles", bytes.NewBuffer(jsonValue))
+		c, _ := gin.CreateTestContext(w)
+		c.Request = req
 
-			// Create a request
-			jsonValue, _ := json.Marshal(tc.requestBody)
-			req, _ := http.NewRequest("POST", "/api/v1/roles", bytes.NewBuffer(jsonValue))
-			req.Header.Set("Content-Type", "application/json")
+		// Call the handler function
+		handler.CreateRole(c)
 
-			// Create a Gin context
-			c, _ := gin.CreateTestContext(w)
-			c.Request = req
+		// Assert the response status code and body
+		assert.Equal(t, http.StatusCreated, w.Code)
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, "Create new role successfully", response["message"])
 
-			// Call the handler function
-			handler.CreateRole(c)
+		// Assert mocks
+		mockService.AssertExpectations(t)
+	})
 
-			// Assert status code
-			assert.Equal(t, tc.expectedStatus, w.Code)
+	t.Run("CreateRole - Failed To Create", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
-			// Parse response body
-			var response map[string]interface{}
-			err := json.Unmarshal(w.Body.Bytes(), &response)
-			assert.NoError(t, err)
+		// Mock service methods
+		mockService.On("Create", &role).Return(apperror.NewDBInsertError("Database error"))
 
-			// Check if response matches expected structure and values
-			if tc.expectedStatus == http.StatusCreated {
-				// For success case
-				assert.Equal(t, tc.expectedBody["message"], response["message"])
-			} else {
-				// For error case
-				assert.Equal(t, tc.expectedBody["code"], response["code"])
-				// If we care about the exact message
-				if tc.expectedBody["message"] != mock.Anything {
-					assert.Equal(t, tc.expectedBody["message"], response["message"])
-				}
-			}
+		// Create a test context
+		w := httptest.NewRecorder()
+		jsonValue, _ := json.Marshal(requestBody)
+		req, _ := http.NewRequest("POST", "/api/v1/roles", bytes.NewBuffer(jsonValue))
+		c, _ := gin.CreateTestContext(w)
+		c.Request = req
 
-			// Verify that all expected mock interactions occurred
-			mockService.AssertExpectations(t)
-		})
-	}
+		// Call the handler function
+		handler.CreateRole(c)
+
+		// Assert the response status code and body
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, float64(apperror.ErrDBInsert), response["code"])
+		assert.Equal(t, "Database error", response["message"])
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
+
+	})
+
+	t.Run("CreateRole Validation Error", func(t *testing.T) {
+		tests := []struct {
+			name           string
+			reqBody        string
+			expectedCode   float64
+			expectedMsg    string
+			expectedFields []apperror.FieldError
+		}{
+			{
+				name:         "NameRequired",
+				reqBody:      `{"display_name": "Administrator"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "name", Message: "name is required"},
+				},
+			},
+			{
+				name:         "NameTooShort",
+				reqBody:      `{"name": "ad", "display_name": "Administrator"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "name", Message: "name must be at least 3 characters long or numeric"},
+				},
+			},
+			{
+				name:         "NameTooLong",
+				reqBody:      `{"name": "` + strings.Repeat("a", 256) + `", "display_name": "Administrator"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "name", Message: "name must be at most 255 characters long or numeric"},
+				},
+			},
+			{
+				name:         "DisplayNameRequired",
+				reqBody:      `{"name": "admin"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "display_name", Message: "display_name is required"},
+				},
+			},
+			{
+				name:         "DisplayNameTooShort",
+				reqBody:      `{"name": "admin", "display_name": "Ad"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "display_name", Message: "display_name must be at least 3 characters long or numeric"},
+				},
+			},
+			{
+				name:         "DisplayNameTooLong",
+				reqBody:      `{"name": "admin", "display_name": "` + strings.Repeat("a", 256) + `"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "display_name", Message: "display_name must be at most 255 characters long or numeric"},
+				},
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				mockService := new(mocks.MockRoleService)
+				handler := handlers.NewRoleHandler(mockService)
+
+				// Create a test context
+				w := httptest.NewRecorder()
+				c, _ := gin.CreateTestContext(w)
+				req, _ := http.NewRequest("POST", "/api/v1/roles", bytes.NewBufferString(tt.reqBody))
+				req.Header.Set("Content-Type", "application/json")
+				c.Request = req
+
+				// Call the handler function
+				handler.CreateRole(c)
+
+				// Assert the response status code and body
+				var response map[string]any
+				json.Unmarshal(w.Body.Bytes(), &response)
+				assert.Equal(t, http.StatusBadRequest, w.Code)
+				assert.Equal(t, tt.expectedCode, response["code"])
+				assert.Equal(t, tt.expectedMsg, response["message"])
+				assert.Equal(t, tt.expectedFields, utils.MapJsonToFieldErrors(response["fields"]))
+
+				// Assert mocks
+				mockService.AssertExpectations(t)
+			})
+		}
+	})
+
 }
 
 func TestUpdateRole(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	testCases := []struct {
-		name           string
-		paramID        string
-		requestBody    map[string]interface{}
-		mockSetup      func(*mocks.MockRoleService)
-		expectedStatus int
-	}{
-		{
-			name:    "Success - Role Updated",
-			paramID: "1",
-			requestBody: map[string]interface{}{
-				"display_name": "New Name",
-			},
-			mockSetup: func(m *mocks.MockRoleService) {
-				m.On("GetByID", int64(1)).Return(&models.Role{ID: 1, Name: "admin"}, nil)
-				m.On("Update", mock.AnythingOfType("*models.Role")).Return(nil)
-			},
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name:    "Fail - Invalid ID",
-			paramID: "abc",
-			requestBody: map[string]interface{}{
-				"display_name": "New Name",
-			},
-			mockSetup:      nil,
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name:    "Fail - Validation Error",
-			paramID: "1",
-			requestBody: map[string]interface{}{
-				"display_name": "x", // too short
-			},
-			mockSetup:      nil,
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name:    "Fail - GetByID Error",
-			paramID: "1",
-			requestBody: map[string]interface{}{
-				"display_name": "Valid Name",
-			},
-			mockSetup: func(m *mocks.MockRoleService) {
-				m.On("GetByID", int64(1)).Return(nil, errors.New(errors.ErrNotFound, "not found"))
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name:    "Fail - Update Error",
-			paramID: "1",
-			requestBody: map[string]interface{}{
-				"display_name": "Valid Name",
-			},
-			mockSetup: func(m *mocks.MockRoleService) {
-				m.On("GetByID", int64(1)).Return(&models.Role{ID: 1}, nil)
-				m.On("Update", mock.AnythingOfType("*models.Role")).Return(errors.New(errors.ErrDBUpdate, "update error"))
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
+	var requestBody = map[string]any{
+		"display_name": "Super Administrator",
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			mockService := new(mocks.MockRoleService)
-			if tc.mockSetup != nil {
-				tc.mockSetup(mockService)
-			}
+	t.Run("UpdateRole Success", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
-			handler := handlers.NewRoleHandler(mockService)
-			w := httptest.NewRecorder()
+		role := models.Role{
+			ID:          1,
+			Name:        "admin",
+			DisplayName: "Administrator",
+		}
 
-			jsonValue, _ := json.Marshal(tc.requestBody)
-			req, _ := http.NewRequest("PUT", "/api/v1/roles/"+tc.paramID, bytes.NewBuffer(jsonValue))
-			req.Header.Set("Content-Type", "application/json")
+		// Mock service method
+		mockService.On("GetByID", int64(1)).Return(&role, nil)
+		mockService.On("Update", &role).Return(nil)
 
-			c, _ := gin.CreateTestContext(w)
-			c.Params = gin.Params{{Key: "id", Value: tc.paramID}}
-			c.Request = req
+		jsonValue, _ := json.Marshal(requestBody)
 
-			handler.UpdateRole(c)
-			assert.Equal(t, tc.expectedStatus, w.Code)
-			mockService.AssertExpectations(t)
-		})
-	}
+		// Create a test context
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		req, _ := http.NewRequest("PUT", "/api/v1/roles/1", bytes.NewBuffer(jsonValue))
+		req.Header.Set("Content-Type", "application/json")
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+		c.Request = req
+
+		// Call the handler function
+		handler.UpdateRole(c)
+
+		// Assert the response status code and body
+		assert.Equal(t, http.StatusOK, w.Code)
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, "Update role successfully", response["message"])
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("UpdateRole Error - GetByID Error", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
+
+		// Mock service method
+		mockService.On("GetByID", int64(2)).Return(nil, apperror.NewNotFoundError("Role not found"))
+
+		// Create a test context
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		jsonValue, _ := json.Marshal(requestBody)
+		c.Request, _ = http.NewRequest("PUT", "/api/v1/roles/:id", bytes.NewBuffer(jsonValue))
+		c.Params = gin.Params{{Key: "id", Value: "2"}}
+
+		// Call the handler function
+		handler.UpdateRole(c)
+
+		// Assert the response status code and body
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, http.StatusNotFound, w.Code)
+		assert.Equal(t, float64(apperror.ErrNotFound), response["code"])
+		assert.Equal(t, "Role not found", response["message"])
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("Parse params error", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
+
+		jsonValue, _ := json.Marshal(requestBody)
+
+		// Create a test context
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("PUT", "/api/v1/roles/:id", bytes.NewBuffer(jsonValue))
+		c.Params = gin.Params{{Key: "id", Value: "abc"}}
+
+		// Call the handler function
+		handler.UpdateRole(c)
+
+		// Assert the response status code and body
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, float64(apperror.ErrParseError), response["code"])
+		assert.Equal(t, "Invalid RoleID", response["message"])
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("UpdateRole - Update Error", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
+
+		role := models.Role{
+			ID:          1,
+			Name:        "admin",
+			DisplayName: "Administrator",
+		}
+		// Mock service method
+		mockService.On("GetByID", int64(1)).Return(&role, nil)
+		mockService.On("Update", &role).Return(apperror.NewDBUpdateError("Database error"))
+
+		// Create a test context
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		jsonValue, _ := json.Marshal(requestBody)
+
+		c.Request, _ = http.NewRequest("PUT", "/api/v1/roles/:id", bytes.NewBuffer(jsonValue))
+		c.Params = gin.Params{{Key: "id", Value: "1"}}
+
+		// Call the handler function
+		handler.UpdateRole(c)
+
+		// Assert the response status code and body
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, float64(apperror.ErrDBUpdate), response["code"])
+		assert.Equal(t, "Database error", response["message"])
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
+	})
+
+	t.Run("UpdateRole - Validation Error", func(t *testing.T) {
+		tests := []struct {
+			name           string
+			reqBody        string
+			expectedCode   float64
+			expectedMsg    string
+			expectedFields []apperror.FieldError
+		}{
+			{
+				name:         "DisplayNameRequired",
+				reqBody:      `{}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "display_name", Message: "display_name is required"},
+				},
+			},
+			{
+				name:         "DisplayNameTooShort",
+				reqBody:      `{"display_name": "Ad"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "display_name", Message: "display_name must be at least 3 characters long or numeric"},
+				},
+			},
+			{
+				name:         "DisplayNameTooLong",
+				reqBody:      `{"display_name": "` + strings.Repeat("a", 256) + `"}`,
+				expectedCode: float64(apperror.ErrValidationFailed),
+				expectedMsg:  "Validation failed",
+				expectedFields: []apperror.FieldError{
+					{Field: "display_name", Message: "display_name must be at most 255 characters long or numeric"},
+				},
+			},
+		}
+
+		for _, tt := range tests {
+			t.Run(tt.name, func(t *testing.T) {
+				mockService := new(mocks.MockRoleService)
+				handler := handlers.NewRoleHandler(mockService)
+
+				// Create a test context
+				w := httptest.NewRecorder()
+				c, _ := gin.CreateTestContext(w)
+				c.Request, _ = http.NewRequest("PUT", "/api/v1/roles/:id", bytes.NewBufferString(tt.reqBody))
+				c.Request.Header.Set("Content-Type", "application/json")
+				c.Params = gin.Params{{Key: "id", Value: "1"}}
+
+				// Call the handler function
+				handler.UpdateRole(c)
+
+				// Assert the response status code and body
+				var response map[string]any
+				json.Unmarshal(w.Body.Bytes(), &response)
+
+				assert.Equal(t, http.StatusBadRequest, w.Code)
+				assert.Equal(t, tt.expectedCode, response["code"])
+				assert.Equal(t, tt.expectedMsg, response["message"])
+				assert.Equal(t, tt.expectedFields, utils.MapJsonToFieldErrors(response["fields"]))
+
+				// Assert mocks
+				mockService.AssertExpectations(t)
+			})
+		}
+	})
+
 }
 
 func TestGetRole(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockService := new(mocks.MockRoleService)
-	handler := handlers.NewRoleHandler(mockService)
+	t.Run("GetRole - Success", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
-	t.Run("Success - Get Role", func(t *testing.T) {
-		mockService.On("GetByID", int64(1)).Return(&models.Role{ID: 1, Name: "admin"}, nil)
+		role := &models.Role{
+			ID:          1,
+			Name:        "admin",
+			DisplayName: "Administrator",
+			CreatedAt:   time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
+			UpdatedAt:   time.Date(2023, 10, 2, 0, 0, 0, 0, time.UTC),
+		}
+		// Mock the service method
+		mockService.On("GetByID", int64(1)).Return(role, nil)
 
+		// Create a test context
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("GET", "/api/v1/roles/1", nil)
-
 		c, _ := gin.CreateTestContext(w)
 		c.Params = gin.Params{{Key: "id", Value: "1"}}
-		c.Request = req
+		c.Request, _ = http.NewRequest("GET", "/api/v1/roles/:id", nil)
 
+		// Call the handler function
 		handler.GetRole(c)
 
+		// Assert the response status code and body
+		assert.JSONEq(t, `{
+		"id": 1,
+		"name": "admin",
+		"displayName": "Administrator",
+		"createdAt": "2023-10-01T00:00:00Z",
+		"updatedAt": "2023-10-02T00:00:00Z",
+		"deletedAt": null
+	}`, w.Body.String())
+
 		assert.Equal(t, http.StatusOK, w.Code)
+
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Fail - Invalid ID", func(t *testing.T) {
-		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("GET", "/api/v1/roles/abc", nil)
+	t.Run("GetRole - Error Invalid ID", func(t *testing.T) {
+		// Mock service method
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
+		// Create a test context
+		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Params = gin.Params{{Key: "id", Value: "abc"}}
-		c.Request = req
+		c.Request, _ = http.NewRequest("GET", "/api/v1/roles/:id", nil)
 
+		// Call the handler function
 		handler.GetRole(c)
 
+		// Assert the response status code and body
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, float64(apperror.ErrParseError), response["code"])
+		assert.Equal(t, "Invalid RoleID", response["message"])
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Fail - Service Error", func(t *testing.T) {
-		mockService.On("GetByID", int64(2)).Return(nil, errors.New(errors.ErrNotFound, "not found"))
+	t.Run("GetRole - Error GetByID NotFound", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
+		// Mock service methods
+		mockService.On("GetByID", int64(2)).Return(nil, apperror.NewNotFoundError("Role not found"))
+
+		// Create a test context
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("GET", "/api/v1/roles/2", nil)
-
 		c, _ := gin.CreateTestContext(w)
 		c.Params = gin.Params{{Key: "id", Value: "2"}}
-		c.Request = req
+		c.Request, _ = http.NewRequest("GET", "/api/v1/roles/:id", nil)
 
+		// Call the handler function
 		handler.GetRole(c)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		// Assert the response status code and body
+		assert.Equal(t, http.StatusNotFound, w.Code)
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, float64(apperror.ErrNotFound), response["code"])
+
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 }
@@ -273,51 +481,81 @@ func TestGetRole(t *testing.T) {
 func TestDeleteRole(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	mockService := new(mocks.MockRoleService)
-	handler := handlers.NewRoleHandler(mockService)
+	t.Run("DeleteRole - Success", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
-	t.Run("Success - Delete Role", func(t *testing.T) {
+		// Mock service method
 		mockService.On("Delete", int64(1)).Return(nil)
 
+		// Create a test context
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("DELETE", "/api/v1/roles/1", nil)
-
 		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("DELETE", "/api/v1/roles/:id", nil)
 		c.Params = gin.Params{{Key: "id", Value: "1"}}
-		c.Request = req
 
+		// Call the handler function
 		handler.DeleteRole(c)
 
+		// Assert the response
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
 		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, "Delete role successfully", response["message"])
+
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Fail - Invalid ID", func(t *testing.T) {
+	t.Run("DeleteRole - Error Invalid ID", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
+
+		// Create a test context
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("DELETE", "/api/v1/roles/abc", nil)
-
 		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("DELETE", "/api/v1/roles/:id", nil)
 		c.Params = gin.Params{{Key: "id", Value: "abc"}}
-		c.Request = req
 
+		// Call the handler function
 		handler.DeleteRole(c)
 
+		// Assert the response
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, float64(apperror.ErrParseError), response["code"])
+		assert.Equal(t, "Invalid RoleID", response["message"])
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Fail - Service Error", func(t *testing.T) {
-		mockService.On("Delete", int64(2)).Return(errors.New(errors.ErrNotFound, "not found"))
+	t.Run("DeleteRole - Error Delete", func(t *testing.T) {
+		mockService := new(mocks.MockRoleService)
+		handler := handlers.NewRoleHandler(mockService)
 
+		err := apperror.NewDBDeleteError("Database error")
+		// Mock service method
+		mockService.On("Delete", int64(2)).Return(err)
+
+		// Create a test context
 		w := httptest.NewRecorder()
-		req, _ := http.NewRequest("DELETE", "/api/v1/roles/2", nil)
-
 		c, _ := gin.CreateTestContext(w)
+		c.Request, _ = http.NewRequest("DELETE", "/api/v1/roles/:id", nil)
 		c.Params = gin.Params{{Key: "id", Value: "2"}}
-		c.Request = req
 
+		// Call the handler function
 		handler.DeleteRole(c)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
+		// Assert the response
+		var response map[string]any
+		json.Unmarshal(w.Body.Bytes(), &response)
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, float64(apperror.ErrDBDelete), response["code"])
+		assert.Equal(t, "Database error", response["message"])
+
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 }

@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 type IRoleService interface {
@@ -29,11 +29,11 @@ func NewRoleService(repo repositories.IRoleRepository) *RoleService {
 //
 // Returns:
 //   - *models.Role: The role object if found
-//   - error: Any error that occurred during the operation
+//   - *appError.AppError: Any error that occurred during the operation
 func (service *RoleService) GetByID(id int64) (*models.Role, error) {
 	data, err := service.repo.GetByID(id)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBQuery, err.Error())
+		return nil, apperror.NewNotFoundError(err.Error())
 	}
 	return data, nil
 }
@@ -43,11 +43,11 @@ func (service *RoleService) GetByID(id int64) (*models.Role, error) {
 //   - role: The role object to be created
 //
 // Returns:
-//   - error: Any error that occurred during the operation
+//   - *appError.AppError: Any error that occurred during the operation
 func (service *RoleService) Create(role *models.Role) error {
 	err := service.repo.Create(role)
 	if err != nil {
-		return errors.New(errors.ErrDBInsert, err.Error())
+		return apperror.NewDBInsertError(err.Error())
 	}
 	return nil
 }
@@ -61,7 +61,7 @@ func (service *RoleService) Create(role *models.Role) error {
 func (service *RoleService) Update(role *models.Role) error {
 	err := service.repo.Update(role)
 	if err != nil {
-		return errors.New(errors.ErrDBUpdate, err.Error())
+		return apperror.NewDBUpdateError(err.Error())
 	}
 	return nil
 }
@@ -75,7 +75,11 @@ func (service *RoleService) Update(role *models.Role) error {
 func (service *RoleService) Delete(id int64) error {
 	role, err := service.repo.GetByID(id)
 	if err != nil {
-		return errors.New(errors.ErrDBDelete, err.Error())
+		return apperror.NewDBQueryError(err.Error())
 	}
-	return service.repo.Delete(role)
+	err = service.repo.Delete(role)
+	if err != nil {
+		return apperror.NewDBDeleteError(err.Error())
+	}
+	return nil
 }

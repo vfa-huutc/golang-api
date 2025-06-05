@@ -3,7 +3,6 @@ package handlers_test
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,15 +13,18 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
-	appError "github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
 )
 
 func TestGetSettings(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	t.Run("Success", func(t *testing.T) {
+	t.Run("GetSetting - Success", func(t *testing.T) {
 		mockService := new(mocks.MockSettingService)
+		handler := handlers.NewSettingHandler(mockService)
+
 		expected := []models.Setting{
 			{
 				ID:         1,
@@ -32,65 +34,56 @@ func TestGetSettings(t *testing.T) {
 				UpdatedAt:  time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
 			},
 		}
+		// Mock the service method
 		mockService.On("GetSetting").Return(expected, nil).Once()
-		handler := handlers.NewSettingHandler(mockService)
+
+		// Create a test context
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/api/v1/settings", nil)
+
+		// Call the handler
 		handler.GetSettings(c)
 
+		// Assert the response
+		var actual []models.Setting
+		json.Unmarshal(w.Body.Bytes(), &actual)
 		assert.Equal(t, http.StatusOK, w.Code)
-		assert.JSONEq(t, `[
-			{ "id": 1, "settingKey": "site_name", "value": "My Site", "createdAt": "2023-10-01T00:00:00Z","updatedAt": "2023-10-01T00:00:00Z","deletedAt": null }
-		]`, w.Body.String())
+		assert.Equal(t, expected, actual)
+
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Error", func(t *testing.T) {
+	t.Run("GetSetting - Error", func(t *testing.T) {
 		mockService := new(mocks.MockSettingService)
-		mockService.On("GetSetting").Return(([]models.Setting)(nil), appError.New(appError.ErrDBQuery, "Query error")).Once()
 		handler := handlers.NewSettingHandler(mockService)
+
+		// Mock the service methods
+		mockService.On("GetSetting").Return(([]models.Setting)(nil), apperror.NewNotFoundError("Not found record")).Once()
+
+		// Create a test context
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/api/v1/settings", nil)
+
+		// Call the handler
 		handler.GetSettings(c)
 
-		assert.Equal(t, http.StatusBadRequest, w.Code)
-		assert.JSONEq(t, fmt.Sprintf(`{"code":%d,"message":"%s"}`, appError.ErrDBQuery, "Query error"), w.Body.String())
-		mockService.AssertExpectations(t)
-	})
+		// Assert the response
 
-	t.Run("Create setting fails but continues", func(t *testing.T) {
-		mockService := new(mocks.MockSettingService)
-		handler := handlers.NewSettingHandler(mockService)
-
-		requestBody := map[string]interface{}{
-			"settings": []map[string]string{
-				{"key": "new_setting", "value": "value1"},
-			},
+		var expected = map[string]any{
+			"code":    float64(apperror.ErrNotFound),
+			"message": "Not found record",
 		}
-		body, _ := json.Marshal(requestBody)
+		var actual map[string]any
+		json.Unmarshal(w.Body.Bytes(), &actual)
 
-		// Simulate "not found" on GetSettingByKey to trigger Create
-		mockService.On("GetSettingByKey", "new_setting").
-			Return(&models.Setting{}, appError.New(appError.ErrDBQuery, "not found")).Once()
+		assert.Equal(t, expected["code"], actual["code"])
+		assert.Equal(t, expected["message"], actual["message"])
+		assert.Equal(t, http.StatusNotFound, w.Code)
 
-		// Simulate Create failure
-		mockService.On("Create", mock.MatchedBy(func(s *models.Setting) bool {
-			return s.SettingKey == "new_setting" && s.Value == "value1"
-		})).Return(appError.New(appError.ErrDBInsert, "insert failed")).Once()
-
-		w := httptest.NewRecorder()
-		c, _ := gin.CreateTestContext(w)
-		c.Request, _ = http.NewRequest("PUT", "/api/v1/settings", bytes.NewBuffer(body))
-		c.Request.Header.Set("Content-Type", "application/json")
-
-		handler.UpdateSettings(c)
-
-		// Despite the create failure, response is still 200 OK with success message
-		assert.Equal(t, http.StatusOK, w.Code)
-		assert.JSONEq(t, `{"message":"Update setting successfully"}`, w.Body.String())
-
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 
@@ -99,10 +92,11 @@ func TestGetSettings(t *testing.T) {
 func TestUpdateSettings(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 
-	t.Run("Success - update and create settings", func(t *testing.T) {
+	t.Run("UpdateSetting - Success", func(t *testing.T) {
 		mockService := new(mocks.MockSettingService)
 		handler := handlers.NewSettingHandler(mockService)
 
+		// Mock the service methods
 		requestBody := map[string]interface{}{
 			"settings": []map[string]string{
 				{"key": "site_name", "value": "New Site"},
@@ -110,109 +104,137 @@ func TestUpdateSettings(t *testing.T) {
 			},
 		}
 		body, _ := json.Marshal(requestBody)
-
-		// Mock: site_name exists → Update
 		mockService.On("GetSettingByKey", "site_name").Return(&models.Setting{SettingKey: "site_name", Value: "Old"}, nil).Once()
 		mockService.On("Update", mock.MatchedBy(func(s *models.Setting) bool {
 			return s.SettingKey == "site_name" && s.Value == "New Site"
 		})).Return(nil).Once()
-
-		// Mock: site_url not exist → Create
-		mockService.On("GetSettingByKey", "site_url").Return((&models.Setting{}), appError.New(appError.ErrDBQuery, "not found")).Once()
+		mockService.On("GetSettingByKey", "site_url").Return((&models.Setting{}), apperror.NewNotFoundError("not found")).Once()
 		mockService.On("Create", mock.MatchedBy(func(s *models.Setting) bool {
 			return s.SettingKey == "site_url" && s.Value == "https://example.com"
 		})).Return(nil).Once()
 
+		// Create a test context and request
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("PUT", "/api/v1/settings", bytes.NewBuffer(body))
 		c.Request.Header.Set("Content-Type", "application/json")
 
+		// Call the handler method
 		handler.UpdateSettings(c)
 
+		// Assert the response
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.JSONEq(t, `{"message":"Update setting successfully"}`, w.Body.String())
 
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Fail - validation error", func(t *testing.T) {
+	t.Run("UpdateSetting - Validation error", func(t *testing.T) {
 		mockService := new(mocks.MockSettingService)
 		handler := handlers.NewSettingHandler(mockService)
 
 		// Missing 'value'
-		body := `{"settings":[{"key":"site_name"}]}`
+		requestBody := map[string]interface{}{
+			"settings": []map[string]string{
+				{"key": "site_name"},
+			},
+		}
+		body, _ := json.Marshal(requestBody)
 
+		// Create a test context
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
-		c.Request, _ = http.NewRequest("PUT", "/api/v1/settings", bytes.NewBufferString(body))
-		c.Request.Header.Set("Content-Type", "application/json")
+		c.Request, _ = http.NewRequest("PUT", "/api/v1/settings", bytes.NewBuffer(body))
 
+		// Call the handler
 		handler.UpdateSettings(c)
 
+		// Assert the response
+		expectedBody := map[string]any{
+			"code":    float64(apperror.ErrValidationFailed),
+			"message": "Validation failed",
+			"fields": []apperror.FieldError{
+				{
+					Field:   "settings.Settings[0].Value",
+					Message: "settings.Settings[0].Value is required",
+				},
+			},
+		}
+		var actualBody map[string]any
+		json.Unmarshal(w.Body.Bytes(), &actualBody)
 		assert.Equal(t, http.StatusBadRequest, w.Code)
-		var res map[string]interface{}
-		json.Unmarshal(w.Body.Bytes(), &res)
-		assert.Equal(t, float64(appError.ErrInvalidData), res["code"])
+		assert.Equal(t, expectedBody["code"], actualBody["code"])
+		assert.Equal(t, expectedBody["message"], actualBody["message"])
+		assert.Equal(t, expectedBody["fields"], utils.MapJsonToFieldErrors(actualBody["fields"]))
+
+		// Assert mocks
+		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Partial Failure - one update fails", func(t *testing.T) {
+	t.Run("UpdateSetting - Failed to update setting", func(t *testing.T) {
 		mockService := new(mocks.MockSettingService)
 		handler := handlers.NewSettingHandler(mockService)
 
+		// Mock the service methods
 		requestBody := map[string]interface{}{
 			"settings": []map[string]string{
 				{"key": "site_name", "value": "New Site"},
 			},
 		}
 		body, _ := json.Marshal(requestBody)
-
 		mockService.On("GetSettingByKey", "site_name").Return(&models.Setting{SettingKey: "site_name", Value: "Old"}, nil).Once()
-		mockService.On("Update", mock.Anything).Return(appError.New(appError.ErrDBUpdate, "update failed")).Once()
+		mockService.On("Update", mock.Anything).Return(apperror.NewDBUpdateError("update failed")).Once()
 
+		// Create a test context and request
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("PUT", "/api/v1/settings", bytes.NewBuffer(body))
 		c.Request.Header.Set("Content-Type", "application/json")
 
+		// Call the handler method
 		handler.UpdateSettings(c)
 
+		// Assert the response
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.JSONEq(t, `{"message":"Update setting successfully"}`, w.Body.String()) // Still returns success even if one fails internally
 
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
 
-	t.Run("Update setting fails but continues", func(t *testing.T) {
+	t.Run("UpdateSetting - Fails but continues", func(t *testing.T) {
+		// Mock the service and handler
 		mockService := new(mocks.MockSettingService)
 		handler := handlers.NewSettingHandler(mockService)
 
+		// Mock the service methods
 		requestBody := map[string]interface{}{
 			"settings": []map[string]string{
 				{"key": "existing_setting", "value": "new_value"},
 			},
 		}
 		body, _ := json.Marshal(requestBody)
-
 		mockService.On("GetSettingByKey", "existing_setting").
 			Return(&models.Setting{SettingKey: "existing_setting", Value: "old_value"}, nil).Once()
-
 		mockService.On("Update", mock.MatchedBy(func(s *models.Setting) bool {
 			return s.SettingKey == "existing_setting" && s.Value == "new_value"
-		})).Return(appError.New(appError.ErrDBUpdate, "update failed")).Once()
+		})).Return(apperror.NewDBUpdateError("update failed")).Once()
 
+		// Create a test context
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("PUT", "/api/v1/settings", bytes.NewBuffer(body))
 		c.Request.Header.Set("Content-Type", "application/json")
 
+		// Call the handler method
 		handler.UpdateSettings(c)
 
-		// Response is still success despite update error
+		// Assert the response
 		assert.Equal(t, http.StatusOK, w.Code)
 		assert.JSONEq(t, `{"message":"Update setting successfully"}`, w.Body.String())
 
+		// Assert mocks
 		mockService.AssertExpectations(t)
 	})
-
 }

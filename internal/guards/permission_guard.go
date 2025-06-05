@@ -2,12 +2,11 @@ package guards
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"gorm.io/gorm"
 )
 
@@ -34,9 +33,9 @@ func RequirePermissions(guard *RoleGuard, requiredPerms ...string) gin.HandlerFu
 		if !exists {
 			utils.RespondWithError(
 				c,
-				http.StatusForbidden,
-				errors.New(errors.ErrForbidden, "User ID not found"),
+				apperror.NewForbiddenError("User ID not found"),
 			)
+			return
 		}
 
 		userId := userIdAny.(uint)
@@ -47,9 +46,9 @@ func RequirePermissions(guard *RoleGuard, requiredPerms ...string) gin.HandlerFu
 		if err != nil {
 			utils.RespondWithError(
 				c,
-				http.StatusForbidden,
-				errors.New(errors.ErrForbidden, "Failed to retrieve user permissions"),
+				apperror.NewForbiddenError("Failed to retrieve user permissions"),
 			)
+			return
 		}
 
 		// Aggregate permissions from all roles
@@ -63,8 +62,7 @@ func RequirePermissions(guard *RoleGuard, requiredPerms ...string) gin.HandlerFu
 			if !userPermSet[required] {
 				utils.RespondWithError(
 					c,
-					http.StatusForbidden,
-					errors.New(errors.ErrForbidden, fmt.Sprintf("Missing permission: %s", required)),
+					apperror.NewForbiddenError(fmt.Sprintf("Missing permission: %s", required)),
 				)
 			}
 		}

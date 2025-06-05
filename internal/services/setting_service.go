@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 type ISettingService interface {
@@ -30,7 +30,7 @@ func NewSettingService(repo repositories.ISettingRepository) *SettingService {
 func (service *SettingService) GetSetting() ([]models.Setting, error) {
 	data, err := service.repo.GetAll()
 	if err != nil {
-		return nil, errors.New(errors.ErrDBQuery, err.Error())
+		return nil, apperror.NewInternalError(err.Error())
 	}
 	return data, nil
 }
@@ -45,7 +45,7 @@ func (service *SettingService) GetSetting() ([]models.Setting, error) {
 func (service *SettingService) GetSettingByKey(key string) (*models.Setting, error) {
 	data, err := service.repo.GetByKey(key)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBQuery, err.Error())
+		return nil, apperror.NewNotFoundError(err.Error())
 	}
 	return data, nil
 }
@@ -60,7 +60,7 @@ func (service *SettingService) GetSettingByKey(key string) (*models.Setting, err
 func (service *SettingService) Update(setting *models.Setting) error {
 	err := service.repo.Update(setting)
 	if err != nil {
-		return errors.New(errors.ErrDBUpdate, err.Error())
+		return apperror.NewDBUpdateError(err.Error())
 	}
 	return nil
 }
@@ -71,11 +71,11 @@ func (service *SettingService) Update(setting *models.Setting) error {
 //
 // Returns:
 //   - *models.Setting: pointer to the created Setting model
-//   - error: any error encountered during the creation operation
+//   - *appError.AppError: any error encountered during the creation operation
 func (service *SettingService) Create(setting *models.Setting) error {
 	err := service.repo.Create(setting)
 	if err != nil {
-		return errors.New(errors.ErrDBInsert, err.Error())
+		return apperror.NewDBInsertError(err.Error())
 	}
 	return nil
 }

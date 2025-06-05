@@ -10,7 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/vfa-khuongdv/golang-cms/internal/middlewares"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 func TestEmptyBodyMiddleware_RejectsEmptyBody(t *testing.T) {
@@ -30,7 +30,7 @@ func TestEmptyBodyMiddleware_RejectsEmptyBody(t *testing.T) {
 	expectedJSON := fmt.Sprintf(`{
 		"code": %d,
 		"message": "Request body cannot be empty"
-	}`, errors.ErrInvalidData)
+	}`, apperror.ErrEmptyData)
 
 	assert.JSONEq(t, expectedJSON, resp.Body.String())
 }

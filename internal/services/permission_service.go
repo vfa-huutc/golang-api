@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 type IPermissionService interface {
@@ -27,7 +27,7 @@ func NewPermissionService(repo repositories.IPermissionRepository) *PermissionSe
 func (repo *PermissionService) GetAll() ([]models.Permission, error) {
 	permission, err := repo.repo.GetAll()
 	if err != nil {
-		return nil, errors.New(errors.ErrDBQuery, err.Error())
+		return nil, apperror.NewInternalError(err.Error())
 	}
 	return permission, nil
 }

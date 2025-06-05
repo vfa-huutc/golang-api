@@ -6,8 +6,9 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
+	"gorm.io/gorm"
 )
 
 type RoleServiceTestSuite struct {
@@ -33,7 +34,7 @@ func (s *RoleServiceTestSuite) TestGetByID_Success() {
 }
 
 func (s *RoleServiceTestSuite) TestGetByID_NotFound() {
-	s.repo.On("GetByID", int64(999)).Return((*models.Role)(nil), errors.New(errors.ErrDBQuery, "record not found")).Once()
+	s.repo.On("GetByID", int64(999)).Return((*models.Role)(nil), apperror.NewDBQueryError("Not found resource")).Once()
 
 	role, err := s.roleService.GetByID(999)
 
@@ -55,7 +56,7 @@ func (s *RoleServiceTestSuite) TestCreate_Success() {
 
 func (s *RoleServiceTestSuite) TestCreate_Error() {
 	role := &models.Role{Name: "existing_role", DisplayName: "Existing Role"}
-	s.repo.On("Create", role).Return(errors.New(errors.ErrDBInsert, "duplicate entry")).Once()
+	s.repo.On("Create", role).Return(apperror.NewDBInsertError("duplicate entry")).Once()
 
 	err := s.roleService.Create(role)
 
@@ -76,7 +77,7 @@ func (s *RoleServiceTestSuite) TestUpdate_Success() {
 
 func (s *RoleServiceTestSuite) TestUpdate_Error() {
 	role := &models.Role{Name: "invalid_role", DisplayName: "Invalid Role"}
-	s.repo.On("Update", role).Return(errors.New(errors.ErrDBUpdate, "record not found")).Once()
+	s.repo.On("Update", role).Return(apperror.NewDBUpdateError("record not found")).Once()
 
 	err := s.roleService.Update(role)
 
@@ -99,12 +100,34 @@ func (s *RoleServiceTestSuite) TestDelete_Success() {
 
 func (s *RoleServiceTestSuite) TestDelete_RoleNotFound() {
 	roleID := int64(999)
-	s.repo.On("GetByID", roleID).Return((*models.Role)(nil), errors.New(errors.ErrDBDelete, "record not found")).Once()
+	s.repo.On("GetByID", roleID).Return((*models.Role)(nil), gorm.ErrRecordNotFound).Once()
 
 	err := s.roleService.Delete(roleID)
 
 	s.Error(err)
-	s.Contains(err.Error(), "code: 2004")
+	if appErr, ok := err.(*apperror.AppError); ok {
+		s.Equal(apperror.ErrDBQuery, appErr.Code)
+		s.Equal(gorm.ErrRecordNotFound.Error(), appErr.Message)
+	} else {
+		s.Fail("Expected apperror.AppError, got", err)
+	}
+	s.repo.AssertExpectations(s.T())
+}
+
+func (s *RoleServiceTestSuite) TestDelete_CannotDelete() {
+	roleID := int64(2)
+	role := &models.Role{Name: "manager", DisplayName: "Manager"}
+	s.repo.On("GetByID", roleID).Return(role, nil).Once()
+	s.repo.On("Delete", role).Return(gorm.ErrForeignKeyViolated).Once()
+
+	err := s.roleService.Delete(roleID)
+
+	if appErr, ok := err.(*apperror.AppError); ok {
+		s.Equal(apperror.ErrDBDelete, appErr.Code)
+		s.Equal(gorm.ErrForeignKeyViolated.Error(), appErr.Message)
+	} else {
+		s.Fail("Expected apperror.AppError, got", err)
+	}
 	s.repo.AssertExpectations(s.T())
 }
 
@@ -112,7 +135,7 @@ func (s *RoleServiceTestSuite) TestDelete_DeleteError() {
 	roleID := int64(2)
 	role := &models.Role{Name: "manager", DisplayName: "Manager"}
 	s.repo.On("GetByID", roleID).Return(role, nil).Once()
-	s.repo.On("Delete", role).Return(errors.New(errors.ErrDBDelete, "foreign key constraint")).Once()
+	s.repo.On("Delete", role).Return(apperror.NewDBDeleteError("foreign key constraint")).Once()
 
 	err := s.roleService.Delete(roleID)
 

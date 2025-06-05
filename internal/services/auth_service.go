@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 type IAuthService interface {
@@ -51,25 +51,26 @@ func NewAuthService(repo repositories.IUserRepository, refreshTokenService IRefr
 func (service *AuthService) Login(email, password string, ctx *gin.Context) (*LoginResponse, error) {
 	user, err := service.repo.FindByField("email", email)
 	if err != nil {
-		return nil, errors.New(errors.ErrNotFound, err.Error())
+		return nil, apperror.NewNotFoundError(err.Error())
 	}
 
 	// Validate password
 	if isValid := service.bcryptService.CheckPasswordHash(password, user.Password); !isValid {
-		return nil, errors.New(errors.ErrInvalidPassword, "Invalid credentials")
+		return nil, apperror.NewInvalidPasswordError("Invalid credentials")
 	}
 
 	// Generate access token
 	accessToken, err := service.jwtService.GenerateToken(user.ID)
 	if err != nil {
-		return nil, errors.New(errors.ErrInternal, err.Error())
+		return nil, apperror.NewInternalError(err.Error())
 	}
 
 	// Create new refresh token
 	ipAddress := ctx.ClientIP()
-	refreshToken, err := service.refreshTokenService.Create(user, ipAddress)
-	if err != nil {
-		return nil, err
+	refreshToken, errToken := service.refreshTokenService.Create(user, ipAddress)
+
+	if errToken != nil {
+		return nil, errToken
 	}
 
 	res := &LoginResponse{
@@ -95,32 +96,34 @@ func (service *AuthService) Login(email, password string, ctx *gin.Context) (*Lo
 //   - *LoginResponse: Contains new access token and refresh token if successful
 //   - error: Returns error if token refresh fails (invalid token, user not found, token generation fails)
 func (service *AuthService) RefreshToken(token string, ctx *gin.Context) (*LoginResponse, error) {
-	// Get the client's IP address from the request context
 	ipAddress := ctx.ClientIP()
-	// Create new refresh token using the refresh token service
-	res, err := service.refreshTokenService.Update(token, ipAddress)
+
+	// Update the refresh token
+	refreshResult, err := service.refreshTokenService.Update(token, ipAddress)
 	if err != nil {
-		return nil, err // error is already wrapped by the service, so we can return it directly
+		return nil, apperror.NewDBUpdateError(err.Error())
 	}
 
-	// Get user details from the database using the user ID from refresh token
-	user, err := service.repo.GetByID(res.UserId)
+	// Get user details
+	user, err := service.repo.GetByID(refreshResult.UserId)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBQuery, err.Error())
-	}
-	// Generate new access token for the user
-	resultToken, err := service.jwtService.GenerateToken(user.ID)
-	if err != nil {
-		return nil, errors.New(errors.ErrInternal, err.Error())
+		return nil, apperror.NewNotFoundError(err.Error())
 	}
 
-	// Return new access and refresh tokens
-	return &LoginResponse{
+	// Generate new access token
+	newToken, err := service.jwtService.GenerateToken(user.ID)
+	if err != nil {
+		return nil, apperror.NewInternalError(err.Error())
+	}
+
+	// Build response
+	response := &LoginResponse{
 		AccessToken: JwtResult{
-			Token:     resultToken.Token,
-			ExpiresAt: resultToken.ExpiresAt,
+			Token:     newToken.Token,
+			ExpiresAt: newToken.ExpiresAt,
 		},
-		RefreshToken: *res.Token,
-	}, nil
+		RefreshToken: *refreshResult.Token,
+	}
 
+	return response, nil
 }

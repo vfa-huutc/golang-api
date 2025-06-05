@@ -1,7 +1,7 @@
 package utils_test
 
 import (
-	originError "errors"
+	stdErrors "errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 func TestRespondWithError_AppError(t *testing.T) {
@@ -17,12 +17,13 @@ func TestRespondWithError_AppError(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 
-	appErr := &errors.AppError{
-		Code:    1001,
-		Message: "App error occurred",
+	appErr := &apperror.AppError{
+		HttpStatusCode: http.StatusBadRequest,
+		Code:           1001,
+		Message:        "App error occurred",
 	}
 
-	utils.RespondWithError(ctx, http.StatusBadRequest, appErr)
+	utils.RespondWithError(ctx, appErr)
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 	expectedJSON := `{"code":1001,"message":"App error occurred"}`
@@ -34,9 +35,9 @@ func TestRespondWithError_InternalServerError(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 
-	internalErr := originError.New("Internal server error occurred")
+	internalErr := stdErrors.New("Internal server error occurred")
 
-	utils.RespondWithError(ctx, http.StatusInternalServerError, internalErr)
+	utils.RespondWithError(ctx, internalErr)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	expectedJSON := `{"code":1000,"message":"Internal server error occurred"}`
@@ -48,9 +49,9 @@ func TestRespondWithError_GenericError(t *testing.T) {
 	w := httptest.NewRecorder()
 	ctx, _ := gin.CreateTestContext(w)
 
-	genericErr := errors.New(errors.ErrInternal, "generic error message")
+	genericErr := apperror.NewInternalError("generic error message")
 
-	utils.RespondWithError(ctx, http.StatusInternalServerError, genericErr)
+	utils.RespondWithError(ctx, genericErr)
 
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
 	expectedJSON := `{"code":1000,"message":"generic error message"}`

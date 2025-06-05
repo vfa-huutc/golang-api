@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 // Middleware to reject requests with empty JSON body
@@ -16,7 +16,7 @@ func EmptyBodyMiddleware() gin.HandlerFunc {
 			bodyBytes, err := io.ReadAll(c.Request.Body)
 			if err != nil || len(bytes.TrimSpace(bodyBytes)) == 0 {
 				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-					"code":    errors.ErrInvalidData,
+					"code":    apperror.ErrEmptyData,
 					"message": "Request body cannot be empty",
 				})
 				return

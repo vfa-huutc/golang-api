@@ -1,6 +1,9 @@
 package services
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
+	"golang.org/x/crypto/bcrypt"
+)
 
 type IBcryptService interface {
 	HashPassword(password string) (string, error)
@@ -19,7 +22,7 @@ func NewBcryptService() IBcryptService {
 func (s *BcryptService) HashPassword(password string) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return "", err
+		return "", apperror.NewInternalError(err.Error())
 	}
 	return string(hashedPassword), nil
 }
@@ -36,7 +39,7 @@ func (s *BcryptService) CheckPasswordHash(password, hashPassword string) bool {
 func (s *BcryptService) HashPasswordWithCost(password string, cost int) (string, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), cost)
 	if err != nil {
-		return "", err
+		return "", apperror.NewInternalError(err.Error())
 	}
 	return string(hashedPassword), nil
 }

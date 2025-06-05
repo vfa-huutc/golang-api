@@ -7,7 +7,6 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
 )
 
@@ -28,7 +27,7 @@ func (handler *SettingHandler) GetSettings(c *gin.Context) {
 	// Get settings from service
 	settings, err := handler.service.GetSetting()
 	if err != nil {
-		utils.RespondWithError(c, http.StatusBadRequest, err)
+		utils.RespondWithError(c, err)
 		return
 	}
 
@@ -49,12 +48,8 @@ func (handler *SettingHandler) UpdateSettings(ctx *gin.Context) {
 
 	// Bind JSON request body to input struct
 	if err := ctx.ShouldBindJSON(&input); err != nil {
-		validateError := utils.TranslateValidationErrors(err)
-		utils.RespondWithError(
-			ctx,
-			http.StatusBadRequest,
-			errors.New(errors.ErrInvalidData, validateError.Error()),
-		)
+		validateError := utils.TranslateValidationErrors(err, input)
+		utils.RespondWithError(ctx, validateError)
 		return
 	}
 

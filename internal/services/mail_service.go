@@ -7,7 +7,7 @@ import (
 
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"github.com/vfa-khuongdv/golang-cms/pkg/mailer"
 )
 
@@ -64,12 +64,11 @@ func SendMailForgotPassword(user *models.User) error {
 	var htmlBody bytes.Buffer
 	// Execute template with data and write to buffer
 	if err := tmpl.Execute(&htmlBody, data); err != nil {
-		return errors.New(errors.ErrInternal, fmt.Sprintf("error executing template: %+v", err))
+		return apperror.NewInternalError(fmt.Sprintf("error executing template: %+v", err))
 	}
-
 	// Send password reset email to user
 	if err := mailer.Send([]string{user.Email}, "Reset your password", "", htmlBody.String()); err != nil {
-		return errors.New(errors.ErrInternal, fmt.Sprintf("error sending email: %+v", err))
+		return apperror.NewInternalError(fmt.Sprintf("error sending email: %+v", err))
 	}
 	return nil
 

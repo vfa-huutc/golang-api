@@ -58,7 +58,6 @@ func main() {
 	// Run migrations
 	isRunMigrate := utils.GetEnv("RUN_MIGRATE", "false")
 	if isRunMigrate == "true" {
-		logger.Info("Running migrations...")
 		runMigrations()
 	}
 

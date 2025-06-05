@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockRedisService is a testify mock for IRedisService
 type MockRedisService struct {
 	mock.Mock
 }

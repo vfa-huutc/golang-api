@@ -6,7 +6,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 type IRefreshTokenService interface {
@@ -51,7 +51,7 @@ func (service *RefreshTokenService) Create(user *models.User, ipAddress string) 
 
 	err := service.repo.Create(&token)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBInsert, err.Error())
+		return nil, apperror.NewDBInsertError(err.Error())
 	}
 
 	return &JwtResult{
@@ -72,7 +72,7 @@ type RefreshTokenResult struct {
 //
 // Returns:
 //   - *RefreshTokenResult: Contains the new token information and associated user ID
-//   - error: Error if token creation/update fails
+//   - *appError.AppError: Error if token creation/update fails
 //
 // The function:
 //  1. Finds the existing token record
@@ -82,7 +82,7 @@ type RefreshTokenResult struct {
 func (service *RefreshTokenService) Update(tokenString string, ipAddress string) (*RefreshTokenResult, error) {
 	result, err := service.repo.FindByToken(tokenString)
 	if err != nil {
-		return nil, errors.New(errors.ErrDBQuery, err.Error())
+		return nil, apperror.NewNotFoundError(err.Error())
 	}
 	// Update new token
 	newToken := utils.GenerateRandomString(60)
@@ -94,7 +94,7 @@ func (service *RefreshTokenService) Update(tokenString string, ipAddress string)
 	result.UsedCount += 1
 
 	if err := service.repo.Update(result); err != nil {
-		return nil, errors.New(errors.ErrDBUpdate, err.Error())
+		return nil, apperror.NewDBUpdateError(err.Error())
 	}
 
 	return &RefreshTokenResult{

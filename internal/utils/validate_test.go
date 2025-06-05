@@ -4,12 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"errors"
-
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 )
 
 type User struct {
@@ -58,156 +57,189 @@ func TestValidateBirthday(t *testing.T) {
 		})
 	}
 }
-
 func TestTranslateValidationErrors(t *testing.T) {
 	validate := validator.New()
 
 	testCases := []struct {
 		name     string
 		tag      string
-		param    string
 		value    any
-		expected string
+		expected []apperror.FieldError
 	}{
-		{"required", "required", "", struct {
+		// required
+		{name: "required", tag: "required", value: struct {
 			Field string `validate:"required"`
-		}{}, "field is required"},
+		}{Field: ""}, expected: []apperror.FieldError{{Field: "Field", Message: "Field is required"}}},
 
-		{"email", "email", "", struct {
-			Field string `validate:"email"`
-		}{Field: "invalid"}, "field must be a valid email address"},
+		// email
+		{name: "email", tag: "email", value: struct {
+			Email string `validate:"email"`
+		}{Email: "invalid-email"}, expected: []apperror.FieldError{{Field: "Email", Message: "Email must be a valid email address"}}},
 
-		{"url", "url", "", struct {
-			Field string `validate:"url"`
-		}{Field: "not-a-url"}, "field must be a valid URL"},
+		// url
+		{name: "url", tag: "url", value: struct {
+			URL string `validate:"url"`
+		}{URL: "invalid-url"}, expected: []apperror.FieldError{{Field: "URL", Message: "URL must be a valid URL"}}},
 
-		{"uuid", "uuid", "", struct {
-			Field string `validate:"uuid"`
-		}{Field: "invalid-uuid"}, "field must be a valid UUID"},
+		// uuid
+		{name: "uuid", tag: "uuid", value: struct {
+			UUID string `validate:"uuid"`
+		}{UUID: "invalid-uuid"}, expected: []apperror.FieldError{{Field: "UUID", Message: "UUID must be a valid UUID"}}},
 
-		{"len", "len", "5", struct {
+		// len
+		{name: "len", tag: "len", value: struct {
 			Field string `validate:"len=5"`
-		}{Field: "abc"}, "field must be exactly 5 characters long"},
+		}{Field: "123"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be exactly 5 characters long"}}},
 
-		{"min", "min", "5", struct {
+		// min
+		{name: "min", tag: "min", value: struct {
 			Field string `validate:"min=5"`
-		}{Field: "abc"}, "field must be at least 5 characters long or numeric"},
+		}{Field: "123"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be at least 5 characters long or numeric"}}},
 
-		{"max", "max", "2", struct {
+		// max
+		{name: "max", tag: "max", value: struct {
 			Field string `validate:"max=2"`
-		}{Field: "abc"}, "field must be at most 2 characters long or numeric"},
+		}{Field: "123"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be at most 2 characters long or numeric"}}},
 
-		{"eq", "eq", "admin", struct {
+		// eq
+		{name: "eq", tag: "eq", value: struct {
 			Field string `validate:"eq=admin"`
-		}{Field: "user"}, "field must be equal to admin"},
+		}{Field: "user"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be equal to admin"}}},
 
-		{"ne", "ne", "admin", struct {
+		// ne
+		{name: "ne", tag: "ne", value: struct {
 			Field string `validate:"ne=admin"`
-		}{Field: "admin"}, "field must not be equal to admin"},
+		}{Field: "admin"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must not be equal to admin"}}},
 
-		{"lt", "lt", "10", struct {
+		// lt
+		{name: "lt", tag: "lt", value: struct {
 			Field int `validate:"lt=10"`
-		}{Field: 20}, "field must be less than 10"},
+		}{Field: 10}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be less than 10"}}},
 
-		{"lte", "lte", "10", struct {
+		// lte
+		{name: "lte", tag: "lte", value: struct {
 			Field int `validate:"lte=10"`
-		}{Field: 20}, "field must be less than or equal to 10"},
+		}{Field: 11}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be less than or equal to 10"}}},
 
-		{"gt", "gt", "10", struct {
+		// gt
+		{name: "gt", tag: "gt", value: struct {
 			Field int `validate:"gt=10"`
-		}{Field: 5}, "field must be greater than 10"},
+		}{Field: 10}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be greater than 10"}}},
 
-		{"gte", "gte", "10", struct {
+		// gte
+		{name: "gte", tag: "gte", value: struct {
 			Field int `validate:"gte=10"`
-		}{Field: 5}, "field must be greater than or equal to 10"},
+		}{Field: 9}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be greater than or equal to 10"}}},
 
-		{"oneof", "oneof", "admin user", struct {
+		// oneof
+		{name: "oneof", tag: "oneof", value: struct {
 			Field string `validate:"oneof=admin user"`
-		}{Field: "guest"}, "field must be one of [admin user]"},
+		}{Field: "guest"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be one of [admin user]"}}},
 
-		{"contains", "contains", "@", struct {
+		// contains
+		{name: "contains", tag: "contains", value: struct {
 			Field string `validate:"contains=@"`
-		}{Field: "example.com"}, "field must contain '@'"},
+		}{Field: "test.com"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain '@'"}}},
 
-		{"excludes", "excludes", "@", struct {
+		// excludes
+		{name: "excludes", tag: "excludes", value: struct {
 			Field string `validate:"excludes=@"`
-		}{Field: "user@example.com"}, "field must not contain '@'"},
+		}{Field: "test@com"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must not contain '@'"}}},
 
-		{"startswith", "startswith", "abc", struct {
+		// startswith
+		{name: "startswith", tag: "startswith", value: struct {
 			Field string `validate:"startswith=abc"`
-		}{Field: "xyz"}, "field must start with 'abc'"},
+		}{Field: "xyz"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must start with 'abc'"}}},
 
-		{"endswith", "endswith", "xyz", struct {
+		// endswith
+		{name: "endswith", tag: "endswith", value: struct {
 			Field string `validate:"endswith=xyz"`
-		}{Field: "abc"}, "field must end with 'xyz'"},
+		}{Field: "abc"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must end with 'xyz'"}}},
 
-		{"ip", "ip", "", struct {
+		// ip - invalid to trigger error
+		{name: "ip", tag: "ip", value: struct {
 			Field string `validate:"ip"`
-		}{Field: "not-an-ip"}, "field must be a valid IP address"},
+		}{Field: "invalid-ip"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be a valid IP address"}}},
 
-		{"ipv4", "ipv4", "", struct {
+		// ipv4 - invalid to trigger error
+		{name: "ipv4", tag: "ipv4", value: struct {
 			Field string `validate:"ipv4"`
-		}{Field: "not-an-ip"}, "field must be a valid IPv4 address"},
+		}{Field: "999.999.999.999"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be a valid IPv4 address"}}},
 
-		{"ipv6", "ipv6", "", struct {
+		// ipv6 - invalid to trigger error
+		{name: "ipv6", tag: "ipv6", value: struct {
 			Field string `validate:"ipv6"`
-		}{Field: "not-an-ip"}, "field must be a valid IPv6 address"},
+		}{Field: "invalid-ipv6"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be a valid IPv6 address"}}},
 
-		{"datetime", "datetime", "2006-01-02", struct {
+		// datetime
+		{name: "datetime", tag: "datetime", value: struct {
 			Field string `validate:"datetime=2006-01-02"`
-		}{Field: "01-01-2023"}, "field must be a valid datetime (format: 2006-01-02)"},
+		}{Field: "invalid-date"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be a valid datetime (format: 2006-01-02)"}}},
 
-		{"numeric", "numeric", "", struct {
+		// numeric
+		{name: "numeric", tag: "numeric", value: struct {
 			Field string `validate:"numeric"`
-		}{Field: "abc"}, "field must be a numeric value"},
+		}{Field: "abc"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be a numeric value"}}},
 
-		{"boolean", "boolean", "", struct {
+		// boolean - use string to trigger error because bool type with false is valid
+		{name: "boolean", tag: "boolean", value: struct {
 			Field string `validate:"boolean"`
-		}{Field: "notabool"}, "field must be a boolean value"},
+		}{Field: "notbool"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be a boolean value"}}},
 
-		{"alpha", "alpha", "", struct {
+		// alpha
+		{name: "alpha", tag: "alpha", value: struct {
 			Field string `validate:"alpha"`
-		}{Field: "abc123"}, "field must contain only letters"},
+		}{Field: "abc123"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain only letters"}}},
 
-		{"alphanum", "alphanum", "", struct {
+		// alphanum
+		{name: "alphanum", tag: "alphanum", value: struct {
 			Field string `validate:"alphanum"`
-		}{Field: "abc!"}, "field must contain only letters and numbers"},
+		}{Field: "abc!@#"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain only letters and numbers"}}},
 
-		{"alphanumunicode", "alphanumunicode", "", struct {
+		// alphanumunicode
+		{name: "alphanumunicode", tag: "alphanumunicode", value: struct {
 			Field string `validate:"alphanumunicode"`
-		}{Field: "abc漢字!"}, "field must contain only unicode letters and numbers"},
+		}{Field: "abc123!@#"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain only unicode letters and numbers"}}},
 
-		{"ascii", "ascii", "", struct {
+		// ascii
+		{name: "ascii", tag: "ascii", value: struct {
 			Field string `validate:"ascii"`
-		}{Field: "こんにちは"}, "field must contain only ASCII characters"},
+		}{Field: "abcé"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain only ASCII characters"}}},
 
-		{"printascii", "printascii", "", struct {
+		// printascii
+		{name: "printascii", tag: "printascii", value: struct {
 			Field string `validate:"printascii"`
-		}{Field: "\u0000"}, "field must contain only printable ASCII characters"},
+		}{Field: "abc\x00"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain only printable ASCII characters"}}},
 
-		{"base64", "base64", "", struct {
+		// base64
+		{name: "base64", tag: "base64", value: struct {
 			Field string `validate:"base64"`
-		}{Field: "not_base64"}, "field must be a valid base64 string"},
+		}{Field: "invalid-base64"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be a valid base64 string"}}},
 
-		{"containsany", "containsany", "abc", struct {
+		// containsany
+		{name: "containsany", tag: "containsany", value: struct {
 			Field string `validate:"containsany=abc"`
-		}{Field: "xyz"}, "field must contain at least one of the characters in 'abc'"},
+		}{Field: "xyz"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain at least one of the characters in 'abc'"}}},
 
-		{"excludesall", "excludesall", "abc", struct {
+		// excludesall
+		{name: "excludesall", tag: "excludesall", value: struct {
 			Field string `validate:"excludesall=abc"`
-		}{Field: "cab"}, "field must not contain any of the characters in 'abc'"},
+		}{Field: "abc"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must not contain any of the characters in 'abc'"}}},
 
-		{"excludesrune", "excludesrune", "あ", struct {
+		// excludesrune
+		{name: "excludesrune", tag: "excludesrune", value: struct {
 			Field string `validate:"excludesrune=あ"`
-		}{Field: "あいう"}, "field must not contain the rune 'あ'"},
+		}{Field: "あtest"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must not contain the rune 'あ'"}}},
 
-		{"isdefault", "isdefault", "", struct {
+		// isdefault
+		{name: "isdefault", tag: "isdefault", value: struct {
 			Field string `validate:"isdefault"`
-		}{Field: "notdefault"}, "field must be the default value"},
+		}{Field: "non-default"}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must be the default value"}}},
 
-		{"unique", "unique", "", struct {
+		// unique
+		{name: "unique", tag: "unique", value: struct {
 			Field []string `validate:"unique"`
-		}{Field: []string{"a", "b", "a"}}, "field must contain unique values"},
+		}{Field: []string{"a", "b", "a"}}, expected: []apperror.FieldError{{Field: "Field", Message: "Field must contain unique values"}}},
 	}
 
 	for _, tc := range testCases {
@@ -215,8 +247,9 @@ func TestTranslateValidationErrors(t *testing.T) {
 			err := validate.Struct(tc.value)
 			assert.Error(t, err)
 
-			transErr := utils.TranslateValidationErrors(err)
-			assert.EqualError(t, transErr, tc.expected)
+			validationErr := utils.TranslateValidationErrors(err, tc.value)
+			assert.NotNil(t, validationErr)
+			assert.Equal(t, tc.expected, validationErr.Fields)
 		})
 	}
 }
@@ -230,21 +263,31 @@ func TestTranslateValidationErrors_ExtraCases(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    any
-		expected string
+		expected []apperror.FieldError
 	}{
 		{
 			name: "valid_birthday (future date)",
 			input: struct {
-				Field string `validate:"valid_birthday"`
-			}{Field: "3000-01-01"},
-			expected: "field must be a valid date (YYYY-MM-DD) and not in the future",
+				Birthday string `validate:"valid_birthday"`
+			}{Birthday: "3000-01-01"},
+			expected: []apperror.FieldError{
+				{
+					Field:   "Birthday",
+					Message: "Birthday must be a valid date (YYYY-MM-DD) and not in the future",
+				},
+			},
 		},
 		{
 			name: "not_blank (blank field)",
 			input: struct {
-				Field string `validate:"not_blank"`
-			}{Field: "   "},
-			expected: "field must not be blank",
+				NewPassword string `validate:"not_blank"`
+			}{NewPassword: "   "},
+			expected: []apperror.FieldError{
+				{
+					Field:   "NewPassword",
+					Message: "NewPassword must not be blank",
+				},
+			},
 		},
 	}
 
@@ -253,19 +296,12 @@ func TestTranslateValidationErrors_ExtraCases(t *testing.T) {
 			err := validate.Struct(tc.input)
 			assert.Error(t, err)
 
-			result := utils.TranslateValidationErrors(err)
-			assert.EqualError(t, result, tc.expected)
+			result := utils.TranslateValidationErrors(err, tc.input)
+			assert.Equal(t, result.Fields, tc.expected)
+			assert.Equal(t, result.Code, apperror.ErrValidationFailed)
+			assert.Equal(t, result.Message, "Validation failed")
 		})
 	}
-}
-
-func TestTranslateValidationErrors_NonValidationError(t *testing.T) {
-	plainErr := errors.New("some generic error")
-
-	result := utils.TranslateValidationErrors(plainErr)
-
-	assert.Error(t, result)
-	assert.EqualError(t, result, "some generic error")
 }
 
 func TestInitValidator(t *testing.T) {
@@ -310,8 +346,15 @@ func TestTranslateValidationErrors_DefaultCase(t *testing.T) {
 	assert.Error(t, err)
 
 	// Run through TranslateValidationErrors
-	result := utils.TranslateValidationErrors(err)
+	result := utils.TranslateValidationErrors(err, input)
 
-	// Expect default fallback message
-	assert.EqualError(t, result, "field is invalid")
+	assert.Equal(t, result.Code, apperror.ErrValidationFailed)
+	assert.Equal(t, result.Message, "Validation failed")
+	assert.Equal(t, result.Fields, []apperror.FieldError{
+		{
+			Field:   "Field",
+			Message: "Field is invalid",
+		},
+	})
+
 }

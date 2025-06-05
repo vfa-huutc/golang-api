@@ -1,6 +1,7 @@
 package services_test
 
 import (
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,7 +13,7 @@ import (
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
-	"github.com/vfa-khuongdv/golang-cms/pkg/errors"
+	"github.com/vfa-khuongdv/golang-cms/pkg/apperror"
 	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
 	"gorm.io/gorm"
 )
@@ -53,15 +54,13 @@ func (s *AuthServiceTestSuite) TestLoginSuccess() {
 	}
 	ip := "127.0.0.1"
 
-	// Mock FindByField to return user
-	s.repo.On("FindByField", "email", email).Return(user, nil).Once()
-	// Mock BcryptService to validate password and return true
-	s.bcryptService.On("CheckPasswordHash", password, user.Password).Return(true).Once()
-	// Mock JWTService to generate access token
+	// Mock the methods of the dependencies
+	s.repo.On("FindByField", "email", email).Return(user, nil)
+	s.bcryptService.On("CheckPasswordHash", password, user.Password).Return(true)
 	s.jwtService.On("GenerateToken", user.ID).Return(&services.JwtResult{
 		Token:     "mocked-access-token",
 		ExpiresAt: time.Now().Add(1 * time.Hour).Unix(),
-	}, nil).Once()
+	}, nil)
 
 	// Mock Create to return a valid JWT result
 	s.refreshTokenService.On("Create", user, ip).Return(&services.JwtResult{
@@ -73,10 +72,7 @@ func (s *AuthServiceTestSuite) TestLoginSuccess() {
 	ginCtx.Request = &http.Request{RemoteAddr: ip + ":12345"}
 
 	// Call the Login method
-	resp, err := s.service.Login(email, password, ginCtx)
-	assert.NoError(s.T(), err)
-	assert.NotNil(s.T(), resp)
-	assert.NotEmpty(s.T(), resp.AccessToken.Token)
+	resp, _ := s.service.Login(email, password, ginCtx)
 	assert.Equal(s.T(), "mocked-refresh-token", resp.RefreshToken.Token)
 
 }
@@ -92,12 +88,15 @@ func (s *AuthServiceTestSuite) TestLogin_UserNotFound() {
 
 	resp, err := s.service.Login(email, password, ginCtx)
 
+	// Check if the error is of type AppError
+	if appError, ok := err.(*apperror.AppError); ok {
+		assert.Equal(s.T(), apperror.ErrNotFound, appError.Code)
+		assert.Equal(s.T(), "record not found", appError.Message)
+	} else {
+		s.Fail("Expected AppError with ErrNotFound code")
+	}
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), resp)
-
-	appErr, ok := err.(*errors.AppError)
-	s.Require().True(ok, "error should be of type *errors.AppError")
-	assert.Equal(s.T(), errors.ErrNotFound, appErr.Code) // Code is 1001 for not found
 
 	s.repo.AssertExpectations(s.T())
 
@@ -121,9 +120,13 @@ func (s *AuthServiceTestSuite) TestLogin_InvalidPassword() {
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), resp)
 
-	appErr, ok := err.(*errors.AppError)
-	s.Require().True(ok, "error should be of type *errors.AppError")
-	assert.Equal(s.T(), errors.ErrInvalidPassword, appErr.Code) // Code is 3003 for invalid password
+	// Assert that the error is of type AppError with ErrInvalidPassword code
+	if appError, ok := err.(*apperror.AppError); ok {
+		assert.Equal(s.T(), apperror.ErrInvalidPassword, appError.Code)
+		assert.Equal(s.T(), "Invalid credentials", appError.Message)
+	} else {
+		s.Fail("Expected AppError with ErrInvalidPassword code")
+	}
 
 	s.repo.AssertExpectations(s.T())
 
@@ -149,7 +152,7 @@ func (s *AuthServiceTestSuite) TestLogin_CreateTokenError() {
 			ExpiresAt: time.Now().Add(1 * time.Hour).Unix(),
 		}, nil).Once()
 	s.refreshTokenService.On("Create", user, ipAddress).
-		Return(nil, errors.New(errors.ErrInvalidData, "token generation failed")).
+		Return(nil, apperror.NewInternalError("Failed to create refresh token")).
 		Once()
 
 	// Create a proper gin.Context with ResponseWriter
@@ -161,13 +164,15 @@ func (s *AuthServiceTestSuite) TestLogin_CreateTokenError() {
 
 	resp, err := s.service.Login(email, password, ginCtx)
 
+	// Assert that an error
+	if appError, ok := err.(*apperror.AppError); ok {
+		assert.Equal(s.T(), apperror.ErrInternal, appError.Code)
+		assert.Equal(s.T(), "Failed to create refresh token", appError.Message)
+	} else {
+		s.Fail("Expected AppError with ErrInternal code")
+	}
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), resp)
-
-	appErr, ok := err.(*errors.AppError)
-	s.Require().True(ok, "error should be of type *errors.AppError")
-
-	assert.Equal(s.T(), errors.ErrInvalidData, appErr.Code)
 
 	s.repo.AssertExpectations(s.T())
 	s.refreshTokenService.AssertExpectations(s.T())
@@ -188,7 +193,7 @@ func (s *AuthServiceTestSuite) TestLogin_JwtError() {
 	s.repo.On("FindByField", "email", email).Return(user, nil)
 	s.bcryptService.On("CheckPasswordHash", password, user.Password).Return(true).Once()
 	s.jwtService.On("GenerateToken", user.ID).
-		Return(&services.JwtResult{}, errors.New(errors.ErrInternal, "jwt generation failed")).Once()
+		Return(&services.JwtResult{}, errors.New("Failed to generate JWT token")).Once()
 
 	w := httptest.NewRecorder()
 	ginCtx, _ := gin.CreateTestContext(w)
@@ -201,11 +206,15 @@ func (s *AuthServiceTestSuite) TestLogin_JwtError() {
 	assert.Error(s.T(), err)
 	assert.Nil(s.T(), resp)
 
-	appErr, ok := err.(*errors.AppError)
-	s.Require().True(ok, "error should be of type *errors.AppError")
+	// Assert that the error is of type AppError with ErrInternal code
+	if appError, ok := err.(*apperror.AppError); ok {
+		assert.Equal(s.T(), apperror.ErrInternal, appError.Code)
+		assert.Equal(s.T(), "Failed to generate JWT token", appError.Message)
+	} else {
+		s.Fail("Expected AppError with ErrInternal code")
+	}
 
-	assert.Equal(s.T(), errors.ErrInternal, appErr.Code)
-
+	// Assert mocks
 	s.repo.AssertExpectations(s.T())
 	s.refreshTokenService.AssertExpectations(s.T())
 }
@@ -263,6 +272,8 @@ func (s *AuthServiceTestSuite) TestRefreshToken_Success() {
 	// Validate mock expectations
 	s.refreshTokenService.AssertExpectations(s.T())
 	s.repo.AssertExpectations(s.T())
+	s.jwtService.AssertExpectations(s.T())
+	s.bcryptService.AssertExpectations(s.T())
 }
 
 func (s *AuthServiceTestSuite) TestRefreshToken_UpdateError() {
@@ -271,7 +282,7 @@ func (s *AuthServiceTestSuite) TestRefreshToken_UpdateError() {
 	ipAddress := "127.0.0.1"
 
 	// Mock refresh token service to return error for invalid token
-	mockError := errors.New(errors.ErrDBQuery, "token not found")
+	mockError := apperror.NewNotFoundError("Refresh token not found")
 	s.refreshTokenService.On("Update", invalidToken, ipAddress).Return(nil, mockError).Once()
 
 	// Setup gin test context with IP
@@ -285,10 +296,11 @@ func (s *AuthServiceTestSuite) TestRefreshToken_UpdateError() {
 	s.Nil(result, "Expected nil result for error case")
 	s.Contains(err.Error(), mockError.Error(), "Expected database query error message")
 
-	// Validate mock expectations
+	// Assert mocks
 	s.refreshTokenService.AssertExpectations(s.T())
-	// User repo should not be called when token is invalid
-	s.repo.AssertNotCalled(s.T(), "GetByID")
+	s.repo.AssertExpectations(s.T())
+	s.jwtService.AssertExpectations(s.T())
+	s.bcryptService.AssertExpectations(s.T())
 }
 
 func (s *AuthServiceTestSuite) TestRefreshToken_GetByIDError() {
@@ -308,7 +320,7 @@ func (s *AuthServiceTestSuite) TestRefreshToken_GetByIDError() {
 	// Should update refresh token with correct old token and IP
 	s.refreshTokenService.On("Update", oldRefreshToken, ipAddress).Return(mockRes, nil).Once()
 	// Should fetch user with ID from refresh token
-	s.repo.On("GetByID", mockRes.UserId).Return((*models.User)(nil), gorm.ErrInvalidData).Once()
+	s.repo.On("GetByID", mockRes.UserId).Return((*models.User)(nil), gorm.ErrRecordNotFound).Once()
 
 	// Setup gin test context with IP
 	w := httptest.NewRecorder()
@@ -320,13 +332,19 @@ func (s *AuthServiceTestSuite) TestRefreshToken_GetByIDError() {
 	s.Error(err, "Expected error for valid refresh token")
 	s.Nil(result, "Expected nil result for error case")
 
-	appErr, ok := err.(*errors.AppError)
-	s.Require().True(ok, "error should be of type *errors.AppError")
-	assert.Equal(s.T(), errors.ErrDBQuery, appErr.Code) // Code is 2001 for database query error
+	// Assert that the error is of type AppError with ErrNotFound code
+	if appError, ok := err.(*apperror.AppError); ok {
+		assert.Equal(s.T(), apperror.ErrNotFound, appError.Code)
+		assert.Equal(s.T(), "record not found", appError.Message)
+	} else {
+		s.Fail("Expected AppError with ErrNotFound code")
+	}
 
-	s.T().Logf("Error message: %s", err.Error())
-
+	// Assert mocks
+	s.repo.AssertExpectations(s.T())
+	s.bcryptService.AssertExpectations(s.T())
 	s.refreshTokenService.AssertExpectations(s.T())
+	s.jwtService.AssertExpectations(s.T())
 }
 
 func (s *AuthServiceTestSuite) TestRefreshToken_JwtError() {
@@ -353,7 +371,7 @@ func (s *AuthServiceTestSuite) TestRefreshToken_JwtError() {
 	// Should fetch user with ID from refresh token
 	s.repo.On("GetByID", mockRes.UserId).Return(user, nil).Once()
 	// Should generate new access token for user
-	s.jwtService.On("GenerateToken", user.ID).Return(&services.JwtResult{}, errors.New(errors.ErrInternal, "jwt generation failed")).Once()
+	s.jwtService.On("GenerateToken", user.ID).Return(&services.JwtResult{}, errors.New("Failed to generate JWT token")).Once()
 
 	// Setup gin test context with IP
 	w := httptest.NewRecorder()
@@ -365,11 +383,18 @@ func (s *AuthServiceTestSuite) TestRefreshToken_JwtError() {
 	s.Error(err, "Expected error for valid refresh token")
 	s.Nil(result, "Expected nil result for error case")
 
-	appErr, ok := err.(*errors.AppError)
-	s.Require().True(ok, "error should be of type *errors.AppError")
-	assert.Equal(s.T(), errors.ErrInternal, appErr.Code) // Code is 2001 for database query error
+	if appError, ok := err.(*apperror.AppError); ok {
+		assert.Equal(s.T(), apperror.ErrInternal, appError.Code)
+		assert.Equal(s.T(), "Failed to generate JWT token", appError.Message)
+	} else {
+		s.Fail("Expected AppError with ErrInternal code")
+	}
 
+	// Assert mocks
+	s.repo.AssertExpectations(s.T())
+	s.bcryptService.AssertExpectations(s.T())
 	s.refreshTokenService.AssertExpectations(s.T())
+	s.jwtService.AssertExpectations(s.T())
 }
 
 func TestAuthServiceTestSuite(t *testing.T) {

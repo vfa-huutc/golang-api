@@ -4,7 +4,6 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
-// MockBcryptService is a mock implementation of IBcryptService.
 type MockBcryptService struct {
 	mock.Mock
 }

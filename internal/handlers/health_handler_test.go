@@ -12,6 +12,7 @@ import (
 )
 
 func TestHealthCheck(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	mockRouter := gin.Default()
 	mockRouter.GET("/health", handlers.HealthCheck)
 
