@@ -29,6 +29,14 @@ jobs:
         run: |
           gotestsum --format=standard-verbose -- -coverprofile=coverage.out ./...
           go tool cover -func=coverage.out
+  
+  analyze:
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Analyze placeholder
+        run: echo "🚀 Analyze success (implementation coming soon)"
 
   build:
     needs: test

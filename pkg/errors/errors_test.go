@@ -29,7 +29,7 @@ func TestWrap(t *testing.T) {
 
 	assert.NotNil(t, appErr)
 	assert.Equal(t, app_errors.ErrInvalidData, appErr.Code)
-	assert.Equal(t, "invalid request", appErr.Message)
+	assert.Equal(t, "invalid request2", appErr.Message)
 	assert.Equal(t, underlying, appErr.Err)
 }
 
