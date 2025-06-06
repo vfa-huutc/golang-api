@@ -204,7 +204,7 @@ func TranslateValidationErrors(err error, obj any) *apperror.ValidationError {
 }
 
 // The utility function to map JSON errors to FieldError structs.
-func MapJsonToFieldErrors(json any) []apperror.FieldError {
+func ToFieldErrors(json any) []apperror.FieldError {
 	var fieldErrors []apperror.FieldError
 
 	if items, ok := json.([]any); ok {

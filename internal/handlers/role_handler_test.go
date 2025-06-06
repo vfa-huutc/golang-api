@@ -171,7 +171,7 @@ func TestCreateRole(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, w.Code)
 				assert.Equal(t, tt.expectedCode, response["code"])
 				assert.Equal(t, tt.expectedMsg, response["message"])
-				assert.Equal(t, tt.expectedFields, utils.MapJsonToFieldErrors(response["fields"]))
+				assert.Equal(t, tt.expectedFields, utils.ToFieldErrors(response["fields"]))
 
 				// Assert mocks
 				mockService.AssertExpectations(t)
@@ -373,7 +373,7 @@ func TestUpdateRole(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, w.Code)
 				assert.Equal(t, tt.expectedCode, response["code"])
 				assert.Equal(t, tt.expectedMsg, response["message"])
-				assert.Equal(t, tt.expectedFields, utils.MapJsonToFieldErrors(response["fields"]))
+				assert.Equal(t, tt.expectedFields, utils.ToFieldErrors(response["fields"]))
 
 				// Assert mocks
 				mockService.AssertExpectations(t)

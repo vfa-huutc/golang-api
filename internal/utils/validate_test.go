@@ -356,5 +356,4 @@ func TestTranslateValidationErrors_DefaultCase(t *testing.T) {
 			Message: "Field is invalid",
 		},
 	})
-
 }

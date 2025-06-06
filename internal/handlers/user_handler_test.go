@@ -471,7 +471,7 @@ func TestCreateUser(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, w.Code)
 				assert.Equal(t, expectedBody["code"], actualBody["code"])
 				assert.Equal(t, expectedBody["message"], actualBody["message"])
-				assert.Equal(t, tc.expectedFields, utils.MapJsonToFieldErrors(actualBody["fields"]))
+				assert.Equal(t, tc.expectedFields, utils.ToFieldErrors(actualBody["fields"]))
 
 				// Assert mocks
 				userService.AssertExpectations(t)
@@ -767,7 +767,7 @@ func TestUpdateProfile(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, w.Code)
 				assert.Equal(t, expectedBody["code"], actualBody["code"])
 				assert.Equal(t, expectedBody["message"], actualBody["message"])
-				assert.Equal(t, tt.expectedFields, utils.MapJsonToFieldErrors(actualBody["fields"]))
+				assert.Equal(t, tt.expectedFields, utils.ToFieldErrors(actualBody["fields"]))
 
 				// Assert mocks
 				userService.AssertExpectations(t)
@@ -1515,7 +1515,7 @@ func TestChangePassword(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, w.Code)
 				assert.Equal(t, expectedBody["code"], actualBody["code"])
 				assert.Equal(t, expectedBody["message"], actualBody["message"])
-				assert.Equal(t, expectedBody["fields"], utils.MapJsonToFieldErrors(actualBody["fields"]))
+				assert.Equal(t, expectedBody["fields"], utils.ToFieldErrors(actualBody["fields"]))
 
 				// Assert mock expectations
 				userService.AssertExpectations(t)
@@ -2735,7 +2735,7 @@ func TestResetPassword(t *testing.T) {
 				assert.Equal(t, http.StatusBadRequest, w.Code)
 				assert.Equal(t, tt.expectedCode, actualBody["code"])
 				assert.Equal(t, tt.expectedMsg, actualBody["message"])
-				assert.Equal(t, tt.expectedField, utils.MapJsonToFieldErrors(actualBody["fields"]))
+				assert.Equal(t, tt.expectedField, utils.ToFieldErrors(actualBody["fields"]))
 
 				// Assert mocks
 				userService.AssertExpectations(t)

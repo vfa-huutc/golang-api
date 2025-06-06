@@ -1,38 +1,47 @@
 .PHONY: install-tools test-coverage test watch-test start-server start-seeder
 
 install-tools:
+	@echo "Ensuring Go modules are tidy..."
+	@go mod tidy
+
+	@echo "Installing Go toolchain dependencies..."
+
 	@if ! command -v migrate >/dev/null 2>&1; then \
 		echo "Installing migrate CLI..."; \
 		go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest; \
-		echo "migrate CLI installed successfully"; \
+		echo "✅ migrate CLI installed"; \
 	else \
-		echo "migrate already installed"; \
+		echo "✅ migrate already installed"; \
 	fi
 
 	@if ! command -v air >/dev/null 2>&1; then \
 		echo "Installing Air (live reload)..."; \
 		go install github.com/cosmtrek/air@latest; \
-		echo "Air installed successfully"; \
-		echo "To use Air, ensure you have a .air.toml configuration file in your project root."; \
+		echo "✅ Air installed"; \
 	else \
-		echo "air already installed"; \
+		echo "✅ air already installed"; \
 	fi
 
 	@if ! command -v gotestsum >/dev/null 2>&1; then \
 		echo "Installing gotestsum..."; \
 		go install gotest.tools/gotestsum@latest; \
-		echo "gotestsum installed successfully"; \
+		echo "✅ gotestsum installed"; \
 	else \
-		echo "gotestsum already installed"; \
+		echo "✅ gotestsum already installed"; \
 	fi
 
 	@if ! command -v reflex >/dev/null 2>&1; then \
 		echo "Installing reflex (file watcher)..."; \
 		go install github.com/cespare/reflex@latest; \
-		echo "reflex installed successfully"; \
+		echo "✅ reflex installed"; \
 	else \
-		echo "reflex already installed"; \
+		echo "✅ reflex already installed"; \
 	fi
+
+	@echo "Installing all Go dependencies (go install ./...)"
+	@go install ./...
+
+	@echo "✅ All tools and packages installed."
 
 test: install-tools
 	@echo "Running tests with gotestsum..."

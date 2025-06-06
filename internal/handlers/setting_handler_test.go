@@ -166,7 +166,7 @@ func TestUpdateSettings(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, w.Code)
 		assert.Equal(t, expectedBody["code"], actualBody["code"])
 		assert.Equal(t, expectedBody["message"], actualBody["message"])
-		assert.Equal(t, expectedBody["fields"], utils.MapJsonToFieldErrors(actualBody["fields"]))
+		assert.Equal(t, expectedBody["fields"], utils.ToFieldErrors(actualBody["fields"]))
 
 		// Assert mocks
 		mockService.AssertExpectations(t)
