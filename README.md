@@ -1,4 +1,4 @@
-# Golang CMS
+# Golang Template Project
 
 This is a Golang project designed to handle a simple web service with user management, roles, permissions, and refresh tokens. It uses MySQL for the database, Docker for containerization, and includes support for migrations, seeding, and authentication.
 

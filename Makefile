@@ -65,15 +65,24 @@ start-server: install-tools
 	@echo "Detecting platform and starting Docker..."
 
 	@if [ "$$(uname)" = "Darwin" ]; then \
-		if pgrep -f "OrbStack" > /dev/null; then \
+		if [ -d "/Applications/OrbStack.app" ]; then \
 			echo "Opening OrbStack..."; \
 			open -a OrbStack || echo "Failed to open OrbStack"; \
-		else \
+			sleep 5; \
+		elif [ -d "/Applications/Docker.app" ]; then \
 			echo "Opening Docker Desktop..."; \
 			open -a Docker || echo "Failed to open Docker Desktop"; \
+			sleep 10; \
+		else \
+			echo "Neither OrbStack nor Docker Desktop found. Please ensure Docker is installed."; \
+			exit 1; \
 		fi \
 	else \
-		echo "Running on Linux - ensure Docker is running..."; \
+		echo "Running on Linux - checking if Docker daemon is running..."; \
+		if ! systemctl is-active --quiet docker; then \
+			echo "Docker is not running. Starting Docker..."; \
+			sudo systemctl start docker; \
+		fi \
 	fi
 
 	@echo "Waiting for Docker to be ready..."
@@ -83,7 +92,7 @@ start-server: install-tools
 	done
 	@echo "\nDocker is ready."
 
-	@echo "Starting Docker containers (detached)..."
+	@echo "Starting Docker containers in detached mode..."
 	@docker-compose up -d
 
 	@echo "Waiting for MySQL to be ready..."
