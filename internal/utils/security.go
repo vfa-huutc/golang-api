@@ -6,25 +6,22 @@ import (
 	"strings"
 )
 
-// CensorSensitiveData censors sensitive data in complex data structures
+// CensorSensitiveData censors sensitive data in complex data structures recursively.
 func CensorSensitiveData(data any, maskFields []string) any {
-	// Handle nil input
 	if data == nil {
 		return nil
 	}
 
-	// Use reflection to handle more dynamic type checking
 	val := reflect.ValueOf(data)
 
 	switch val.Kind() {
-	case reflect.Slice:
+	case reflect.Slice, reflect.Array:
 		return censorSlice(data, maskFields)
 	case reflect.Map:
 		return censorMap(data, maskFields)
 	case reflect.Struct:
 		return censorStruct(data, maskFields)
 	case reflect.Ptr:
-		// Dereference pointer and recursively censor
 		if val.IsNil() {
 			return nil
 		}
@@ -36,12 +33,12 @@ func CensorSensitiveData(data any, maskFields []string) any {
 	}
 }
 
-// censorSlice handles censoring slice types
+// censorSlice recursively censors each element in a slice/array.
 func censorSlice(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	censoredSlice := reflect.MakeSlice(val.Type(), val.Len(), val.Len())
 
-	for i := range val.Len() {
+	for i := 0; i < val.Len(); i++ { // fix vòng lặp đúng cách
 		item := val.Index(i).Interface()
 		censoredItem := CensorSensitiveData(item, maskFields)
 		censoredSlice.Index(i).Set(reflect.ValueOf(censoredItem))
@@ -50,7 +47,7 @@ func censorSlice(data any, maskFields []string) any {
 	return censoredSlice.Interface()
 }
 
-// censorMap handles censoring map types
+// censorMap recursively censors map entries based on keys.
 func censorMap(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	censoredMap := reflect.MakeMap(val.Type())
@@ -60,15 +57,13 @@ func censorMap(data any, maskFields []string) any {
 		key := iter.Key()
 		value := iter.Value()
 
-		// Check if the key (converted to string) is in maskFields
 		keyStr := fmt.Sprintf("%v", key.Interface())
 
 		var censoredValue reflect.Value
 		if contains(maskFields, keyStr) {
-			// Mask the entire value if the key matches
+			// Mask toàn bộ giá trị nếu key nhạy cảm
 			censoredValue = reflect.ValueOf(maskValue(value.Interface()))
 		} else {
-			// Recursively censor nested structures
 			censoredValue = reflect.ValueOf(CensorSensitiveData(value.Interface(), maskFields))
 		}
 
@@ -78,11 +73,10 @@ func censorMap(data any, maskFields []string) any {
 	return censoredMap.Interface()
 }
 
-// censorStruct handles censoring struct types
+// censorStruct recursively censors struct fields based on field names.
 func censorStruct(data any, maskFields []string) any {
 	val := reflect.ValueOf(data)
 	typ := val.Type()
-
 	censoredStruct := reflect.New(typ).Elem()
 
 	for i := 0; i < val.NumField(); i++ {
@@ -90,39 +84,34 @@ func censorStruct(data any, maskFields []string) any {
 		fieldType := typ.Field(i)
 
 		if contains(maskFields, fieldType.Name) {
-			// Trường cần mask
+			// Field need to be masked
 			if field.Kind() == reflect.Ptr {
 				if field.IsNil() {
-					// Nếu con trỏ nil thì giữ nguyên nil
 					censoredStruct.Field(i).Set(reflect.Zero(field.Type()))
 				} else {
-					// Mask giá trị bên trong con trỏ
 					maskedVal := maskValue(field.Elem().Interface())
 					maskedValReflect := reflect.ValueOf(maskedVal)
 
-					// Tạo con trỏ mới cùng kiểu với trường
 					ptr := reflect.New(fieldType.Type.Elem())
-					ptr.Elem().Set(maskedValReflect)
-
+					ptr.Elem().Set(matchedValOrZero(maskedValReflect, fieldType.Type.Elem()))
 					censoredStruct.Field(i).Set(ptr)
 				}
 			} else {
-				// Trường không phải con trỏ thì mask trực tiếp
-				censoredStruct.Field(i).Set(reflect.ValueOf(maskValue(field.Interface())))
+				censoredStruct.Field(i).Set(matchedValOrZero(reflect.ValueOf(maskValue(field.Interface())), fieldType.Type))
 			}
 		} else {
-			// Trường không cần mask, đệ quy censor nested
+			// Field does not need to be masked, process recursively
 			censoredValue := CensorSensitiveData(field.Interface(), maskFields)
 			if field.Kind() == reflect.Ptr {
 				if field.IsNil() {
 					censoredStruct.Field(i).Set(reflect.Zero(field.Type()))
 				} else {
 					ptr := reflect.New(fieldType.Type.Elem())
-					ptr.Elem().Set(reflect.ValueOf(censoredValue))
+					ptr.Elem().Set(matchedValOrZero(reflect.ValueOf(censoredValue), fieldType.Type.Elem()))
 					censoredStruct.Field(i).Set(ptr)
 				}
 			} else {
-				censoredStruct.Field(i).Set(reflect.ValueOf(censoredValue))
+				censoredStruct.Field(i).Set(matchedValOrZero(reflect.ValueOf(censoredValue), fieldType.Type))
 			}
 		}
 	}
@@ -130,7 +119,15 @@ func censorStruct(data any, maskFields []string) any {
 	return censoredStruct.Interface()
 }
 
-// contains checks if a slice contains a given string
+// matchedValOrZero tries set value if compatible, else zero value (tránh panic)
+func matchedValOrZero(val reflect.Value, typ reflect.Type) reflect.Value {
+	if val.Type().AssignableTo(typ) {
+		return val
+	}
+	return reflect.Zero(typ)
+}
+
+// contains checks if a string is in a slice, case-insensitive
 func contains(slice []string, item string) bool {
 	for _, v := range slice {
 		if strings.EqualFold(v, item) {
@@ -140,7 +137,7 @@ func contains(slice []string, item string) bool {
 	return false
 }
 
-// maskValue provides advanced masking for different value types
+// maskValue masks sensitive values based on their type.
 func maskValue(value any) any {
 	switch v := value.(type) {
 	case string:
@@ -148,8 +145,7 @@ func maskValue(value any) any {
 	case fmt.Stringer:
 		return maskString(v.String())
 	case []byte:
-		masked := maskString(string(v))
-		return []byte(masked)
+		return []byte(maskString(string(v)))
 	case nil:
 		return nil
 	default:
@@ -157,9 +153,8 @@ func maskValue(value any) any {
 	}
 }
 
-// maskString provides sophisticated string masking
+// maskString masks a string by replacing its middle characters with asterisks.
 func maskString(s string) string {
-	// Default masking for other strings
 	if len(s) > 2 {
 		maskLen := min(len(s)-2, 8)
 		return string(s[0]) + strings.Repeat("*", maskLen) + string(s[len(s)-1])
@@ -167,26 +162,41 @@ func maskString(s string) string {
 	return strings.Repeat("*", len(s))
 }
 
-// maskReflectedValue handles masking for complex types using reflection
 func maskReflectedValue(value any) any {
 	val := reflect.ValueOf(value)
 
 	switch val.Kind() {
 	case reflect.Slice, reflect.Array:
-		// Create a masked slice of the same length
 		maskedSlice := reflect.MakeSlice(val.Type(), val.Len(), val.Len())
 		for i := range val.Len() {
 			maskedSlice.Index(i).Set(reflect.ValueOf("*****"))
 		}
 		return maskedSlice.Interface()
 	case reflect.Struct:
-		// Create a struct with all fields masked
 		maskedStruct := reflect.New(val.Type()).Elem()
-		for i := range val.NumField() {
-			maskedStruct.Field(i).Set(reflect.ValueOf("*****"))
+		for i := 0; i < val.NumField(); i++ {
+			field := maskedStruct.Field(i)
+			switch field.Kind() {
+			case reflect.String:
+				field.SetString("*****")
+			case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8:
+				field.SetInt(0)
+			case reflect.Bool:
+				field.SetBool(false)
+			default:
+				field.Set(reflect.Zero(field.Type()))
+			}
 		}
 		return maskedStruct.Interface()
 	default:
 		return "*****"
 	}
+}
+
+// Min returns the minimum of two integers.
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
