@@ -62,49 +62,38 @@ watch-test: install-tools
 	@reflex -r '\.go$$' -s -- sh -c 'clear && gotestsum --format=short-verbose -- ./...'
 
 start-server: install-tools
-	@echo "Detecting platform and starting Docker..."
+	@echo "🚀 Starting development server setup..."
 
-	@if [ "$$(uname)" = "Darwin" ]; then \
-		if [ -d "/Applications/OrbStack.app" ]; then \
-			echo "Opening OrbStack..."; \
-			open -a OrbStack || echo "Failed to open OrbStack"; \
-			sleep 5; \
-		elif [ -d "/Applications/Docker.app" ]; then \
-			echo "Opening Docker Desktop..."; \
-			open -a Docker || echo "Failed to open Docker Desktop"; \
-			sleep 10; \
-		else \
-			echo "Neither OrbStack nor Docker Desktop found. Please ensure Docker is installed."; \
-			exit 1; \
-		fi \
+	@echo "🐳 Checking Docker status..."
+	@if docker info > /dev/null 2>&1; then \
+		echo "✅ Docker is running."; \
 	else \
-		echo "Running on Linux - checking if Docker daemon is running..."; \
-		if ! systemctl is-active --quiet docker; then \
-			echo "Docker is not running. Starting Docker..."; \
-			sudo systemctl start docker; \
-		fi \
+		echo "❌ Docker is not running. Please start Docker Desktop or Docker Engine."; \
+		exit 1; \
 	fi
 
-	@echo "Waiting for Docker to be ready..."
-	@until docker info > /dev/null 2>&1; do \
-		printf "."; \
+	@echo "📦 Starting Docker containers in detached mode..."
+	@docker-compose up -d || { echo '❌ Failed to start containers'; exit 1; }
+
+	@echo "⏱️  Waiting for MySQL to be ready..."
+	@retries=0; max_retries=30; \
+	until docker exec $$(docker ps -qf "name=mysql") \
+		mysqladmin ping -h"127.0.0.1" --silent > /dev/null 2>&1; do \
+		printf "🐢"; \
 		sleep 1; \
+		retries=$$((retries+1)); \
+		if [ $$retries -ge $$max_retries ]; then \
+			echo "\n❌ MySQL did not become ready in time."; \
+			exit 1; \
+		fi; \
 	done
-	@echo "\nDocker is ready."
+	@echo "\n✅ MySQL is ready."
 
-	@echo "Starting Docker containers in detached mode..."
-	@docker-compose up -d
+	@echo "⚙️  Starting server with live reload using Air..."
+	@air || { echo '❌ Failed to start the server with Air'; exit 1; }
 
-	@echo "Waiting for MySQL to be ready..."
-	@until docker exec $$(docker ps -qf "name=mysql") \
-		mysqladmin ping -h"127.0.0.1" --silent; do \
-		printf "."; \
-		sleep 1; \
-	done
-	@echo "\nMySQL is ready."
+	@echo "🎉 Server is running and ready for development!"
 
-	@echo "Starting server with live-reload (air)..."
-	@air
 
 start-seeder:
 	@echo "Seeding the database..."
