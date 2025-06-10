@@ -12,6 +12,7 @@ import (
 )
 
 func TestCORSMiddleware(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	// Set environment variable for CORS_ALLOWED_ORIGINS for this test
 	os.Setenv("CORS_ALLOWED_ORIGINS", "https://example.com")
 	defer os.Unsetenv("CORS_ALLOWED_ORIGINS")

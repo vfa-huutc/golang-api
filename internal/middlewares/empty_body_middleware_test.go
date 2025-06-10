@@ -14,6 +14,7 @@ import (
 )
 
 func TestEmptyBodyMiddleware_RejectsEmptyBody(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	router.Use(middlewares.EmptyBodyMiddleware())
 	router.POST("/test", func(c *gin.Context) {
