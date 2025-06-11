@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -970,7 +971,7 @@ func TestGetProfile(t *testing.T) {
 			CreatedAt: time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
 			UpdatedAt: time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
 		}
-		profileKey := constants.PROFILE + string(rune(user.ID))
+		profileKey := constants.PROFILE + strconv.Itoa(int(user.ID))
 		// Mock the service method
 		userService.On("GetProfile", uint(1)).Return(user, nil)
 		redisService.On("Get", profileKey).Return("", nil)
@@ -1024,7 +1025,7 @@ func TestGetProfile(t *testing.T) {
 			CreatedAt: time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
 			UpdatedAt: time.Date(2023, 10, 1, 0, 0, 0, 0, time.UTC),
 		}
-		profileKey := constants.PROFILE + string(rune(user.ID))
+		profileKey := constants.PROFILE + strconv.Itoa(int(user.ID))
 		// Mock the Redis Get method to return a cached profile
 		cachedProfile := fmt.Sprintf(`{"id":%d,"email":"%s","name":"%s","gender":%d,"createdAt":"%s","updatedAt":"%s","deletedAt":null}`,
 			user.ID, user.Email, user.Name, user.Gender, user.CreatedAt.Format(time.RFC3339), user.UpdatedAt.Format(time.RFC3339))
@@ -1097,9 +1098,12 @@ func TestGetProfile(t *testing.T) {
 		redisService := new(mocks.MockRedisService)
 		bcryptService := new(mocks.MockBcryptService)
 
-		profileKey := constants.PROFILE + string(rune(1))
+		userId := uint(1)
+		// Assuming the cache key is constructed as "profile:<user_id>"
+
+		profileKey := constants.PROFILE + strconv.Itoa(int(userId))
 		// Mock the GetUser method to return an error
-		userService.On("GetProfile", uint(1)).Return(&models.User{}, apperror.NewNotFoundError("User not found"))
+		userService.On("GetProfile", userId).Return(&models.User{}, apperror.NewNotFoundError("User not found"))
 		// Mock the Redis Get method to return an empty string
 		redisService.On("Get", profileKey).Return("", nil)
 
@@ -1107,7 +1111,7 @@ func TestGetProfile(t *testing.T) {
 		w := httptest.NewRecorder()
 		c, _ := gin.CreateTestContext(w)
 		c.Request, _ = http.NewRequest("GET", "/api/v1/profile", nil)
-		c.Set("UserID", uint(1))
+		c.Set("UserID", userId)
 
 		// Call the GetProfile handler
 		handler.GetProfile(c)
@@ -1135,7 +1139,7 @@ func TestGetProfile(t *testing.T) {
 		redisService := new(mocks.MockRedisService)
 		bcryptService := new(mocks.MockBcryptService)
 
-		profileKey := constants.PROFILE + string(rune(1))
+		profileKey := constants.PROFILE + strconv.Itoa(int(1))
 		// Mock the GetUser method to return a user
 		user := &models.User{
 			ID:        1,
@@ -1185,7 +1189,7 @@ func TestGetProfile(t *testing.T) {
 		redisService := new(mocks.MockRedisService)
 		bcryptService := new(mocks.MockBcryptService)
 
-		profileKey := constants.PROFILE + string(rune(1))
+		profileKey := constants.PROFILE + strconv.Itoa(int(1))
 		// Mock the Redis Get method to return an invalid JSON
 		redisService.On("Get", profileKey).Return("invalid-json", nil)
 

@@ -404,7 +404,7 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 	var user models.User
 
 	// Try to get user from Redis cache
-	cacheKey := constants.PROFILE + string(rune(userId))
+	cacheKey := constants.PROFILE + strconv.Itoa(int(userId))
 	userString, err := handler.redisService.Get(cacheKey)
 	if err != nil {
 		logger.Warnf("Failed to get user from Redis: %+v", err)
@@ -453,7 +453,7 @@ func (handler *UserHandler) cacheUserProfile(user *models.User) error {
 	}
 
 	// Create Redis key by concatenating profile prefix with user ID
-	profileKey := constants.PROFILE + string(rune(user.ID))
+	profileKey := constants.PROFILE + strconv.Itoa(int(user.ID))
 
 	// Store serialized user data in Redis
 	if err := handler.redisService.Set(profileKey, userJSON, 60*time.Minute); err != nil {
