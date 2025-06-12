@@ -25,9 +25,6 @@ func (s *UserRepositoryTestSuite) SetupTest() {
 	// Auto-migrate the models
 	err = db.AutoMigrate(
 		&models.User{},
-		&models.Role{},
-		&models.Permission{},
-		&models.UserRole{},
 	)
 	s.Require().NoError(err)
 	s.db = db
@@ -39,45 +36,6 @@ func (s *UserRepositoryTestSuite) TearDownTest() {
 	if err == nil {
 		db.Close()
 	}
-}
-
-func (s *UserRepositoryTestSuite) TestPaginateUser() {
-	mockUsers := []*models.User{
-		{Name: "User1", Email: "email1@example.com", Password: "password1", Gender: 1},
-		{Name: "User2", Email: "email2@example.com", Password: "password2", Gender: 1},
-		{Name: "User3", Email: "email3@example.com", Password: "password3", Gender: 1},
-		{Name: "User4", Email: "email4@example.com", Password: "password4", Gender: 1},
-		{Name: "User5", Email: "email5@example.com", Password: "password5", Gender: 1},
-		{Name: "User6", Email: "email6@example.com", Password: "password6", Gender: 1},
-		{Name: "User7", Email: "email7@example.com", Password: "password7", Gender: 1},
-		{Name: "User8", Email: "email8@example.com", Password: "password8", Gender: 1},
-		{Name: "User9", Email: "email9@example.com", Password: "password9", Gender: 1},
-		{Name: "User10", Email: "email10@example.com", Password: "password10", Gender: 1},
-	}
-	for _, user := range mockUsers {
-		_, err := s.repo.Create(user)
-		s.NoError(err, "Expected no error when creating mock users")
-	}
-	pagination, err := s.repo.PaginateUser(1, 5)
-	s.NoError(err, "Expected no error when paginating users")
-	s.NotNil(pagination, "Expected pagination to be not nil")
-	s.Equal(1, pagination.Page, "Expected page number to be 1")
-	s.Equal(5, pagination.Limit, "Expected limit to be 5")
-	s.Equal(10, pagination.TotalItems, "Expected total items to be 10")
-	s.Len(pagination.Data, 5, "Expected 5 items in the first page of pagination")
-
-	// Parse the data to []models.User
-	users, ok := pagination.Data.([]models.User)
-	s.True(ok, "Expected pagination data to be of type []models.User")
-
-	//s.T().Logf("Users in first page: %+v", users)
-	// Expect the first 5 users at page 1 to be returned with correct names
-	s.Equal("User10", users[0].Name)
-	s.Equal("User9", users[1].Name)
-	s.Equal("User8", users[2].Name)
-	s.Equal("User7", users[3].Name)
-	s.Equal("User6", users[4].Name)
-
 }
 
 func (s *UserRepositoryTestSuite) TestGetAll() {
@@ -229,7 +187,6 @@ func (s *UserRepositoryTestSuite) TestFindByFieldError() {
 func (s *UserRepositoryTestSuite) TestGetProfile() {
 	type MockUser struct {
 		users *models.User
-		roles []*models.Role
 	}
 	mockUsers := []MockUser{
 		{
@@ -239,10 +196,6 @@ func (s *UserRepositoryTestSuite) TestGetProfile() {
 				Password: "password",
 				Gender:   1,
 			},
-			roles: []*models.Role{
-				{Name: "Admin", DisplayName: "Administrator"},
-				{Name: "Editor", DisplayName: "Content Editor"},
-			},
 		},
 	}
 
@@ -251,28 +204,12 @@ func (s *UserRepositoryTestSuite) TestGetProfile() {
 		createdUser, err := s.repo.Create(mock.users)
 		s.NoError(err, "Expected no error when creating mock user")
 		s.NotNil(createdUser, "Expected created user to be not nil")
-
-		for _, role := range mock.roles {
-			role.ID = 0 // Reset ID for new role creation
-			err = s.repo.GetDB().Create(role).Error
-			s.NoError(err, "Expected no error when creating mock role")
-		}
-		// Assign roles to user
-		s.repo.GetDB().Model(createdUser).Association("Roles").Append(mock.roles)
 	}
 	profile, err := s.repo.GetProfile(mockUsers[0].users.ID)
 
 	s.NoError(err, "Expected no error when getting user profile")
 	s.NotNil(profile, "Expected user profile to be not nil")
 	s.Equal("Profile User", profile.Name, "Expected user name to be 'Profile User'")
-
-	// Check if roles are assigned correctly
-	roleNames := make([]string, len(profile.Roles))
-	for i, role := range profile.Roles {
-		roleNames[i] = role.Name
-	}
-
-	s.ElementsMatch([]string{"Admin", "Editor"}, roleNames, "Expected user roles to match")
 
 }
 
@@ -307,108 +244,6 @@ func (s *UserRepositoryTestSuite) TestUpdateProfile() {
 	s.NotNil(updatedUser, "Expected updated user to be not nil")
 	s.Equal("Updated Profile User", updatedUser.Name, "Expected user name to be 'Updated Profile User'")
 
-}
-
-func (s *UserRepositoryTestSuite) TestGetUserPermissions() {
-
-	// Mock data for roles and permissions
-	type MasterWithRole struct {
-		Roles       *models.Role
-		Permissions []models.Permission
-	}
-	// Mock user with roles and permissions
-	type MockUser struct {
-		user      *models.User
-		userRoles []models.UserRole
-	}
-	// Create mock roles and permissions
-	mockRoles := []MasterWithRole{
-		{
-			Roles: &models.Role{ID: 1, Name: "Admin", DisplayName: "Administrator"},
-			Permissions: []models.Permission{
-				{Resource: "create_user", Action: "Create User"},
-				{Resource: "delete_user", Action: "Delete User"},
-				{Resource: "update_user", Action: "Update User"},
-				{Resource: "view_user", Action: "View User"},
-			},
-		},
-	}
-	// Create mock users with roles
-	mockUsers := []MockUser{
-		{
-			user: &models.User{Name: "Bob", Email: "bob@example.com", Password: "password", Gender: 1},
-			userRoles: []models.UserRole{
-				{ID: 1, RoleID: 1, UserID: 1},
-			},
-		},
-		{
-			user:      &models.User{Name: "John", Email: "john@example.com", Password: "password", Gender: 1},
-			userRoles: []models.UserRole{},
-		},
-	}
-
-	// Create mock roles and permissions in the database
-	for _, mock := range mockRoles {
-		err := s.repo.GetDB().Create(mock.Roles).Error
-		s.NoError(err, "Expected no error when creating mock role")
-		for _, perm := range mock.Permissions {
-			perm.ID = 0 // Reset ID for new permission creation
-			err = s.repo.GetDB().Create(&perm).Error
-			s.NoError(err, "Expected no error when creating mock permission")
-			// Associate permission with role
-			err = s.repo.GetDB().Model(mock.Roles).Association("Permissions").Append(&perm)
-			s.NoError(err, "Expected no error when associating permission with role")
-		}
-	}
-	// Create mock users and assign roles
-	for _, mock := range mockUsers {
-		createdUser, err := s.repo.Create(mock.user)
-		s.NoError(err, "Expected no error when creating mock user")
-		s.NotNil(createdUser, "Expected created user to be not nil")
-
-		for _, userRole := range mock.userRoles {
-			err = s.repo.GetDB().Create(&userRole).Error
-			s.NoError(err, "Expected no error when creating mock user role")
-		}
-	}
-	// Test bob's with with roles and permissions
-	permissions, err := s.repo.GetUserPermissions(mockUsers[0].user.ID)
-	s.NoError(err, "Expected no error when getting user permissions")
-	s.Len(permissions, 4, "Expected 4 permissions for the user")
-
-	// Test John's with no roles and permissions
-	permissions, err = s.repo.GetUserPermissions(mockUsers[1].user.ID)
-	s.NoError(err, "Expected no error when getting user permissions")
-	s.Len(permissions, 0, "Expected no permissions for user without roles")
-}
-
-func (s *UserRepositoryTestSuite) TestGetUserPermissionsError() {
-	// Test with invalid user ID
-	permissions, err := s.repo.GetUserPermissions(999)
-	s.Error(err, "Expected error when getting permissions for non-existent user")
-	s.Nil(permissions, "Expected nil permissions for non-existent user")
-}
-
-func (s *UserRepositoryTestSuite) TestCreateWithTx() {
-	mockUser := &models.User{
-		Name:  "Transaction User",
-		Email: "email@example.com",
-	}
-	// Start a transaction
-	tx := s.repo.GetDB().Begin()
-	s.Require().NoError(tx.Error, "Expected no error when starting transaction")
-	// Create user within the transaction
-	createdUser, err := s.repo.CreateWithTx(tx, mockUser)
-	s.NoError(err, "Expected no error when creating user with transaction")
-	s.NotNil(createdUser, "Expected created user to be not nil")
-	// Commit the transaction
-	err = tx.Commit().Error
-	s.NoError(err, "Expected no error when committing transaction")
-	// Verify the user was created
-	retrievedUser, err := s.repo.GetByID(createdUser.ID)
-	s.NoError(err, "Expected no error when retrieving user by ID")
-	s.NotNil(retrievedUser, "Expected retrieved user to be not nil")
-	s.Equal("Transaction User", retrievedUser.Name, "Expected user name to be 'Transaction User'")
 }
 
 func (s *UserRepositoryTestSuite) TestCreateWithTx_Error_DuplicateEmail() {

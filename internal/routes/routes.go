@@ -3,7 +3,6 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"github.com/vfa-khuongdv/golang-cms/internal/guards"
 	"github.com/vfa-khuongdv/golang-cms/internal/handlers"
 	"github.com/vfa-khuongdv/golang-cms/internal/middlewares"
 	"github.com/vfa-khuongdv/golang-cms/internal/repositories"
@@ -32,9 +31,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	// Initialize repositories
 	userRepo := repositories.NewUserRepository(db)
 	refreshRepo := repositories.NewRefreshTokenRepository(db)
-	roleRepo := repositories.NewRoleRepository(db)
-	settingRepo := repositories.NewSettingRepository(db)
-	permissionRepo := repositories.NewPermissionRepository(db)
 
 	// Initialize services
 	client := redis.NewClient(&redis.Options{
@@ -49,19 +45,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	bcryptService := services.NewBcryptService()
 	jwtService := services.NewJWTService()
 	authService := services.NewAuthService(userRepo, refreshTokenService, bcryptService, jwtService)
-	roleService := services.NewRoleService(roleRepo)
-	settingService := services.NewSettingService(settingRepo)
-	permissionService := services.NewPermissionService(permissionRepo)
-
-	// Initialize role guard for permission checks
-	roleGuard := guards.NewRoleGuard(db)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(authService)
 	userHandler := handlers.NewUserHandler(userService, redisService, bcryptService)
-	roleHandler := handlers.NewRoleHandler(roleService)
-	settingHandler := handlers.NewSettingHandler(settingService)
-	permissionHandler := handlers.NewPermissionHandler(permissionService)
 
 	// Add middleware for CORS and logging
 	router.Use(
@@ -82,34 +69,17 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		api.POST("/forgot-password", userHandler.ForgotPassword)
 		api.POST("/reset-password", userHandler.ResetPassword)
 
-		// Protected routes (require authentication)
 		authenticated := api.Group("/")
 		authenticated.Use(middlewares.AuthMiddleware())
 		{
-			// Profile management (available to all authenticated users)
 			authenticated.POST("/change-password", userHandler.ChangePassword)
 			authenticated.GET("/profile", userHandler.GetProfile)
 			authenticated.PATCH("/profile", userHandler.UpdateProfile)
 
-			// User management routes with permission checks
-			authenticated.GET("/users", guards.RequirePermissions(roleGuard, "users:view"), userHandler.PaginationUser)
-			authenticated.POST("/users", guards.RequirePermissions(roleGuard, "users:create"), userHandler.CreateUser)
-			authenticated.GET("/users/:id", guards.RequirePermissions(roleGuard, "users:view"), userHandler.GetUser)
-			authenticated.PATCH("/users/:id", guards.RequirePermissions(roleGuard, "users:update"), userHandler.UpdateUser)
-			authenticated.DELETE("/users/:id", guards.RequirePermissions(roleGuard, "users:delete"), userHandler.DeleteUser)
-
-			// Role management routes with permission checks
-			authenticated.POST("/roles", guards.RequirePermissions(roleGuard, "roles:create"), roleHandler.CreateRole)
-			authenticated.GET("/roles/:id", guards.RequirePermissions(roleGuard, "roles:view"), roleHandler.GetRole)
-			authenticated.PATCH("/roles/:id", guards.RequirePermissions(roleGuard, "roles:update"), roleHandler.UpdateRole)
-			authenticated.DELETE("/roles/:id", guards.RequirePermissions(roleGuard, "roles:delete"), roleHandler.DeleteRole)
-
-			// Settings with permission checks
-			authenticated.GET("/settings", guards.RequirePermissions(roleGuard, "settings:view"), settingHandler.GetSettings)
-			authenticated.PATCH("/settings", guards.RequirePermissions(roleGuard, "settings:update"), settingHandler.UpdateSettings)
-
-			// Permissions with permission checks
-			authenticated.GET("/permissions", guards.RequirePermissions(roleGuard, "roles:view"), permissionHandler.GetAll)
+			authenticated.POST("/users", userHandler.CreateUser)
+			authenticated.GET("/users/:id", userHandler.GetUser)
+			authenticated.PATCH("/users/:id", userHandler.UpdateUser)
+			authenticated.DELETE("/users/:id", userHandler.DeleteUser)
 		}
 	}
 

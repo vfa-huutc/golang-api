@@ -18,11 +18,9 @@ import (
 )
 
 type IUserhandler interface {
-	PaginationUser(c *gin.Context)
 	CreateUser(c *gin.Context)
 	ForgotPassword(c *gin.Context)
 	ResetPassword(c *gin.Context)
-	Login(c *gin.Context)
 	GetUser(c *gin.Context)
 	GetUsers(c *gin.Context)
 	UpdateUser(c *gin.Context)
@@ -43,19 +41,6 @@ func NewUserHandler(userService services.IUserService, redisService services.IRe
 		redisService:  redisService,
 		bcryptService: bcryptService,
 	}
-}
-
-func (handler *UserHandler) PaginationUser(c *gin.Context) {
-	// Get the page and limit from the request context
-	page, limit := utils.ParsePageAndLimit(c)
-	// Call the userService to get the paginated list of users
-	pagination, err := handler.userService.PaginateUser(page, limit)
-	if err != nil {
-		utils.RespondWithError(c, err)
-		return
-	}
-
-	utils.RespondWithOK(c, http.StatusOK, pagination)
 }
 
 func (handler *UserHandler) CreateUser(ctx *gin.Context) {
@@ -439,12 +424,6 @@ func (handler *UserHandler) GetProfile(ctx *gin.Context) {
 	utils.RespondWithOK(ctx, http.StatusOK, user)
 }
 
-// cacheUserProfile serializes a user object to JSON and stores it in Redis cache
-// Parameters:
-//   - user: pointer to the user model to be cached
-//
-// Returns:
-//   - error if JSON marshaling or Redis caching fails
 func (handler *UserHandler) cacheUserProfile(user *models.User) error {
 	// Convert user object to JSON bytes
 	userJSON, err := json.Marshal(user)

@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/services"
-	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/tests/mocks"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -25,7 +24,7 @@ func (s *UserServiceTestSuite) SetupTest() {
 	s.Require().NoError(err)
 	s.Require().NotNil(db)
 
-	err = db.AutoMigrate(&models.User{}, &models.Role{}, &models.UserRole{})
+	err = db.AutoMigrate(&models.User{})
 	s.Require().NoError(err)
 	s.db = db
 	s.repo = new(mocks.MockUserRepository)
@@ -35,37 +34,6 @@ func (s *UserServiceTestSuite) SetupTest() {
 
 func (s *UserServiceTestSuite) TearDownTest() {
 	s.repo.AssertExpectations(s.T())
-}
-
-func (s *UserServiceTestSuite) TestPaginateUser() {
-	s.Run("Success", func() {
-		// Mock repo
-		expectedPagination := &utils.Pagination{
-			Page:       1,
-			Limit:      10,
-			TotalItems: 2,
-			TotalPages: 1,
-			Data: []models.User{
-				{ID: 1, Email: ""},
-				{ID: 2, Email: ""},
-			},
-		}
-		s.repo.On("PaginateUser", 1, 10).Return(expectedPagination, nil).Once()
-
-		// Call service
-		pagination, err := s.service.PaginateUser(1, 10)
-		s.NoError(err)
-		s.Equal(expectedPagination, pagination)
-	})
-	s.Run("Error", func() {
-		// Mock repo
-		s.repo.On("PaginateUser", 1, 10).Return(&utils.Pagination{}, errors.New("db error")).Once()
-
-		// Call service
-		pagination, err := s.service.PaginateUser(1, 10)
-		s.Error(err)
-		s.Nil(pagination)
-	})
 }
 
 func (s *UserServiceTestSuite) TestGetUser() {

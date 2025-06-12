@@ -1,8 +1,6 @@
 package seeders
 
 import (
-	"log"
-
 	"github.com/vfa-khuongdv/golang-cms/internal/models"
 	"github.com/vfa-khuongdv/golang-cms/internal/utils"
 	"github.com/vfa-khuongdv/golang-cms/pkg/logger"
@@ -10,8 +8,7 @@ import (
 )
 
 type UserSeeder struct {
-	User    *models.User
-	RoleIds *[]uint
+	User *models.User
 }
 
 func SeedUsers(db *gorm.DB) error {
@@ -22,7 +19,6 @@ func SeedUsers(db *gorm.DB) error {
 				Email:    "john@example.com",
 				Password: utils.HashPassword("password123"),
 			},
-			RoleIds: &[]uint{1}, // Admin role
 		},
 		{
 			User: &models.User{
@@ -30,7 +26,6 @@ func SeedUsers(db *gorm.DB) error {
 				Email:    "jane@example.com",
 				Password: utils.HashPassword("password123"),
 			},
-			RoleIds: &[]uint{2}, // User role
 		},
 	}
 
@@ -39,17 +34,6 @@ func SeedUsers(db *gorm.DB) error {
 		if err := db.Create(&userData.User).Error; err != nil {
 			logger.Errorf("Error creating user %s: %v", userData.User.Name, err)
 			continue
-		}
-		// Create user-role associations
-		for _, roleID := range *userData.RoleIds {
-			userRole := models.UserRole{
-				UserID: userData.User.ID,
-				RoleID: roleID,
-			}
-			if err := db.Create(&userRole).Error; err != nil {
-				logger.Errorf("Error adding role %d to user %s: %v", roleID, userData.User.Name, err)
-			}
-			log.Printf("Created user %s with %d roles", userData.User.Name, len(*userData.RoleIds))
 		}
 	}
 

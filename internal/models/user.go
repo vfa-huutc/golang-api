@@ -19,7 +19,4 @@ type User struct {
 	CreatedAt time.Time      `gorm:"column:created_at" json:"createdAt"`
 	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"column:deleted_at;index" json:"deletedAt,omitempty"`
-
-	// Relations
-	Roles []Role `gorm:"many2many:user_roles;" json:"roles,omitempty"`
 }

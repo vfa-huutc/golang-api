@@ -7,7 +7,6 @@ import (
 )
 
 type IUserRepository interface {
-	PaginateUser(page, limit int) (*utils.Pagination, error)
 	GetAll() ([]models.User, error)
 	GetByID(id uint) (*models.User, error)
 	Create(user *models.User) (*models.User, error)
@@ -17,7 +16,6 @@ type IUserRepository interface {
 	FindByField(field string, value string) (*models.User, error)
 	GetProfile(id uint) (*models.User, error)
 	UpdateProfile(user *models.User) error
-	GetUserPermissions(userID uint) ([]models.Permission, error)
 	GetDB() *gorm.DB
 }
 
@@ -89,7 +87,7 @@ func (repo *UserRepository) GetAll() ([]models.User, error) {
 //   - error: Error if the user is not found or if there was a database error
 func (repo *UserRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User
-	if err := repo.db.Preload("Roles.Permissions").First(&user, id).Error; err != nil {
+	if err := repo.db.First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -182,7 +180,7 @@ func (repo *UserRepository) FindByField(field string, value string) (*models.Use
 //   - error: Error if the profile is not found or if there was a database error
 func (repo *UserRepository) GetProfile(id uint) (*models.User, error) {
 	var user models.User
-	if err := repo.db.Preload("Roles").First(&user, id).Error; err != nil {
+	if err := repo.db.First(&user, id).Error; err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -196,25 +194,6 @@ func (repo *UserRepository) GetProfile(id uint) (*models.User, error) {
 //   - error: Error if there was a problem updating the profile, nil on success
 func (repo *UserRepository) UpdateProfile(user *models.User) error {
 	return repo.db.Save(&user).Error
-}
-
-// GetUserPermission retrieves all permission associated with a specific user ID
-// Parameters:
-//   - userID: The unique identifier of the user whose roles are to be retrieved
-//
-// Returns:
-//   - []string: Slice containing all permission assigned to the user
-//   - error: Error if there was a database error, nil on success
-func (repo *UserRepository) GetUserPermissions(userID uint) ([]models.Permission, error) {
-	var user models.User
-	if err := repo.db.Preload("Roles.Permissions").First(&user, userID).Error; err != nil {
-		return nil, err
-	}
-	var permissions []models.Permission
-	for _, role := range user.Roles {
-		permissions = append(permissions, role.Permissions...)
-	}
-	return permissions, nil
 }
 
 // GetDB returns the database connection
