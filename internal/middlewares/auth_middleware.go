@@ -23,6 +23,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			utils.RespondWithError(ctx, apperror.NewUnauthorizedError("Authorization header required"))
+			return
 		}
 
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
@@ -30,6 +31,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		claims, err := jwtService.ValidateToken(tokenString)
 		if err != nil {
 			utils.RespondWithError(ctx, apperror.NewUnauthorizedError("Unauthorized"))
+			return
 		}
 
 		ctx.Set("UserID", claims.ID)

@@ -49,9 +49,10 @@ func TestValidateNewValidationError(t *testing.T) {
 	assert.Equal(t, 2, len(err.Fields))
 
 	for _, fieldError := range err.Fields {
-		if fieldError.Field == "email" {
+		switch fieldError.Field {
+		case "email":
 			assert.Equal(t, "Email is required", fieldError.Message)
-		} else if fieldError.Field == "password" {
+		case "password":
 			assert.Equal(t, "Password must be at least 6 characters", fieldError.Message)
 		}
 	}
