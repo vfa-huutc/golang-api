@@ -18,19 +18,19 @@ func initializeDatabase() *gorm.DB {
 		User:     utils.GetEnv("DB_USERNAME", ""),
 		Password: utils.GetEnv("DB_PASSWORD", ""),
 		DBName:   utils.GetEnv("DB_DATABASE", ""),
-		Charset:  "utf8mb4",
 	}
 	return configs.InitDB(config)
 }
 
 func runMigrations() {
-	dsn := migrator.NewMySQLDSN(
-		utils.GetEnv("DB_USERNAME", ""),
-		utils.GetEnv("DB_PASSWORD", ""),
-		utils.GetEnv("DB_HOST", "127.0.0.1"),
-		utils.GetEnv("DB_PORT", "3306"),
-		utils.GetEnv("DB_DATABASE", ""),
-	)
+	sqlConfig := migrator.MySQLConfig{
+		Host:     utils.GetEnv("DB_HOST", "127.0.0.	1"),
+		Port:     utils.GetEnv("DB_PORT", "3306"),
+		User:     utils.GetEnv("DB_USERNAME", ""),
+		Password: utils.GetEnv("DB_PASSWORD", ""),
+		DBName:   utils.GetEnv("DB_DATABASE", ""),
+	}
+	dsn := migrator.NewMySQLDSN(sqlConfig)
 
 	m, err := migrator.NewMigrator("internal/database/migrations", dsn)
 	if err != nil {

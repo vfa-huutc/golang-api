@@ -3,7 +3,6 @@ package migrator
 import (
 	"database/sql"
 	"fmt"
-	"net/url"
 
 	_ "github.com/go-sql-driver/mysql" // MySQL database/sql driver
 	"github.com/golang-migrate/migrate/v4"
@@ -13,6 +12,14 @@ import (
 
 type Migrator struct {
 	m *migrate.Migrate
+}
+
+type MySQLConfig struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	DBName   string
 }
 
 // NewMigrator creates a new database migrator instance.
@@ -54,14 +61,14 @@ func (m *Migrator) Close() {
 }
 
 // NewMySQLDSN creates a MySQL DSN string from individual connection parameters.
-func NewMySQLDSN(user, password, host, port, dbName string) string {
+func NewMySQLDSN(config MySQLConfig) string {
 	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?parseTime=true&charset=utf8mb4&multiStatements=true",
-		url.PathEscape(user),
-		url.PathEscape(password),
-		host,
-		port,
-		dbName,
+		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=UTC",
+		config.User,
+		config.Password,
+		config.Host,
+		config.Port,
+		config.DBName,
 	)
 }
 

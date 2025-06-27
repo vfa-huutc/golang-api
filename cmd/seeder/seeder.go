@@ -21,7 +21,6 @@ func main() {
 		User:     utils.GetEnv("DB_USERNAME", ""),
 		Password: utils.GetEnv("DB_PASSWORD", ""),
 		DBName:   utils.GetEnv("DB_DATABASE", ""),
-		Charset:  "utf8mb4",
 	}
 
 	// Initialize database connection

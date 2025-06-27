@@ -1,4 +1,4 @@
-.PHONY: install-tools test-coverage test watch-test start-server start-seeder
+.PHONY: install-tools test-coverage test watch-test start-server start-seeder migrate
 
 install-tools:
 	@echo "Ensuring Go modules are tidy..."
@@ -28,14 +28,6 @@ install-tools:
 		echo "✅ gotestsum installed"; \
 	else \
 		echo "✅ gotestsum already installed"; \
-	fi
-
-	@if ! command -v reflex >/dev/null 2>&1; then \
-		echo "Installing reflex (file watcher)..."; \
-		go install github.com/cespare/reflex@latest; \
-		echo "✅ reflex installed"; \
-	else \
-		echo "✅ reflex already installed"; \
 	fi
 
 	@echo "Installing all Go dependencies (go install ./...)"
@@ -99,4 +91,15 @@ start-seeder:
 	@echo "Seeding the database..."
 	go run ./cmd/seeder/seeder.go
 	@echo "Database seeding completed"
-	
+
+migrate: install-tools
+	@echo "🔄 Running database migrations..."
+	@if [ -f .env ]; then \
+		echo "📄 Loading environment variables from .env file..."; \
+		export $$(grep -v '^#' .env | xargs) && \
+		migrate -path internal/database/migrations -database "mysql://$${DB_USERNAME}:$${DB_PASSWORD}@tcp($${DB_HOST}:$${DB_PORT})/$${DB_DATABASE}" up; \
+	else \
+		echo "⚠️  No .env file found, using system environment variables..."; \
+		migrate -path internal/database/migrations -database "mysql://$${DB_USERNAME}:$${DB_PASSWORD}@tcp($${DB_HOST}:$${DB_PORT})/$${DB_DATABASE}" up; \
+	fi
+	@echo "✅ Database migrations completed"
